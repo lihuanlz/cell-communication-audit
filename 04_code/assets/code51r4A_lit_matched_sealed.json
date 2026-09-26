@@ -1,0 +1,25 @@
+{
+  "provenance": "Sealed archive table from 03_细胞线3/结果/代码51r4A_噪声标定与稳健性.json (key: lit_matched). The sigma*=0.25 literature-matched sweep that generated these 5 rows is not present in the current code base; values are registered as sealed data (2026-09-26 reconciliation).",
+  "lit_matched": [
+    {
+      "mu_d_over_T": 0.0,
+      "ratio_lit": 0.001717609932430553
+    },
+    {
+      "mu_d_over_T": 0.1,
+      "ratio_lit": 0.0627007082908853
+    },
+    {
+      "mu_d_over_T": 0.25,
+      "ratio_lit": 0.3652056107870728
+    },
+    {
+      "mu_d_over_T": 0.5,
+      "ratio_lit": 1.4025319171198414
+    },
+    {
+      "mu_d_over_T": 0.73,
+      "ratio_lit": 3.0147092808931526
+    }
+  ]
+}

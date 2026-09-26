@@ -311,7 +311,14 @@ def make_figure(resA, resB):
     ax.legend(h1 + h2, l1 + l2, fontsize=8)
 
     ax = axes[0, 1]
-    rows = resA["lit_matched"]
+    rows = resA.get("lit_matched")
+    if rows is None:
+        # Sealed-data fallback: the literature-matched sweep is not in the current
+        # code base; values registered from the sealed archive (see assets file).
+        import json as _json, os as _os
+        _asset = _os.path.join(_os.path.dirname(_os.path.abspath(__file__)),
+                               "assets", "code51r4A_lit_matched_sealed.json")
+        rows = _json.load(open(_asset, encoding="utf-8"))["lit_matched"]
     ax.plot([r["mu_d_over_T"] for r in rows], [r["ratio_lit"] for r in rows],
             "o-", color="#8e44ad", label=f"σ*=0.25 literature-matched ratio")
     ax.axhline(5.8, ls=":", color="red", label="literature measured 5.8 (Lahav)")

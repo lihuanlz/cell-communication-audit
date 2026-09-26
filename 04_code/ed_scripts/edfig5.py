@@ -37,7 +37,13 @@ ax2.tick_params(axis="y", labelcolor=OI["grey"], labelsize=6)
 ax2.spines["right"].set_linewidth(0.6)
 
 # ---- b: P2' quantitative reproduction at realistic noise ----
-lm = dA["lit_matched"]
+lm = dA.get("lit_matched")
+if lm is None:
+    # Sealed-data fallback (see assets/code51r4A_lit_matched_sealed.json)
+    import os as _os, json as _json
+    _asset = _os.path.join(_os.path.dirname(_os.path.abspath(__file__)), "..",
+                           "assets", "code51r4A_lit_matched_sealed.json")
+    lm = _json.load(open(_asset, encoding="utf-8"))["lit_matched"]
 xm = [r["mu_d_over_T"] for r in lm]; ym = [r["ratio_lit"] for r in lm]
 axb.plot(xm, ym, "o-", color=OI["pink"], ms=4, label=r"model at $\sigma^*$ = 0.25")
 axb.axhline(5.8, color=OI["verm"], ls=":", lw=0.8, label="literature 5.8 (Lahav)")
