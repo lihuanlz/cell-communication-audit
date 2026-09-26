@@ -1,0 +1,10 @@
+clause,metric,value,CI_lo,CI_hi,frozen_line,verdict
+P3-1,clause_verdict,,,,both units tau(3) AUC >= 0.60,Intermediate (1/2 units pass)
+P3-2,clause_verdict,,,,both units AUC >= 0.55,Hit (2/2 units pass)
+P3-3,clause_verdict,,,,both units AUC >= 0.60; all below line -> falsified,Falsified (0/2 units; both below line)
+P3-1,P3-1a: τ(3): TNF10 > TNF30,0.6548272998052469,0.632292913707183,0.6776694602760912,AUC >= 0.6,pass
+P3-1,P3-1b: τ(3): TNF30 > TNF100,0.5183599982562448,0.500238970748507,0.5379293642922534,AUC >= 0.6,fail
+P3-2,P3-2a: τ(3): 中带 > 近带,0.9070239682679356,0.8924434411600795,0.9211163390574693,AUC >= 0.55,pass
+P3-2,P3-2b: τ(3): 远带 > 中带,0.8193072825358576,0.7984917313649706,0.8393142036185924,AUC >= 0.55,pass
+P3-3,P3-3a: 越阈时程: 30min > 15min,0.5911204518586628,0.5464107447786681,0.6414292985682385,AUC >= 0.6,fail
+P3-3,P3-3b: 越阈时程: 60min > 30min,0.521423002492099,0.4806056566472218,0.5608088706196833,AUC >= 0.6,fail

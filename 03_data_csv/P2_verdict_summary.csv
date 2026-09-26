@@ -1,0 +1,88 @@
+clause,metric,value,CI_lo,CI_hi,frozen_line,verdict
+P2-1,promoters_passing,0/7,,,delta_mol >= +0.03 in >=6/7 promoters,Falsified (0/7 promoters)
+P2-2,promoters_passing,0/7,,,delta_AU <= 0.01 and delta_AU < delta_mol in >=6/7 promoters,Falsified (0/7 promoters)
+P2-3,promoters_passing,6/7,,,|delta_time| <= 0.01 (k=3) in >=6/7 promoters,"Hit (6/7 promoters; 7/7 at k=2, 6/7 at k=4 with DCS2 = -0.0102)"
+P2-1,ALD3 d_mol,-0.0005719277619771571,,,delta_mol >= +0.03 in >=6/7 promoters,fail
+P2-2,ALD3 d_au,0.0012819266389234585,,,delta_AU <= 0.01 and delta_AU < delta_mol in >=6/7 promoters,fail
+P2-3,ALD3 d_time_k3,-0.0046030113676862605,,,|delta_time| <= 0.01 (k=3) in >=6/7 promoters,pass
+P2-1,DCS2 d_mol,-0.008289721174665346,,,delta_mol >= +0.03 in >=6/7 promoters,fail
+P2-2,DCS2 d_au,0.01362870536035173,,,delta_AU <= 0.01 and delta_AU < delta_mol in >=6/7 promoters,fail
+P2-3,DCS2 d_time_k3,-0.01015983711588366,,,|delta_time| <= 0.01 (k=3) in >=6/7 promoters,fail
+P2-1,DDR2 d_mol,-0.0021834447702216986,,,delta_mol >= +0.03 in >=6/7 promoters,fail
+P2-2,DDR2 d_au,-0.0018416891056419378,,,delta_AU <= 0.01 and delta_AU < delta_mol in >=6/7 promoters,fail
+P2-3,DDR2 d_time_k3,0.0008660697263043379,,,|delta_time| <= 0.01 (k=3) in >=6/7 promoters,pass
+P2-1,HXK1 d_mol,-0.01965341445643672,,,delta_mol >= +0.03 in >=6/7 promoters,fail
+P2-2,HXK1 d_au,-0.0019521554465711615,,,delta_AU <= 0.01 and delta_AU < delta_mol in >=6/7 promoters,fail
+P2-3,HXK1 d_time_k3,0.0006670548920170716,,,|delta_time| <= 0.01 (k=3) in >=6/7 promoters,pass
+P2-1,RTN2 d_mol,-0.010763045181008235,,,delta_mol >= +0.03 in >=6/7 promoters,fail
+P2-2,RTN2 d_au,-0.000136361776625978,,,delta_AU <= 0.01 and delta_AU < delta_mol in >=6/7 promoters,fail
+P2-3,RTN2 d_time_k3,-0.00182383177866897,,,|delta_time| <= 0.01 (k=3) in >=6/7 promoters,pass
+P2-1,SIP18 d_mol,-0.005607637768043776,,,delta_mol >= +0.03 in >=6/7 promoters,fail
+P2-2,SIP18 d_au,-0.0006837783613954743,,,delta_AU <= 0.01 and delta_AU < delta_mol in >=6/7 promoters,fail
+P2-3,SIP18 d_time_k3,-0.0017532708788900453,,,|delta_time| <= 0.01 (k=3) in >=6/7 promoters,pass
+P2-1,TKL2 d_mol,-0.0015478698316564454,,,delta_mol >= +0.03 in >=6/7 promoters,fail
+P2-2,TKL2 d_au,0.00012064179462467628,,,delta_AU <= 0.01 and delta_AU < delta_mol in >=6/7 promoters,fail
+P2-3,TKL2 d_time_k3,0.0028007666749048274,,,|delta_time| <= 0.01 (k=3) in >=6/7 promoters,pass
+P2-1,44bCI ALD3 100-275 mol_peak,-0.0007303876547456,-0.021398701704161,0.0198002131467927,delta_mol >= +0.03 in >=6/7 promoters,CI crosses zero
+P2-2,44bCI ALD3 100-275 au_peak,0.0043384160018564,-0.0144222024534754,0.0255047601469005,delta_AU <= 0.01 and delta_AU < delta_mol in >=6/7 promoters,CI crosses zero
+P2-3,44bCI ALD3 100-275 time_k3,-0.0150386404644782,-0.0475198364064978,0.0112395284265692,|delta_time| <= 0.01 (k=3) in >=6/7 promoters,CI crosses zero
+P2-1,44bCI ALD3 275-690 mol_peak,-0.0008077164783679,-0.0168689796356883,0.0150349576201276,delta_mol >= +0.03 in >=6/7 promoters,CI crosses zero
+P2-2,44bCI ALD3 275-690 au_peak,0.0056302565779999,-0.0071213412164945,0.0199578676913771,delta_AU <= 0.01 and delta_AU < delta_mol in >=6/7 promoters,CI crosses zero
+P2-3,44bCI ALD3 275-690 time_k3,-0.0023686703988026,-0.0188425133100165,0.0128030477305278,|delta_time| <= 0.01 (k=3) in >=6/7 promoters,CI crosses zero
+P2-1,44bCI ALD3 690-3000 mol_peak,-0.0001776791528178,-0.0202433122661047,0.0195214660126625,delta_mol >= +0.03 in >=6/7 promoters,CI crosses zero
+P2-2,44bCI ALD3 690-3000 au_peak,-0.006122892663086,-0.0248966342230752,0.0091932882813337,delta_AU <= 0.01 and delta_AU < delta_mol in >=6/7 promoters,CI crosses zero
+P2-3,44bCI ALD3 690-3000 time_k3,0.003598276760222,-0.0079341741639792,0.0171347532882016,|delta_time| <= 0.01 (k=3) in >=6/7 promoters,CI crosses zero
+P2-1,44bCI DCS2 100-275 mol_peak,-0.0080224737598704,-0.023125570413932,0.0053443738884297,delta_mol >= +0.03 in >=6/7 promoters,CI crosses zero
+P2-2,44bCI DCS2 100-275 au_peak,0.0017957249305858,-0.0068451757140467,0.0132350177734795,delta_AU <= 0.01 and delta_AU < delta_mol in >=6/7 promoters,CI crosses zero
+P2-3,44bCI DCS2 100-275 time_k3,-0.0151581168152685,-0.0425643496735479,0.0080410697535614,|delta_time| <= 0.01 (k=3) in >=6/7 promoters,CI crosses zero
+P2-1,44bCI DCS2 275-690 mol_peak,-0.0096063279112814,-0.0417537610255475,0.0224989801712724,delta_mol >= +0.03 in >=6/7 promoters,CI crosses zero
+P2-2,44bCI DCS2 275-690 au_peak,0.0057472111651678,-0.0268826701305741,0.0401528775493664,delta_AU <= 0.01 and delta_AU < delta_mol in >=6/7 promoters,CI crosses zero
+P2-3,44bCI DCS2 275-690 time_k3,0.0094927883434074,-0.0191906474874455,0.0434820949125663,|delta_time| <= 0.01 (k=3) in >=6/7 promoters,CI crosses zero
+P2-1,44bCI DCS2 690-3000 mol_peak,-0.0072403618528441,-0.0451091012508711,0.0267201862172657,delta_mol >= +0.03 in >=6/7 promoters,CI crosses zero
+P2-2,44bCI DCS2 690-3000 au_peak,0.0333431799853014,-0.0039532863191436,0.0759511103107316,delta_AU <= 0.01 and delta_AU < delta_mol in >=6/7 promoters,CI crosses zero
+P2-3,44bCI DCS2 690-3000 time_k3,-0.0248141828757899,-0.0747799040220743,0.0223736995350349,|delta_time| <= 0.01 (k=3) in >=6/7 promoters,CI crosses zero
+P2-1,44bCI DDR2 100-275 mol_peak,-0.0047300813088301,-0.0187785512362234,0.0071344323384411,delta_mol >= +0.03 in >=6/7 promoters,CI crosses zero
+P2-2,44bCI DDR2 100-275 au_peak,-0.0106594248630123,-0.0247601861940871,0.0010580279516549,delta_AU <= 0.01 and delta_AU < delta_mol in >=6/7 promoters,CI crosses zero
+P2-3,44bCI DDR2 100-275 time_k3,-0.0009022243959064,-0.016946914984695,0.0152419679676826,|delta_time| <= 0.01 (k=3) in >=6/7 promoters,CI crosses zero
+P2-1,44bCI DDR2 275-690 mol_peak,-0.0312536348712886,-0.0602237127302789,-0.0050188030933766,delta_mol >= +0.03 in >=6/7 promoters,CI excludes zero
+P2-2,44bCI DDR2 275-690 au_peak,-0.0068053088476324,-0.024459156874929,0.0085744144436835,delta_AU <= 0.01 and delta_AU < delta_mol in >=6/7 promoters,CI crosses zero
+P2-3,44bCI DDR2 275-690 time_k3,0.0070538035769469,-0.0097834992848888,0.0251824390996141,|delta_time| <= 0.01 (k=3) in >=6/7 promoters,CI crosses zero
+P2-1,44bCI DDR2 690-3000 mol_peak,0.0294333818694536,-0.003035220205583,0.0616780065276348,delta_mol >= +0.03 in >=6/7 promoters,CI crosses zero
+P2-2,44bCI DDR2 690-3000 au_peak,0.0119396663937189,-0.0069700076130635,0.0327251602895607,delta_AU <= 0.01 and delta_AU < delta_mol in >=6/7 promoters,CI crosses zero
+P2-3,44bCI DDR2 690-3000 time_k3,-0.0035533700021274,-0.0173113521270374,0.0093538399115316,|delta_time| <= 0.01 (k=3) in >=6/7 promoters,CI crosses zero
+P2-1,44bCI HXK1 100-275 mol_peak,-0.0117352887291873,-0.0331953879004232,0.0076687052124188,delta_mol >= +0.03 in >=6/7 promoters,CI crosses zero
+P2-2,44bCI HXK1 100-275 au_peak,-0.0038221183308843,-0.0185316514590969,0.0099621242795329,delta_AU <= 0.01 and delta_AU < delta_mol in >=6/7 promoters,CI crosses zero
+P2-3,44bCI HXK1 100-275 time_k3,0.0035263070712259,-0.0091880416447197,0.017290231345844,|delta_time| <= 0.01 (k=3) in >=6/7 promoters,CI crosses zero
+P2-1,44bCI HXK1 275-690 mol_peak,0.0018617498281733,-0.0292310949374861,0.0344497609910539,delta_mol >= +0.03 in >=6/7 promoters,CI crosses zero
+P2-2,44bCI HXK1 275-690 au_peak,0.0029160670445491,-0.0178661887251069,0.0240713204964243,delta_AU <= 0.01 and delta_AU < delta_mol in >=6/7 promoters,CI crosses zero
+P2-3,44bCI HXK1 275-690 time_k3,-0.0029842196805473,-0.0168803017755014,0.0091905795949748,|delta_time| <= 0.01 (k=3) in >=6/7 promoters,CI crosses zero
+P2-1,44bCI HXK1 690-3000 mol_peak,-0.0490867044682961,-0.0846672027190379,-0.0175138856011605,delta_mol >= +0.03 in >=6/7 promoters,CI excludes zero
+P2-2,44bCI HXK1 690-3000 au_peak,-0.0049504150533783,-0.0274329997606506,0.0162411313435399,delta_AU <= 0.01 and delta_AU < delta_mol in >=6/7 promoters,CI crosses zero
+P2-3,44bCI HXK1 690-3000 time_k3,0.0014590772853726,-0.0173481456982536,0.0205257098913295,|delta_time| <= 0.01 (k=3) in >=6/7 promoters,CI crosses zero
+P2-1,44bCI RTN2 100-275 mol_peak,-0.0004708677097982,-0.0153952571925214,0.0143561805280104,delta_mol >= +0.03 in >=6/7 promoters,CI crosses zero
+P2-2,44bCI RTN2 100-275 au_peak,0.0003937291418691,-0.0118426481530635,0.0126187180632772,delta_AU <= 0.01 and delta_AU < delta_mol in >=6/7 promoters,CI crosses zero
+P2-3,44bCI RTN2 100-275 time_k3,-0.000338877145743,-0.0169815248506143,0.0139757020396589,|delta_time| <= 0.01 (k=3) in >=6/7 promoters,CI crosses zero
+P2-1,44bCI RTN2 275-690 mol_peak,-0.0193914045760635,-0.0441184122702398,0.0004668920147102,delta_mol >= +0.03 in >=6/7 promoters,CI crosses zero
+P2-2,44bCI RTN2 275-690 au_peak,0.0008572475396846,-0.014717813602567,0.0158435568536147,delta_AU <= 0.01 and delta_AU < delta_mol in >=6/7 promoters,CI crosses zero
+P2-3,44bCI RTN2 275-690 time_k3,-0.0090326982388072,-0.0306235597829475,0.0087781006080379,|delta_time| <= 0.01 (k=3) in >=6/7 promoters,CI crosses zero
+P2-1,44bCI RTN2 690-3000 mol_peak,-0.0124268632571629,-0.0355650932046131,0.006342467286165,delta_mol >= +0.03 in >=6/7 promoters,CI crosses zero
+P2-2,44bCI RTN2 690-3000 au_peak,-0.0016600620114317,-0.0175839235973839,0.0142014802916124,delta_AU <= 0.01 and delta_AU < delta_mol in >=6/7 promoters,CI crosses zero
+P2-3,44bCI RTN2 690-3000 time_k3,0.0039000800485433,-0.0157788660984619,0.0233737393891337,|delta_time| <= 0.01 (k=3) in >=6/7 promoters,CI crosses zero
+P2-1,44bCI SIP18 100-275 mol_peak,-0.0010430459873104,-0.0373554285337628,0.0358742144018481,delta_mol >= +0.03 in >=6/7 promoters,CI crosses zero
+P2-2,44bCI SIP18 100-275 au_peak,0.002849706901583,-0.0300827035274506,0.0379673422993397,delta_AU <= 0.01 and delta_AU < delta_mol in >=6/7 promoters,CI crosses zero
+P2-3,44bCI SIP18 100-275 time_k3,-0.0002691462516198,-0.0307482525097418,0.0327000746605887,|delta_time| <= 0.01 (k=3) in >=6/7 promoters,CI crosses zero
+P2-1,44bCI SIP18 275-690 mol_peak,-0.0150721219192032,-0.0367621767176712,0.001857433378119,delta_mol >= +0.03 in >=6/7 promoters,CI crosses zero
+P2-2,44bCI SIP18 275-690 au_peak,-0.0048633041889352,-0.0216355092639884,0.0104362372473781,delta_AU <= 0.01 and delta_AU < delta_mol in >=6/7 promoters,CI crosses zero
+P2-3,44bCI SIP18 275-690 time_k3,-0.0124157779815584,-0.0294349195645522,0.0018240166101975,|delta_time| <= 0.01 (k=3) in >=6/7 promoters,CI crosses zero
+P2-1,44bCI SIP18 690-3000 mol_peak,-0.0007077453976176,-0.0313152423433374,0.0298099339404331,delta_mol >= +0.03 in >=6/7 promoters,CI crosses zero
+P2-2,44bCI SIP18 690-3000 au_peak,-3.773779683424738e-05,-0.0176265997460078,0.0213970563756245,delta_AU <= 0.01 and delta_AU < delta_mol in >=6/7 promoters,CI crosses zero
+P2-3,44bCI SIP18 690-3000 time_k3,0.0074251115965081,-0.0177189586400126,0.0330302094891073,|delta_time| <= 0.01 (k=3) in >=6/7 promoters,CI crosses zero
+P2-1,44bCI TKL2 100-275 mol_peak,0.0003616017849216,-0.0088081673412983,0.0098750849698689,delta_mol >= +0.03 in >=6/7 promoters,CI crosses zero
+P2-2,44bCI TKL2 100-275 au_peak,0.0015051775851246,-0.0072013843395837,0.0106378179620102,delta_AU <= 0.01 and delta_AU < delta_mol in >=6/7 promoters,CI crosses zero
+P2-3,44bCI TKL2 100-275 time_k3,0.0043426562060764,-0.0125682669913081,0.0261949254494825,|delta_time| <= 0.01 (k=3) in >=6/7 promoters,CI crosses zero
+P2-1,44bCI TKL2 275-690 mol_peak,-0.005082961600036,-0.0216938305389145,0.0097140144853217,delta_mol >= +0.03 in >=6/7 promoters,CI crosses zero
+P2-2,44bCI TKL2 275-690 au_peak,-0.0020832164119196,-0.0135689503077159,0.0092383443436173,delta_AU <= 0.01 and delta_AU < delta_mol in >=6/7 promoters,CI crosses zero
+P2-3,44bCI TKL2 275-690 time_k3,0.0014399666145483,-0.0106900733725002,0.0154951524713856,|delta_time| <= 0.01 (k=3) in >=6/7 promoters,CI crosses zero
+P2-1,44bCI TKL2 690-3000 mol_peak,7.775032014512018e-05,-0.0245099458843639,0.0226256050868059,delta_mol >= +0.03 in >=6/7 promoters,CI crosses zero
+P2-2,44bCI TKL2 690-3000 au_peak,0.0009399642106689,-0.0167574139058904,0.0195970686633834,delta_AU <= 0.01 and delta_AU < delta_mol in >=6/7 promoters,CI crosses zero
+P2-3,44bCI TKL2 690-3000 time_k3,0.0026196772040896,-0.0135985519479905,0.020233228508296,|delta_time| <= 0.01 (k=3) in >=6/7 promoters,CI crosses zero

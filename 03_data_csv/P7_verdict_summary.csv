@@ -1,0 +1,3 @@
+clause,metric,value,CI_lo,CI_hi,frozen_line,verdict
+P7,"delta_R2 = R2_fold - R2_abs, first pass (code 49 v0.1.0), 25 units",0.1181,-0.2956,0.4677,delta_R2 >= +0.15 hit (fold slope > 0); <= -0.15 falsified; else intermediate,P7 中间态
+P7,"delta_R2 = R2_fold - R2_abs, erratum re-adjudication (code 49b v0.2.0), 30 units",-0.0909,-0.4446,0.2766,delta_R2 >= +0.15 hit (fold slope > 0); <= -0.15 falsified; else intermediate,P7 中间态

@@ -1,0 +1,55 @@
+{
+  "seed": 20260925,
+  "B1_decomposition": {
+    "DSB": 100.0,
+    "W_meas_FWHM_h": 2.779,
+    "W_archived_h": 3.5,
+    "segments": {
+      "p53_half_rise_h": 1.446,
+      "p53_peak_h": 3.214,
+      "ATM_plateau_h": 1.5445000000000002,
+      "ATM_extinction_h": 2.2385,
+      "Wip1_at_extinction_AU": 0.19846444327809237,
+      "wip1_accumulation_from_pulse_start_h": 1.4050000000000002,
+      "p53_collapse_tail_h": 1.9864999999999995
+    },
+    "W_decomp_h": 2.779,
+    "closes": true,
+    "closes_vs_archive": false,
+    "tautology_note": "W_decomp 与 FWHM 的相等是构造恒等（两段恰好铺满半高宽区间）；分解的实质内容是归属：平台期 1.54 h 由 Wip1 积累决定，崩塌尾 1.99 h 由 Mdm2 恢复动力学（dM/dAM）决定，且崩塌尾长于平台期——宽度的主要分子归因是 Mdm2 恢复，不是 Wip1 阈值穿越本身",
+    "reading": "宽度 = p53 半升到 ATM* 熄灭 (0.79 h) + 崩塌尾 (1.99 h) = 2.78 h vs FWHM 2.78 h"
+  },
+  "B2_dose_scan": [
+    {
+      "DSB": 50.0,
+      "FWHM_h": 2.6609999999999996
+    },
+    {
+      "DSB": 100.0,
+      "FWHM_h": 2.779
+    },
+    {
+      "DSB": 200.0,
+      "FWHM_h": 2.9189999999999996
+    },
+    {
+      "DSB": 400.0,
+      "FWHM_h": 3.0854999999999997
+    }
+  ],
+  "B2_width_cv": 0.05539756537230429,
+  "B3_wip1_perturbation": [
+    {
+      "Tw_scale": 1.0,
+      "FWHM_h": 2.779
+    },
+    {
+      "Tw_scale": 0.85,
+      "FWHM_h": 3.6029999999999998
+    },
+    {
+      "Tw_scale": 0.7,
+      "FWHM_h": null
+    }
+  ]
+}

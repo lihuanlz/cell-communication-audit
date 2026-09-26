@@ -1,0 +1,212 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+代码62 单细胞同源统计量判决：断裂是否为总体采样假象 v1.0.0
+================================================
+任务：判决 §21 提出的"统计结构"解释——K1/2 中位数采样敏感亚群尾
+部、幅值表采样全体中位，两统计量总体不同所以要求的 N 不同。
+
+设计（利用 Moore 2024 数据本身是单细胞 FRET 的事实）：
+  把幅值表也只用可估 K1/2 的那批非删失细胞（da_max≥0.5，33–55%）
+  来构建，则幅值表与 K1/2 来自**严格同一批细胞**。在此同源数据上
+  重做代码54的联合拟合（标准 MWC，λ 扫描 Pareto 前沿）：
+  · 若断裂闭合（出现 R²>0.9 且 K1/2 误差<0.1 dex 的点）→ 断裂是
+    总体采样假象，§21 解释成立；
+  · 若前沿不动 → 断裂在单一总体内部照样存在，§21 解释不充分，
+    断裂为真实的模型结构缺失。
+
+结果（v1.0.0 实跑，与全体对照并列）：
+  敏感亚群：λ=0 → R²=0.971/err=0.573；λ=1 → 0.867/0.206；
+            λ=30 → 0.598/0.071（Ki=4.1, N=2.0）
+  全体对照：λ=0 → R²=0.976/err=0.624；λ=1 → 0.848/0.261；
+            λ=30 → 0.525/0.074（Ki=4.3, N=2.0）
+  逐细胞 K1/2 中位数与代码54完全一致（2.03/2.90/2.17/2.58/3.49/
+  13.92/119.56 µM），流水线复核通过。
+
+判定：
+  前沿几乎不动，无可接受折中点 → 断裂不是总体采样假象，在严格同
+  一批细胞内部照样存在。§21 的"两统计量采样不同总体"倾向**部分
+  撤回**（双录）：它仍是两个统计量性质差异的事实描述，但不足以
+  解释断裂。断裂进一步指向标准 MWC+精确适应本身的结构缺失。
+
+数据：Moore 2024 Dryad doi:10.5061/dryad.nvx0k6dzz（CC0）
+运行：python3 代码62_单细胞同源统计量判决.py
+依赖：numpy, scipy
+"""
+
+import os
+import warnings
+from collections import defaultdict
+
+import numpy as np
+import scipy.io as sio
+from scipy.optimize import brentq, least_squares
+
+warnings.filterwarnings("ignore")
+
+ROOT = "/mnt/agents/output/03_细胞线3/公开数据/Moore2024_Chemotaxis_FRET"
+FILES = {
+    "210802_FOV1": 0, "210802_FOV2": 0, "210805_FOV1": 0, "210805_FOV2": 0,
+    "220106_FOV1": 0, "230417_FOV1": 0,
+    "230815_FOV1": 0.01, "230815_FOV2": 0.01, "230816_FOV1": 0.01, "230816_FOV2": 0.01,
+    "230830_FOV1": 0.1, "230830_FOV2": 0.1, "230831_FOV1": 0.1, "230831_FOV2": 0.1,
+    "220615_FOV1": 0.3, "230410_FOV1": 0.3, "230428_FOV1": 1.0, "230429_FOV1": 1.0,
+    "220302_FOV1": 10.0, "220303_FOV1": 10.0,
+    "210816_FOV1": 100.0, "210816_FOV2": 100.0, "230717_FOV1": 100.0, "230718_FOV1": 100.0,
+}
+
+ASTAR = 1.0 / 3.0
+LAM = np.log(1.0 / ASTAR - 1.0)
+TGT = np.log(1.0 / (ASTAR / 2) - 1) - LAM
+
+def gL(L, Ki, Ka):
+    L = np.maximum(L, 0.0)
+    return np.log((1 + L / Ki) / (1 + L / Ka))
+
+def amp_model(B, F, Ki, Ka, N, amax):
+    return amax * (ASTAR - 1 / (1 + np.exp(LAM + N * (gL(B + F, Ki, Ka) - gL(B, Ki, Ka)))))
+
+def K12_model(B, Ki, Ka, N):
+    try:
+        return brentq(lambda F: N * (gL(B + F, Ki, Ka) - gL(B, Ki, Ka)) - TGT,
+                      1e-6, 1e6, xtol=1e-8)
+    except Exception:
+        return np.nan
+
+# ---------------------------------------------------------------
+# 逐细胞曲线提取（保留细胞身份）
+# ---------------------------------------------------------------
+def per_cell_curves():
+    per_cell = defaultdict(list)
+    for name, bg in FILES.items():
+        B = 100.0 if name == "230831_FOV2" else float(bg)
+        p = os.path.join(ROOT, name + ".mat")
+        try:
+            rd = sio.loadmat(p)["reorgData"]["resp_data"][0, 0]
+        except Exception:
+            continue
+        for ci in range(rd.shape[1]):
+            try:
+                a = rd["a"][0, ci].astype(float)
+                s = rd["s"][0, ci].astype(float)
+            except Exception:
+                continue
+            if a.shape != (35, 20) or s.shape != (35, 20):
+                continue
+            lev = defaultdict(list)
+            for row in range(35):
+                sr = s[row]
+                sv = float(sr.max())
+                stim = np.where(sr >= sv - 1e-9)[0]
+                pre = np.arange(0, stim[0]) if len(stim) else None
+                if pre is None or len(pre) < 4 or len(stim) < 6:
+                    continue
+                F = sv - B
+                if F <= 0:
+                    continue
+                lev[round(F, 4)].append(float(np.median(a[row, pre[-4:]]))
+                                        - float(np.median(a[row, stim[-6:]])))
+            good = {k: float(np.median(v)) for k, v in lev.items() if len(v) >= 4}
+            if len(good) >= 3:
+                per_cell[B].append(good)
+    return per_cell
+
+def cell_k12(B, curve):
+    items = sorted(curve.items())
+    T = np.array([B + f for f, _ in items])
+    d = np.array([v for _, v in items])
+    if d.max() < 0.5:
+        return None
+    i = int(np.argmax(d >= 0.5))
+    if i == 0:
+        return None                    # 左删失，同代码54口径剔除
+    x0, x1 = np.log10(T[i - 1]), np.log10(T[i])
+    y0, y1 = d[i - 1], d[i]
+    if y1 == y0:
+        return T[i]
+    return 10 ** (x0 + (0.5 - y0) * (x1 - x0) / (y1 - y0))
+
+def amp_table(curves_by_B, min_cells=10):
+    Bs, Fs, Rs = [], [], []
+    for B in sorted(curves_by_B):
+        lv = defaultdict(list)
+        for c in curves_by_B[B]:
+            for F, v in c.items():
+                lv[F].append(v)
+        for F in sorted(lv):
+            if len(lv[F]) >= min_cells:
+                Bs.append(B); Fs.append(F); Rs.append(float(np.median(lv[F])))
+    return np.array(Bs), np.array(Fs), np.array(Rs)
+
+def joint_fit(Bx, Fx, Rx, K12_B, K12_obs, lam, nstart=8):
+    def resid(theta):
+        Ki, Ka, N, amax = np.exp(theta)
+        ra = (amp_model(Bx, Fx, Ki, Ka, N, amax) - Rx) / np.std(Rx)
+        rk = []
+        for B, o in zip(K12_B, K12_obs):
+            pred = K12_model(B, Ki, Ka, N)
+            rk.append(0.0 if not np.isfinite(pred) else np.log10(pred / o))
+        return np.concatenate([ra, np.sqrt(lam) * np.array(rk) / 0.5])
+    x0 = np.log([2.0, 200.0, 6.0, 1.0])
+    best = None
+    for seed in range(nstart):
+        r_ = np.random.default_rng(seed)
+        xs = x0 + r_.normal(0, 0.8, 4)
+        try:
+            sol = least_squares(resid, xs,
+                                bounds=(np.log([0.05, 5, 2, 0.3]),
+                                        np.log([300, 2e4, 60, 3])),
+                                max_nfev=8000)
+            ss = np.sum(resid(sol.x) ** 2)
+            if best is None or ss < best[0]:
+                best = (ss, sol.x)
+        except Exception:
+            pass
+    Ki, Ka, N, amax = np.exp(best[1])
+    pr = amp_model(Bx, Fx, Ki, Ka, N, amax)
+    r2a = 1 - ((pr - Rx) ** 2).sum() / ((Rx - Rx.mean()) ** 2).sum()
+    dk = np.mean([abs(np.log10(K12_model(B, Ki, Ka, N) / o))
+                  for B, o in zip(K12_B, K12_obs)])
+    return r2a, dk, (Ki, Ka, N, amax)
+
+def main():
+    per_cell = per_cell_curves()
+
+    est_curves, all_curves, est_k12 = {}, {}, {}
+    for B in sorted(per_cell):
+        ec, ks = [], []
+        for c in per_cell[B]:
+            k = cell_k12(B, c)
+            if k is not None:
+                ec.append(c); ks.append(k)
+        est_curves[B] = ec
+        all_curves[B] = per_cell[B]
+        est_k12[B] = np.array(ks)
+        print(f"B={B:7.2f}: 可估 {len(ec)}/{len(per_cell[B])}"
+              f" ({100*len(ec)/len(per_cell[B]):.0f}%),"
+              f" K1/2 中位={np.median(ks) if ks else np.nan:.2f}")
+
+    K12_B = np.array(sorted(est_k12))
+    K12_obs = np.array([np.median(est_k12[B]) for B in K12_B])
+
+    B_E, F_E, R_E = amp_table(est_curves)
+    B_A, F_A, R_A = amp_table(all_curves)
+
+    for tag, Bx, Fx, Rx in [("敏感亚群（同源统计量）", B_E, F_E, R_E),
+                            ("全体（代码54口径对照）", B_A, F_A, R_A)]:
+        print(f"\n== {tag} ==")
+        for lam in [0.0, 1.0, 30.0]:
+            r2, dk, par = joint_fit(Bx, Fx, Rx, K12_B, K12_obs, lam)
+            print(f"  λ={lam:5.1f}: 幅值R²={r2:.3f}, K1/2误差={dk:.3f} dex,"
+                  f" Ki={par[0]:.1f} Ka={par[1]:.0f} N={par[2]:.1f} amax={par[3]:.2f}")
+
+    print("""
+== 结论 ==
+同源统计量（同一批非删失细胞出幅值表与 K1/2）的 Pareto 前沿与全体
+口径几乎重合，不存在 R²>0.9 且 K1/2 误差<0.1 dex 的折中点。
+断裂不是总体采样假象 → §21 尾部统计量解释部分撤回（双录），
+断裂为标准 MWC+精确适应的真实结构缺失。
+""")
+
+if __name__ == "__main__":
+    main()

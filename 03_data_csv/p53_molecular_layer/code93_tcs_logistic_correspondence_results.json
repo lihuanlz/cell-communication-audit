@@ -1,0 +1,57 @@
+{
+  "seed": 20260925,
+  "V1_identity": [
+    {
+      "n": 1.0,
+      "theta": 0.7,
+      "max_abs_error": 2.220446049250313e-16
+    },
+    {
+      "n": 2.4,
+      "theta": 1.3,
+      "max_abs_error": 2.220446049250313e-16
+    },
+    {
+      "n": 9.0,
+      "theta": 0.5,
+      "max_abs_error": 2.220446049250313e-16
+    }
+  ],
+  "V1_verdict": true,
+  "V2_scale_freedom": [
+    {
+      "scale": 1.0,
+      "kappa": 1.3116401945655676,
+      "lam": 4.0,
+      "theta": 0.946,
+      "xstar": 0.9461484020651898,
+      "fstar": 0.5001484020608321,
+      "A": 1.3116401945655676,
+      "omega_c": 1.1135290683596,
+      "T_h": 5.642587594444828
+    },
+    {
+      "scale": 3.7,
+      "kappa": 4.8530687198926,
+      "lam": 1.081081081081081,
+      "theta": 3.5002,
+      "xstar": 3.500749087641202,
+      "fstar": 0.500148402060832,
+      "A": 1.3116401945655674,
+      "omega_c": 1.1135290683595997,
+      "T_h": 5.64258759444483
+    }
+  ],
+  "V2_verdict": true,
+  "V3_event_time_invariance": {
+    "n_pulses_orig": 7,
+    "n_pulses_warped": 7,
+    "max_event_time_shift_h": 0.0,
+    "amplitude_cv_orig": 0.30764167498283335,
+    "amplitude_cv_warped": 0.43783462461229206,
+    "period_orig_h": 5.480166666666666,
+    "period_warped_h": 5.480166666666666,
+    "amplitude_cv_rel_change": 0.4231967259855921
+  },
+  "V3_verdict": true
+}

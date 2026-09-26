@@ -1,0 +1,62 @@
+quantity,setting,name,value
+theta0,operating_point,a,0.7
+theta0,operating_point,b,0.8
+theta0,operating_point,eps,0.08
+theta0,operating_point,s,20.0
+theta0,operating_point,tau_r,20.0
+theta0,operating_point,I0,0.6
+theta0,operating_point,sigma,0.06
+eigenvalue,fisher_h2 (hrel=0.02),lambda_1,256301.498134928
+eigenvalue,fisher_h2 (hrel=0.02),lambda_2,65013.43642616863
+eigenvalue,fisher_h2 (hrel=0.02),lambda_3,4679.434212925756
+eigenvalue,fisher_h2 (hrel=0.02),lambda_4,726.568354716959
+eigenvalue,fisher_h2 (hrel=0.02),lambda_5,64.97742158980638
+eigenvalue,fisher_h2 (hrel=0.02),lambda_6,31.434381843546277
+eigenvalue,fisher_h2 (hrel=0.02),lambda_7,5.267215823113158e-13
+channel_info_share,fisher_h2 (hrel=0.02),t1,0.0436758570717227
+channel_info_share,fisher_h2 (hrel=0.02),T,0.11463891188343393
+channel_info_share,fisher_h2 (hrel=0.02),A,0.05535747296633312
+channel_info_share,fisher_h2 (hrel=0.02),N,0.1816283424134306
+channel_info_share,fisher_h2 (hrel=0.02),w,0.6020216899495029
+channel_info_share,fisher_h2 (hrel=0.02),IPI_sd,0.0026777257155766146
+soft_mode_top_loading,fisher_h2 (hrel=0.02),sigma,0.996
+soft_mode_top_loading,fisher_h2 (hrel=0.02),tau_r,-0.071
+soft_mode_top_loading,fisher_h2 (hrel=0.02),I0,-0.043
+condition_number,fisher_h2 (hrel=0.02),cond,4.8659767653766355e+17
+N_mean,fisher_h2 (hrel=0.02),N_mean,9.04
+eigenvalue,fisher_h5 (hrel=0.05),lambda_1,253132.62828952062
+eigenvalue,fisher_h5 (hrel=0.05),lambda_2,65237.842810783026
+eigenvalue,fisher_h5 (hrel=0.05),lambda_3,4789.807316458148
+eigenvalue,fisher_h5 (hrel=0.05),lambda_4,523.735508159368
+eigenvalue,fisher_h5 (hrel=0.05),lambda_5,45.28060502195308
+eigenvalue,fisher_h5 (hrel=0.05),lambda_6,0.05790723579297621
+eigenvalue,fisher_h5 (hrel=0.05),lambda_7,-4.2415318251355785e-13
+channel_info_share,fisher_h5 (hrel=0.05),t1,0.04407546325657392
+channel_info_share,fisher_h5 (hrel=0.05),T,0.09448164705171416
+channel_info_share,fisher_h5 (hrel=0.05),A,0.04423939133167437
+channel_info_share,fisher_h5 (hrel=0.05),N,0.19770978861028124
+channel_info_share,fisher_h5 (hrel=0.05),w,0.6190911327007922
+channel_info_share,fisher_h5 (hrel=0.05),IPI_sd,0.0004025770489640328
+soft_mode_top_loading,fisher_h5 (hrel=0.05),sigma,0.997
+soft_mode_top_loading,fisher_h5 (hrel=0.05),I0,0.053
+soft_mode_top_loading,fisher_h5 (hrel=0.05),a,0.043
+condition_number,fisher_h5 (hrel=0.05),cond,4371347.117905843
+N_mean,fisher_h5 (hrel=0.05),N_mean,9.04
+eigenvalue,fisher_M4000 (code 51r4B),lambda_1,259081.6032691456
+eigenvalue,fisher_M4000 (code 51r4B),lambda_2,64690.33333529781
+eigenvalue,fisher_M4000 (code 51r4B),lambda_3,4821.009354866675
+eigenvalue,fisher_M4000 (code 51r4B),lambda_4,747.3182339861913
+eigenvalue,fisher_M4000 (code 51r4B),lambda_5,66.51261738551081
+eigenvalue,fisher_M4000 (code 51r4B),lambda_6,19.96054217903603
+eigenvalue,fisher_M4000 (code 51r4B),lambda_7,1.2136781056977797e-13
+channel_info_share,fisher_M4000 (code 51r4B),t1,0.039740933452636414
+channel_info_share,fisher_M4000 (code 51r4B),T,0.0972113825512101
+channel_info_share,fisher_M4000 (code 51r4B),A,0.04977807793785537
+channel_info_share,fisher_M4000 (code 51r4B),N,0.2003608928781088
+channel_info_share,fisher_M4000 (code 51r4B),w,0.6117257360581695
+channel_info_share,fisher_M4000 (code 51r4B),IPI_sd,0.0011829771220199412
+soft_mode_top_loading,fisher_M4000 (code 51r4B),sigma,0.998
+soft_mode_top_loading,fisher_M4000 (code 51r4B),a,0.031
+soft_mode_top_loading,fisher_M4000 (code 51r4B),I0,0.031
+condition_number,fisher_M4000 (code 51r4B),cond_full,2.1346813628164764e+18
+N_mean,fisher_M4000 (code 51r4B),N_mean,9.01075

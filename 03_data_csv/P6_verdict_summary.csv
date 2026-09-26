@@ -1,0 +1,6 @@
+clause,metric,value,CI_lo,CI_hi,frozen_line,verdict
+P6,"delta_R2 = R2_fold - R2_abs1 (author features, 18 units)",-0.0014,-0.2518,0.1533,delta_R2 >= +0.15 hit; <= -0.15 falsified; else intermediate (fold-slope sign constraint),P6 中间态
+P6,R2_fold,0.0063,,,delta_R2 >= +0.15 hit; <= -0.15 falsified; else intermediate (fold-slope sign constraint),
+P6,R2_abs1,0.0078,,,delta_R2 >= +0.15 hit; <= -0.15 falsified; else intermediate (fold-slope sign constraint),
+P6,slope_fold,-0.0086,,,fold slope > 0 required for hit,
+P6,"self-built arm delta_R2 (non-scoring control, double-recorded)",-0.17833640079138047,,,delta_R2 >= +0.15 hit; <= -0.15 falsified; else intermediate (fold-slope sign constraint),would cross falsification line; non-scoring per pre-registered divergence rule

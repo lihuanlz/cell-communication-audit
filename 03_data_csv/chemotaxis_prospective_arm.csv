@@ -1,0 +1,25 @@
+arm,clause,metric,foreground_F_uM,measured,predicted,deviation,tolerance,hit,note
+V1,P-1b,amplitude_table_da,5,0.047,0.119,-0.072,0.08 (max |dev|),Y,
+V1,P-1b,amplitude_table_da,10,0.085,0.152,-0.067,0.08 (max |dev|),Y,
+V1,P-1b,amplitude_table_da,20,0.139,0.187,-0.048,0.08 (max |dev|),Y,
+V1,P-1b,amplitude_table_da,40,0.267,0.222,0.045,0.08 (max |dev|),Y,
+V1,P-1b,amplitude_table_da,80,0.363,0.258,0.105,0.08 (max |dev|),N,
+V2,P-1b,amplitude_table_da,0.2,0.087,0.213,-0.126,0.08 (max |dev|),N,
+V2,P-1b,amplitude_table_da,0.3,0.177,0.249,-0.071,0.08 (max |dev|),Y,
+V2,P-1b,amplitude_table_da,0.6,0.339,0.312,0.027,0.08 (max |dev|),Y,
+V2,P-1b,amplitude_table_da,1.1,0.42,0.369,0.052,0.08 (max |dev|),Y,
+V2,P-1b,amplitude_table_da,2.1,0.455,0.43,0.025,0.08 (max |dev|),Y,
+V2_alt,P-1b,amplitude_table_da,0.1,0.087,0.156,-0.069,0.08 (max |dev|),Y,"ambiguity control, not scored"
+V2_alt,P-1b,amplitude_table_da,0.2,0.177,0.213,-0.036,0.08 (max |dev|),Y,"ambiguity control, not scored"
+V2_alt,P-1b,amplitude_table_da,0.5,0.339,0.295,0.044,0.08 (max |dev|),Y,"ambiguity control, not scored"
+V2_alt,P-1b,amplitude_table_da,1.0,0.42,0.36,0.061,0.08 (max |dev|),Y,"ambiguity control, not scored"
+V2_alt,P-1b,amplitude_table_da,2.0,0.455,0.425,0.03,0.08 (max |dev|),Y,"ambiguity control, not scored"
+V1,P-1b,P-1b max |deviation|,,0.105,,0.105,0.08,N,
+V2,P-1b,P-1b max |deviation|,,0.126,,0.126,0.08,N,
+V2_alt,P-1b,P-1b max |deviation|,,0.069,,0.069,0.08,Y,"ambiguity control, not scored"
+V1,P-1a,R2(logF); R2(logr); delta=R2(logF)-R2(logr),,0.954; 0.959,,-0.005,pre-registered coordinate criterion,N,
+V2,P-1a,R2(logF); R2(logr); delta=R2(logF)-R2(logr),,0.947; 0.77,,0.177,pre-registered coordinate criterion,N,
+V2_alt,P-1a,R2(logF); R2(logr); delta=R2(logF)-R2(logr),,0.972; 0.771,,0.202,pre-registered coordinate criterion,N,"ambiguity control, not scored"
+V1,P-2,"K12_total_axis_uM (IQR [388.5,407.6])",,401.3,388.4,0.014,0.15 dex,Y,21/120 estimable (82% censored)
+V2,P-2,"K12_total_axis_uM (IQR [122.8,140.4])",,133.2,122.0,0.038,0.15 dex,Y,71/156 estimable (54% censored); foreground reading F*=1.342 uM L-Asp (prereg point 0.86)
+V2_alt,P-2,"K12_total_axis_uM (IQR [120.5,138.1])",,130.8,122.0,0.031,0.15 dex,Y,"ambiguity control, not scored; F*=1.241 uM L-Asp"

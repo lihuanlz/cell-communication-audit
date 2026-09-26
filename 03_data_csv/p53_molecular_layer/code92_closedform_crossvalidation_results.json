@@ -1,0 +1,87 @@
+{
+  "seed": 20260925,
+  "source": "arXiv 2605.23722 Section 9 (PDF belgacem_2605.23722.pdf 本地存档)",
+  "P1_reproduce": {
+    "gamma": 0.6931471805599453,
+    "tau_c_target_h": 1.0,
+    "AB_inverted": 1.7204469743319177,
+    "AB_paper": 1.72,
+    "omega_c": 1.1135501607084057,
+    "tau_c_check_h": 1.0000000000000002,
+    "T_closed_h": 5.6424807151771414,
+    "T_paper_h": 5.6,
+    "T_measured_h": 5.5,
+    "reproduce_ok": true
+  },
+  "P2_dde_integration": {
+    "kappa": 1.311658101157431,
+    "lam": 4.0,
+    "theta": 0.9461613189408301,
+    "gamma": 0.6931471805599453,
+    "rows": [
+      {
+        "tau_h": 1.0,
+        "period_sim_h": 5.6458,
+        "amplitude": 0.07262972755381858
+      },
+      {
+        "tau_h": 1.2,
+        "period_sim_h": 6.236333333333334,
+        "amplitude": 0.27403988024516746
+      },
+      {
+        "tau_h": 1.5,
+        "period_sim_h": 7.070125,
+        "amplitude": 0.41753145731071856
+      },
+      {
+        "tau_h": 2.0,
+        "period_sim_h": 8.339076923076924,
+        "amplitude": 0.556436518961786
+      }
+    ],
+    "note": "τ=1.0 位于临界点上（边缘），周期仅在 τ>τc 的极限环上有意义"
+  },
+  "P3_our_constants_in_closed_form": [
+    {
+      "case": "Belgacem calib: g=ln2/1h both, tau=1.0h",
+      "g1": 0.6931471805599453,
+      "g2": 0.6931471805599453,
+      "tau": 1.0,
+      "AB": 1.7204469743319177,
+      "T_h": 5.6424807151771414
+    },
+    {
+      "case": "same half-lives, tau=K3 measured 2.0h",
+      "g1": 0.6931471805599453,
+      "g2": 0.6931471805599453,
+      "tau": 2.0,
+      "AB": 1.0393778773501643,
+      "T_h": 8.404331099664685
+    },
+    {
+      "case": "same half-lives, tau=K3 decomposed 1.70h (code89)",
+      "g1": 0.6931471805599453,
+      "g2": 0.6931471805599453,
+      "tau": 1.7,
+      "AB": 1.1582480700378097,
+      "T_h": 7.6318648322687865
+    },
+    {
+      "case": "stress regime: g_p53=ln2/0.25h, g_Mdm2=2/h, tau=2.0h",
+      "g1": 2.772588722239781,
+      "g2": 2.0,
+      "tau": 2.0,
+      "AB": 6.860623679428622,
+      "T_h": 5.596626117738531
+    }
+  ],
+  "P4_reconciliation": {
+    "measured_period_h": 5.5,
+    "belgacem_closed_form_h": 5.6424807151771414,
+    "monke_sim_h": 5.48,
+    "monke_jacobian_h": 5.95,
+    "ours_tau2_closed_form_h": 8.404331099664685,
+    "verdict": "见判词卡"
+  }
+}
