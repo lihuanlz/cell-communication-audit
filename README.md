@@ -24,14 +24,13 @@ Companion code-and-data repository of the manuscript
 | `04_code/` | Audit and analysis pipelines |
 | `05_validation_records_index.md` | Registry of validation cards |
 | `06_supplement_interactive/` | Interactive supplements |
-| `SI_verification_scripts_EN/` | English SI verification scripts (TCS_scripts_EN) |
 
 ## Method note
 
-This work was produced under an explicit human–AI collaborative protocol:
-pre-registered predictions, sealed verdict cards, alias/archival audits, and
-post-seal replications are logged in the validation registry; the
-collaboration protocol itself is described in the manuscript Methods.
+This work was produced under an explicit audit protocol: pre-registered
+predictions, sealed verdict cards, alias/archival audits, and post-seal
+replications are logged in the validation registry; the protocol is described
+in the manuscript Methods (Audit discipline).
 
 ## License
 
