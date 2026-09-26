@@ -8,3 +8,6 @@ _tmp*/
 
 # rerun junctions (archived inputs, do not commit)
 公开数据/
+
+# rerun intermediates (copied archived inputs, do not commit)
+04_code/*.mat
