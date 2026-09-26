@@ -5,3 +5,6 @@ _tmp*/
 
 # rerun shadow junction and regenerated artifacts
 结果/
+
+# rerun junctions (archived inputs, do not commit)
+公开数据/
