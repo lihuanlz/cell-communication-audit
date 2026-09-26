@@ -2,3 +2,6 @@
 __pycache__/
 *.pyc
 _tmp*/
+
+# rerun shadow junction and regenerated artifacts
+结果/

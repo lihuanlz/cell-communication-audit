@@ -147,7 +147,9 @@ import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import matplotlib.font_manager as fm
-fm.fontManager.addfont("/usr/share/fonts/opentype/noto/NotoSansCJK-Regular.ttc")
+import os as _os
+if _os.path.exists("/usr/share/fonts/opentype/noto/NotoSansCJK-Regular.ttc"):
+    fm.fontManager.addfont("/usr/share/fonts/opentype/noto/NotoSansCJK-Regular.ttc")
 _avail = {f.name for f in fm.fontManager.ttflist}
 for _cand in ["Noto Sans CJK SC", "Noto Sans CJK JP", "Noto Sans CJK HK", "Noto Serif CJK SC"]:
     if _cand in _avail:
