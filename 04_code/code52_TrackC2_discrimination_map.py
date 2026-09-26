@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
 """
-代码52 Track C2：真实数据 (α, ν) 落拓扑判别图
-数据源（如实标注层级）：
-  D1 仓内数字化：Batchelor2011 Fig1G/H（NCS 幅度 3 剂量、UV 幅度 5 剂量）→ α 直接计算+bootstrap
-  D2 论文原文陈述（仓内 fulltext.xml 锚）：DSB 脉冲幅度/持时与剂量无关、脉冲数随剂量增加
-  D3 文献文本值：Lahav 2004（γ-IR 0.1–10 Gy, N:1→~6）；Mönke 2017 NCS ν≈2（经 TCS项目分析报告）
-模型锚：NF=备忘录模型A表值；EXC=备忘录FHN+代码51（ν=τ_r/T 参数依赖）
-输出：(α,ν) 判别图 + 计数律斜率反演 τ_r
+code52 Track C2: real-data (alpha, nu) points on the topology discrimination map
+Data sources (levels annotated faithfully):
+  D1 in-house digitization: Batchelor2011 Fig1G/H (NCS amplitude 3 doses, UV amplitude 5 doses) -> alpha computed directly + bootstrap
+  D2 original-paper statements (in-house fulltext.xml anchor): DSB pulse amplitude/duration are dose-independent, pulse count rises with dose
+  D3 literature text values: Lahav 2004 (gamma-IR 0.1-10 Gy, N:1->~6); Moenke 2017 NCS nu~2 (via TCS-project analysis report)
+Model anchors: NF = memo model-A table values; EXC = memo FHN + code 51 (nu=tau_r/T, parameter-dependent)
+Outputs: (alpha,nu) discrimination map + tau_r inverted from the counting-law slope
 """
 import sys, json
 from pathlib import Path
@@ -23,7 +23,7 @@ RNG = np.random.default_rng(11)
 
 
 def alpha_boot(dose, val, err, n=20000):
-    """log-log 斜率 bootstrap：每点独立 N(val, err) 重采样。"""
+    """log-log slope bootstrap: each point resampled independently as N(val, err)."""
     dose = np.asarray(dose, float); val = np.asarray(val, float); err = np.asarray(err, float)
     slopes = []
     ld = np.log(dose)
@@ -43,31 +43,31 @@ def main():
     print(f"α_NCS = {a_ncs[0]:.3f} ± {a_ncs[1]:.3f} (95%CI [{a_ncs[2]:.3f},{a_ncs[3]:.3f}])")
     print(f"α_UV  = {a_uv[0]:.3f} ± {a_uv[1]:.3f} (95%CI [{a_uv[2]:.3f},{a_uv[3]:.3f}])")
 
-    # 数据点（α, ν, α_err, ν_err, 标签, 来源层级）
+    # data points (alpha, nu, alpha_err, nu_err, label, source level)
     pts = [
         dict(name="γ-IR（DSB）", alpha=0.05, aerr=0.10, nu=1.4, nerr=0.4,
-             src="D2+D3：Batchelor2011原文'幅度与剂量无关'；Lahav2004 N:1→~6/0.1–10Gy"),
+             src="D2+D3: Batchelor2011 original text 'amplitude dose-independent'; Lahav2004 N:1->~6/0.1-10Gy"),
         dict(name="NCS（DSB）", alpha=a_ncs[0], aerr=a_ncs[1], nu=2.0, nerr=0.5,
-             src="D1：仓内数字化Fig1G；ν 经Mönke2017/TCS报告"),
+             src="D1: in-house digitized Fig1G; nu via Moenke2017/TCS report"),
         dict(name="UV", alpha=a_uv[0], aerr=a_uv[1], nu=0.0, nerr=0.2,
-             src="D1：仓内数字化Fig1H；原文'单脉冲'→ν≈0"),
+             src="D1: in-house digitized Fig1H; original text 'single pulse' -> nu~0"),
     ]
-    # 模型锚
+    # model anchors
     nf_alpha = np.log(9.47 / 1.24) / np.log(0.90 / 0.15)
     models = [
-        dict(name="模型锚 NF（备忘录模型A）", alpha=float(nf_alpha), nu=0.0),
-        dict(name="模型锚 EXC（FHN，ν=τ_r/T）", alpha=0.04, nu=None),
+        dict(name="model anchor NF (memo model A)", alpha=float(nf_alpha), nu=0.0),
+        dict(name="model anchor EXC (FHN, nu=tau_r/T)", alpha=0.04, nu=None),
     ]
-    # 计数律斜率反演：真实 ν_γ ≈1.4 → τ_r = ν·T ≈ 1.4×5.5h
+    # counting-law slope inversion: real nu_gamma ~1.4 -> tau_r = nu*T ~ 1.4x5.5h
     tau_r_inv = 1.4 * 5.5
-    print(f"计数律反演：τ_r ≈ ν·T = 1.4×5.5h ≈ {tau_r_inv:.1f} h（DSB修复时标量级）")
+    print(f"counting-law inversion: tau_r ~ nu*T = 1.4x5.5h ~ {tau_r_inv:.1f} h (DSB-repair timescale magnitude)")
 
     out = dict(alpha_NCS=dict(zip(["mean", "sd", "ci_lo", "ci_hi"], a_ncs)),
                alpha_UV=dict(zip(["mean", "sd", "ci_lo", "ci_hi"], a_uv)),
                points=pts, models=models, tau_r_inversion_h=tau_r_inv)
     OUT_JSON.write_text(json.dumps(out, ensure_ascii=False, indent=2), encoding="utf-8")
 
-    # ---------- 图 ----------
+    # ---------- figure ----------
     import matplotlib
     matplotlib.use("Agg")
     import matplotlib.pyplot as plt
@@ -76,51 +76,51 @@ def main():
 
     fig, axes = plt.subplots(1, 2, figsize=(14.5, 6.8))
 
-    # (a) (α, ν) 判别平面
+    # (a) (alpha, nu) discrimination plane
     ax = axes[0]
     ax.axvspan(-0.15, 0.1, color="#d5f5e3", alpha=0.7)
     ax.axvspan(0.5, 1.5, color="#fadbd8", alpha=0.7)
     ax.axvline(0.1, color="#27ae60", ls="--", lw=1)
     ax.axvline(0.5, color="#c0392b", ls="--", lw=1)
-    ax.text(-0.02, 10.6, "EXC 区（数字签名）\nα≲0.1, ν>0", fontsize=9, color="#1e8449")
-    ax.text(0.86, 10.6, "NF 区（模拟签名）\nα≳0.5", fontsize=9, color="#922b21")
+    ax.text(-0.02, 10.6, "EXC zone (digital signature)\nalpha<~0.1, nu>0", fontsize=9, color="#1e8449")
+    ax.text(0.86, 10.6, "NF zone (analog signature)\nalpha>~0.5", fontsize=9, color="#922b21")
     colors = {"γ-IR（DSB）": "#2471a3", "NCS（DSB）": "#8e44ad", "UV": "#ca6f1e"}
     for p in pts:
         ax.errorbar(p["alpha"], p["nu"], xerr=p["aerr"], yerr=p["nerr"],
                     fmt="o", ms=9, capsize=5, color=colors[p["name"]],
                     label=f'{p["name"]}  α={p["alpha"]:.2f}±{p["aerr"]:.2f}, ν={p["nu"]:.1f}±{p["nerr"]:.1f}')
     ax.plot(nf_alpha, 0, "s", ms=11, color="#c0392b", mec="k",
-            label=f"模型锚 NF（备忘录A表）α={nf_alpha:.2f}, ν≈0")
+            label=f"model anchor NF (memo table A) alpha={nf_alpha:.2f}, nu~0")
     ax.plot(0.04, 10.5, "^", ms=11, color="#1e8449", mec="k",
-            label="模型锚 EXC（代码51，ν=τ_r/T=10.5 参数依赖）")
+            label="model anchor EXC (code 51, nu=tau_r/T=10.5, parameter-dependent)")
     ax.annotate("", xy=(0.04, 10.5), xytext=(0.04, 0),
                 arrowprops=dict(arrowstyle="-", color="#1e8449", ls=":", lw=1))
-    ax.set_xlabel("α = ∂lnA/∂lnD（幅度-剂量指数）")
-    ax.set_ylabel("ν = ∂N/∂lnD（计数-剂量指数）")
+    ax.set_xlabel("alpha = dlnA/dlnD (amplitude-dose exponent)")
+    ax.set_ylabel("nu = dN/dlnD (count-dose exponent)")
     ax.set_xlim(-0.15, 1.5); ax.set_ylim(-0.6, 11.5)
-    ax.set_title("(a) Track C2：真实数据落 (α, ν) 判别平面")
+    ax.set_title("(a) Track C2: real data on the (alpha, nu) discrimination plane")
     ax.legend(fontsize=8, loc="center left")
 
-    # (b) 计数律斜率反演
+    # (b) counting-law slope inversion
     ax = axes[1]
     lnD = np.linspace(-2.5, 2.5, 50)
     ax.plot(lnD, 1.4 * lnD + 3.0, "-", color="#2471a3", lw=2,
-            label="真实斜率 ν≈1.4（γ-IR, Lahav）")
+            label="real slope nu~1.4 (gamma-IR, Lahav)")
     ax.plot(lnD, 10.5 * lnD + 3.0, "--", color="#1e8449", lw=2,
-            label="代码51模型斜率 ν=τ_r/T=10.5")
-    ax.set_xlabel("ln D（对数剂量）"); ax.set_ylabel("N（脉冲数，示意平移）")
-    ax.set_title("(b) 计数律斜率 = τ_r/T → 反演修复时标\n"
-                 "τ_r ≈ ν·T = 1.4×5.5h ≈ 7.7h（≈DSB修复时标）")
+            label="code-51 model slope nu=tau_r/T=10.5")
+    ax.set_xlabel("ln D (log dose)"); ax.set_ylabel("N (pulse count, schematic shift)")
+    ax.set_title("(b) counting-law slope = tau_r/T -> inverted repair timescale\n"
+                 "tau_r ~ nu*T = 1.4x5.5h ~ 7.7h (~DSB repair timescale)")
     ax.legend(fontsize=9)
-    ax.text(0.02, 0.95, "引理3：N ≈ (τ_r/T)·ln(D0/D_c)\n斜率本身就是修复时间常数的可辨识估计量",
+    ax.text(0.02, 0.95, "Lemma 3: N ~ (tau_r/T)*ln(D0/D_c)\nthe slope itself is an identifiable estimator of the repair time constant",
             transform=ax.transAxes, fontsize=9, va="top",
             bbox=dict(boxstyle="round", fc="#fef9e7", ec="#b7950b"))
 
-    fig.suptitle("代码52 · Track C2：真实 (α, ν) 签名 vs 拓扑选择定理判别区", y=0.98)
+    fig.suptitle("code 52 · Track C2: real (alpha, nu) signatures vs topology-selection-theorem discrimination zones", y=0.98)
     fig.tight_layout()
     fig.savefig(OUT_PNG, bbox_inches="tight")
     plt.close(fig)
-    print("已写出：", OUT_PNG.name, OUT_JSON.name)
+    print("written:", OUT_PNG.name, OUT_JSON.name)
 
 
 if __name__ == "__main__":

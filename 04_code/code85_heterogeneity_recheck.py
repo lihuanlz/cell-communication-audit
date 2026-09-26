@@ -1,24 +1,24 @@
 # -*- coding: utf-8 -*-
 """
-代码85_异质性复核.py  (种子确定性)
+code85_heterogeneity_recheck.py  (seed-deterministic)
 ================================================
-任务：补常数登记表缺口 G3（ATM 活性跨细胞分布），检验"几条路线对得上"。
+Task: close constant-registry gap G3 (ATM activity distribution across cells) and test whether "the routes agree".
 
-路线账本：
-  代码81：理想 ceil 映射生成模型，I(D;fate)=1.325 bits（上界参照）
-  代码82：同质系综，弥散比 0.01（欠散，证明纯计数噪声不够）
-  代码84：机理链 + 修复随机性，σ=0，弥散比 8.6(10Gy)–36.0(2.5Gy)（低剂量过散）
-  代码85（本件）：在代码84骨架上注入 ATM 增益异质性 g~lognormal(σ)，
-    σ 不由弥散比拟合，而由独立文献锚定：
-      López-Pujol 2023 (Int J Radiat Biol)：γH2AX foci 逐细胞计数
-      方差/均值（Fano）斜率 4.07–4.75（四种淋巴细胞亚型，1–2 Gy）。
-      本模型中 foci 当量 F = g·N_DSB，Poisson 叠乘 lognormal：
-      Fano = 1 + CV_g²·μ，μ(2Gy)=70 → Fano≈4 要求 CV_g≈0.21。
-    弥散比在该 σ 下的落点是对文献值 5.8（Loewer 2010 口径）的零拟合预言。
+Route ledger:
+  code 81: ideal ceil-mapping generative model, I(D;fate)=1.325 bits (upper-bound reference)
+  code 82: homogeneous ensemble, dispersion ratio 0.01 (under-dispersed; shows pure counting noise is insufficient)
+  code 84: mechanistic chain + repair stochasticity, sigma=0, dispersion ratio 8.6(10Gy)-36.0(2.5Gy) (over-dispersed at low dose)
+  code 85 (this file): inject ATM gain heterogeneity g~lognormal(sigma) onto the code-84 skeleton,
+    with sigma not fitted to the dispersion ratio but anchored to independent literature:
+      Lopez-Pujol 2023 (Int J Radiat Biol): per-cell gamma-H2AX foci counts,
+      variance/mean (Fano) slope 4.07-4.75 (four lymphocyte subtypes, 1-2 Gy).
+      In this model the foci equivalent is F = g*N_DSB, Poisson compounded with lognormal:
+      Fano = 1 + CV_g^2*mu, mu(2Gy)=70 -> Fano~4 requires CV_g~0.21.
+    The dispersion-ratio landing point at this sigma is a zero-fit prediction of literature value 5.8 (Loewer 2010).
 
-用法：
-  python 代码85_异质性复核.py scan          # σ 扫描，N=2000
-  python 代码85_异质性复核.py final 0.25    # 指定 σ* 终验，N=6000
+Usage:
+  python code85_heterogeneity_recheck.py scan          # sigma scan, N=2000
+  python code85_heterogeneity_recheck.py final 0.25    # final check at given sigma*, N=6000
 """
 import json
 import sys
@@ -38,7 +38,7 @@ OUT_JSON = ROOT / "结果" / "代码85_异质性复核_结果.json"
 OUT_PNG = ROOT / "结果" / "代码85_异质性复核_图.png"
 OUT_SVG = ROOT / "结果" / "代码85_异质性复核_图.svg"
 
-# ---- 与代码84 逐字一致的常数 ----
+# ---- constants kept byte-identical to code 84 ----
 DOSES = np.array([0.1, 0.25, 0.5, 1.0, 2.5, 5.0, 10.0])
 K0_DSB = 35.0
 R_FAST = 0.35
@@ -56,7 +56,7 @@ TH_PUMA, R0_FATE, TH_P21 = 800.0, 0.15, 1500.0
 LAM0 = 0.003
 A_MIN = 10.0
 LIT_DISPERSION = 5.8
-LIT_FANO_BAND = (4.07, 4.75)   # López-Pujol 2023 四亚型斜率
+LIT_FANO_BAND = (4.07, 4.75)   # Lopez-Pujol 2023 four-subtype slopes
 CODE81_END2END = 1.325
 CODE84_END2END = 0.817
 
@@ -81,7 +81,7 @@ def qbin(v, nbin):
 
 
 def first_pulse_time(taus, lam0, rng):
-    """与代码84 逐字一致，lam0 为逐细胞有效危害率。"""
+    """Byte-identical to code 84; lam0 is the per-cell effective hazard rate."""
     if len(taus) == 0:
         return None
     ts = np.sort(taus)
@@ -103,7 +103,7 @@ def first_pulse_time(taus, lam0, rng):
 
 
 def simulate_dose(D, n, rng, sigma_ln):
-    """代码84骨架 + 逐细胞 ATM 增益 g~lognormal(σ)（仅乘在触发危害率上）。"""
+    """Code-84 skeleton + per-cell ATM gain g~lognormal(sigma) (multiplies only the trigger hazard rate)."""
     n_dsb = rng.poisson(K0_DSB * D, n)
     if sigma_ln > 0:
         g = np.exp(sigma_ln * rng.standard_normal(n) - 0.5 * sigma_ln ** 2)
@@ -162,18 +162,18 @@ def run_ensemble(sigma_ln, n_cells, seed):
         p = simulate_dose(D, n_cells, rng, sigma_ln)
         parts.append(p)
     out = {}
-    # 锚定量
+    # anchor quantities
     p10 = parts[-1]
     out["count_10Gy"] = float(p10["n_pulse"].mean())
     t1v = p10["t1"]; t1v = t1v[~np.isnan(t1v)]
     out["t1_10Gy_mean"] = float(t1v.mean())
     out["resp_frac"] = [float(p["responded"].mean()) for p in parts]
-    # Fano 锚（2 Gy 等效 foci 计数 F = g·N_DSB）
+    # Fano anchor (2 Gy equivalent foci count F = g*N_DSB)
     p2 = parts[4]
     F = p2["g"] * p2["n_dsb"]
     out["fano_2Gy"] = float(F.var() / F.mean())
     out["cv_g_implied_by_fano4"] = float(np.sqrt((4.0 - 1.0) / (K0_DSB * 2.0)))
-    # 弥散比（响应者条件口径，与代码84 相同）
+    # dispersion ratio (responder-conditional convention, same as code 84)
     disp = {}
     for di, D in enumerate(DOSES):
         p = parts[di]
@@ -189,7 +189,7 @@ def run_ensemble(sigma_ln, n_cells, seed):
                                   ipi_sd=float(np.mean(ipi_sd_cell)),
                                   dispersion_ratio=float(np.std(t1d) / np.mean(ipi_sd_cell)))
     out["dispersion"] = disp
-    # 端到端信息（与代码81/84 同口径）
+    # end-to-end information (same convention as code 81/84)
     d_idx = np.concatenate([np.full(n_cells, i) for i in range(len(DOSES))])
     E = {k: np.concatenate([p[k] for p in parts]) for k in
          ["n_dsb", "t1", "times", "n_pulse", "responded", "m_p21", "m_puma", "fate"]}
@@ -205,7 +205,7 @@ def main():
     if mode == "scan":
         sigmas = [0.0, 0.1, 0.2, 0.3, 0.4]
         N = 2000
-        log(f"[代码85] scan 模式：σ ∈ {sigmas}，N={N}，种子 {SEED}")
+        log(f"[code85] scan mode: sigma in {sigmas}, N={N}, seed {SEED}")
         results = {}
         for s in sigmas:
             log(f"  σ={s} ...")
@@ -213,12 +213,12 @@ def main():
             r = results[f"{s}"]
             dr = {k: round(v["dispersion_ratio"], 2) for k, v in r["dispersion"].items()}
             log(f"    <N>10={r['count_10Gy']:.2f}, t1@10={r['t1_10Gy_mean']:.2f}h, "
-                f"Fano(2Gy)={r['fano_2Gy']:.2f}, I(D;fate)={r['I_D_fate']:.3f}, 弥散比={dr}")
+                f"Fano(2Gy)={r['fano_2Gy']:.2f}, I(D;fate)={r['I_D_fate']:.3f}, dispersion_ratio={dr}")
         payload = dict(meta=dict(script="代码85_异质性复核.py", mode="scan", N=N, seed=SEED,
                                  lit_dispersion=LIT_DISPERSION,
                                  lit_fano_band=LIT_FANO_BAND),
                        scan=results)
-        # 若已有 final 结果，保留
+        # keep existing final results if present
         if OUT_JSON.exists():
             try:
                 old = json.loads(OUT_JSON.read_text(encoding="utf-8"))
@@ -228,16 +228,16 @@ def main():
                 pass
         OUT_JSON.write_text(json.dumps(payload, ensure_ascii=False, indent=2),
                             encoding="utf-8")
-        log("JSON 已写出:", OUT_JSON)
+        log("JSON written:", OUT_JSON)
         make_figure(results, None)
     else:
         sigma_star = float(sys.argv[2]) if len(sys.argv) > 2 else 0.25
         N = 6000
-        log(f"[代码85] final 模式：σ*={sigma_star}，N={N}，种子 {SEED + 777}")
+        log(f"[code85] final mode: sigma*={sigma_star}, N={N}, seed {SEED + 777}")
         fin = run_ensemble(sigma_star, N, SEED + 777)
         dr = {k: round(v["dispersion_ratio"], 2) for k, v in fin["dispersion"].items()}
         log(f"  <N>10={fin['count_10Gy']:.2f}, t1@10={fin['t1_10Gy_mean']:.2f}h, "
-            f"Fano(2Gy)={fin['fano_2Gy']:.2f}, I(D;fate)={fin['I_D_fate']:.3f}, 弥散比={dr}")
+            f"Fano(2Gy)={fin['fano_2Gy']:.2f}, I(D;fate)={fin['I_D_fate']:.3f}, dispersion_ratio={dr}")
         payload = {}
         if OUT_JSON.exists():
             payload = json.loads(OUT_JSON.read_text(encoding="utf-8"))
@@ -245,16 +245,16 @@ def main():
         payload["meta"]["mode"] = "scan+final"
         OUT_JSON.write_text(json.dumps(payload, ensure_ascii=False, indent=2),
                             encoding="utf-8")
-        log("JSON 已更新:", OUT_JSON)
+        log("JSON updated:", OUT_JSON)
         make_figure(payload.get("scan"), payload["final"])
-    log("[代码85] 完成。")
+    log("[code85] done.")
 
 
 def make_figure(scan, final):
     fig, axes = plt.subplots(2, 2, figsize=(12.5, 8.6))
     if scan:
         sigmas = sorted(float(s) for s in scan.keys())
-        # (a) Fano 锚
+        # (a) Fano anchor
         ax = axes[0, 0]
         fanos = [scan[f"{s}"]["fano_2Gy"] for s in sigmas]
         ax.plot(sigmas, fanos, "o-", color="#33527a")
@@ -268,7 +268,7 @@ def make_figure(scan, final):
                 f"implied CV_g={cv_imp:.2f}", fontsize=8, color="#8c1d18")
         ax.set_xlabel(r"$\sigma_{ln}$ of ATM gain $g$"); ax.set_ylabel("Fano factor at 2 Gy")
         ax.set_title("(a) Independent anchor: foci count Fano factor", fontsize=10.5)
-        # (b) 弥散比
+        # (b) dispersion ratio
         ax = axes[0, 1]
         for D, c in [(2.5, "#d9863d"), (5.0, "#33527a"), (10.0, "#0b6b3a")]:
             ys = [scan[f"{s}"]["dispersion"].get(f"{D}Gy", {}).get("dispersion_ratio", np.nan)
@@ -284,7 +284,7 @@ def make_figure(scan, final):
         ax.set_xlabel(r"$\sigma_{ln}$"); ax.set_ylabel("dispersion ratio SD($t_1$)/SD(IPI)")
         ax.legend(fontsize=8)
         ax.set_title("(b) Dispersion ratio vs gain heterogeneity (zero-fit prediction)", fontsize=10.5)
-        # (c) 锚定稳定性
+        # (c) anchor stability
         ax = axes[1, 0]
         cnt = [scan[f"{s}"]["count_10Gy"] for s in sigmas]
         t1m = [scan[f"{s}"]["t1_10Gy_mean"] for s in sigmas]
@@ -298,7 +298,7 @@ def make_figure(scan, final):
         h1, l1 = ax.get_legend_handles_labels(); h2, l2 = ax2.get_legend_handles_labels()
         ax.legend(h1 + h2, l1 + l2, fontsize=8, loc="center right")
         ax.set_title("(b2) Anchor stability: counting law and $t_1$ vs $\\sigma_{ln}$", fontsize=10.5)
-        # (d) 信息
+        # (d) information
         ax = axes[1, 1]
         info = [scan[f"{s}"]["I_D_fate"] for s in sigmas]
         ax.plot(sigmas, info, "o-", color="#33527a")
@@ -315,7 +315,7 @@ def make_figure(scan, final):
     fig.tight_layout(rect=(0, 0, 1, 0.96))
     fig.savefig(OUT_PNG, dpi=200, bbox_inches="tight")
     fig.savefig(OUT_SVG, bbox_inches="tight")
-    print("图已写出:", OUT_PNG, flush=True)
+    print("figure written:", OUT_PNG, flush=True)
 
 
 if __name__ == "__main__":

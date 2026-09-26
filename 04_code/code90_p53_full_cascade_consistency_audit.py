@@ -1,14 +1,14 @@
 # -*- coding: utf-8 -*-
 """
-代码90：p53 全链路一致性审计
-命题：剂量 -> DSB -> γH2AX -> ATM -> p53 脉冲引擎 -> 计数/首脉冲 -> 下游解码，
-      每一环的常数必须与前后环对得上账；对不上的显式判"张力"或"缺口"。
-方法：
-  A 静态链路审计：14 条链路检查项，取自代码81-89 判词卡与常数登记 v01/v02 的归档值；
-  B 动态 onset 分解：Mönke 2025 勘误版从基态定点阶跃到 DSB=100（log 型），
-    数值提取 ATM* 半升时间、p53 阈值穿越、首峰时刻，分解 t1 的链上各段；
-  C 矛盾登记汇总。
-纪律：确定性，种子标记 20260925；JSON + PNG/SVG + 判词卡。
+Code 90: p53 full-chain consistency audit
+Proposition: dose -> DSB -> γH2AX -> ATM -> p53 pulse engine -> count/first pulse -> downstream decoding;
+      the constants of every link must reconcile with its neighbors; those that do not are explicitly adjudicated "tension" or "gap".
+Methods:
+  A static link audit: 14 link check items, taken from the archived values of the code 81-89 verdict cards and constant registries v01/v02;
+  B dynamic onset decomposition: the Mönke 2025 errata version stepped from the basal fixed point to DSB=100 (log form);
+    numerically extract the ATM* half-rise time, p53 threshold crossing, and first-peak time, decomposing t1 into its on-chain segments;
+  C contradiction-registry summary.
+Discipline: deterministic, seed tag 20260925; JSON + PNG/SVG + verdict card.
 """
 import json
 import numpy as np
@@ -27,7 +27,7 @@ OUT_SVG = OUT_PNG.replace(".png", ".svg")
 plt.rcParams.update({"svg.fonttype": "none", "font.size": 9,
                      "axes.spines.top": False, "axes.spines.right": False})
 
-# ---------------- Mönke 2025 勘误版（同代码89） ----------------
+# ---------------- Mönke 2025 errata version (same as code 89) ----------------
 PAR = dict(A=30.5, P=22.0, C=1.4, g=2.5, dAM=20.0,
            Tm=1.2, TM=4.0, Tw=1.2, TW=1.0,
            dA=0.16, dP=0.1, dm=1.0, dM=2.0, dw=1.3, dW=2.3,
@@ -52,53 +52,53 @@ def rhs_vec(t, x, S):
 
 res = {"seed": SEED_TAG}
 
-# ================= A. 静态链路审计（14 环） =================
-# 状态：closed / tension / gap
+# ================= A. Static link audit (14 links) =================
+# status: closed / tension / gap
 links = [
     dict(id="L0", en="dose->DSB", name="dose -> DSB count", constant="35 DSB/Gy",
-         sources="代码81 锚定；代码82 双录4；代码87/88 沿用",
+         sources="anchored by code 81; double-record 4 of code 82; reused by code 87/88",
          status="closed",
-         note="跨代码一致，但本身是假设口径（未实测换算），假设旗标保留"),
-    dict(id="L1", en="DSB->gH2AX", name="DSB -> γH2AX", constant="半峰1-3 min，峰 30 min（K5）",
-         sources="常数登记 v01 K5（多来源一致）",
-         status="closed", note="分钟级，远小于下游所有时标"),
-    dict(id="L2", en="gH2AX->ATM", name="γH2AX -> ATM 激活", constant="缺剂量分级单细胞时序",
+         note="consistent across codes, but itself an assumed convention (no measured conversion); assumption flag retained"),
+    dict(id="L1", en="DSB->gH2AX", name="DSB -> γH2AX", constant="half-peak 1-3 min, peak 30 min (K5)",
+         sources="constant registry v01 K5 (consistent across sources)",
+         status="closed", note="minute scale, far below all downstream timescales"),
+    dict(id="L2", en="gH2AX->ATM", name="γH2AX -> ATM activation", constant="dose-graded single-cell time course missing",
          sources="v01 G1 registered gap",
-         status="gap", note="ATM-SPARK/ATOMIC 探针存在但无公开剂量分级数据"),
-    dict(id="L3", en="ATM->p53 cat.", name="ATM -> p53（催化）", constant="kcat/Km 未实测",
-         sources="v02 G5（用户点名催化速率，恰在缺口）",
-         status="gap", note="模型用唯象保护因子 R=2 代替"),
-    dict(id="L4", en="p53 engine", name="p53 脉冲引擎（K1/K3/K4）", constant="5.5 h / 2.0 h / 1.25 h",
-         sources="代码89：三常数全部分解闭合",
-         status="closed", note="周期 5.95 vs 5.48（8.5% 尾巴登记）"),
-    dict(id="L5", en="counting N(D)", name="剂量 -> 脉冲计数 N(D)", constant="计数律 D_c：归档 0.261 vs 代码82 0.99 Gy",
-         sources="代码82 验证靶标1：3.8 倍差",
-         status="tension", note="方向对（饱和形状 R2=0.995），绝对刻度差源于 L0 换算假设"),
-    dict(id="L6", en="first pulse t1", name="首脉冲 t1", constant="分布（首峰 2.5-3.0 h），剂量无关",
-         sources="D1；Lahav 2004；代码87 平坦 2.5-3.0 h 全剂量",
-         status="closed", note="分布本体是感知层签名，不是缺陷"),
-    dict(id="L7", en="dispersion 5.8", name="弥散比 t1/IPI", constant="归档 5.8 = (240/100)^2，5 Gy 口径",
-         sources="代码86 口径错误已撤回；代码87/88 得 6.65-7.32",
-         sources_detail="更正登记 2026-09-25",
-         status="closed", note="同量级首合账；86 撤回已登记"),
-    dict(id="L8", en="clock dose-indep.", name="时钟剂量无关架构", constant="剂量只走门控+终止",
-         sources="代码87/88 闭环",
-         status="closed", note="0.3 Gy 低剂量持续振荡见 L9"),
-    dict(id="L9", en="low-dose osc.", name="低剂量振荡分数", constant="文献 0.3 Gy 约 35% 振荡",
-         sources="代码87/88 判词卡",
-         status="tension", note="损伤驱动终止造不出低剂量振荡；文献内部张力，已登记"),
-    dict(id="L10", en="p21 tracking", name="下游 p21 转录追踪", constant="延迟精确值待提取",
-         sources="v01 G3（Hafner 2020）",
-         status="gap", note="定性同期振荡已证，定量延迟待从原文图提取"),
-    dict(id="L11", en="info budget", name="信息账 I(D;fate)", constant="0.55-0.63 bits（修正后）",
-         sources="代码81 的 1.325 因依赖剂量相关时序被 C1 证伪",
-         status="closed", note="撤回与修正均已登记；论文从未引用 1.325"),
-    dict(id="L12", en="Wip1 RNAi", name="Wip1 RNAi 表型", constant="幅度方向：模型升 vs Batchelor 降 45%",
-         sources="代码82 验证靶标5",
-         status="tension", note="失控与变宽预言复现；幅度方向冲突登记为模型-实验不符项"),
-    dict(id="L13", en="width K2", name="脉冲宽度 K2 = 3.5 h", constant="分子层未分解",
-         sources="v02 登记表 D 节",
-         status="gap", note="由 ATM* 平台期决定，非纯延迟和，待分解"),
+         status="gap", note="ATM-SPARK/ATOMIC probes exist but no public dose-graded data"),
+    dict(id="L3", en="ATM->p53 cat.", name="ATM -> p53 (catalytic)", constant="kcat/Km not measured",
+         sources="v02 G5 (user singled out the catalytic rate, which sits exactly in the gap)",
+         status="gap", note="the model substitutes a phenomenological protection factor R=2"),
+    dict(id="L4", en="p53 engine", name="p53 pulse engine (K1/K3/K4)", constant="5.5 h / 2.0 h / 1.25 h",
+         sources="code 89: all three constants decomposed and closed",
+         status="closed", note="period 5.95 vs 5.48 (8.5% residual registered)"),
+    dict(id="L5", en="counting N(D)", name="dose -> pulse count N(D)", constant="counting-law D_c: archived 0.261 vs code 82 0.99 Gy",
+         sources="code 82 validation target 1: 3.8x discrepancy",
+         status="tension", note="direction correct (saturating shape R2=0.995); absolute-scale discrepancy stems from the L0 conversion assumption"),
+    dict(id="L6", en="first pulse t1", name="first pulse t1", constant="distribution (first peak 2.5-3.0 h), dose-independent",
+         sources="D1; Lahav 2004; code 87 flat 2.5-3.0 h across all doses",
+         status="closed", note="the distribution itself is a sensing-layer signature, not a defect"),
+    dict(id="L7", en="dispersion 5.8", name="dispersion ratio t1/IPI", constant="archived 5.8 = (240/100)^2, 5 Gy convention",
+         sources="code 86 convention error retracted; code 87/88 obtain 6.65-7.32",
+         sources_detail="correction registered 2026-09-25",
+         status="closed", note="first reconciliation at the same order of magnitude; the 86 retraction is registered"),
+    dict(id="L8", en="clock dose-indep.", name="clock dose-independent architecture", constant="dose acts only through gating + termination",
+         sources="code 87/88 closed loop",
+         status="closed", note="for 0.3 Gy low-dose sustained oscillation see L9"),
+    dict(id="L9", en="low-dose osc.", name="low-dose oscillating fraction", constant="literature: ~35% oscillating at 0.3 Gy",
+         sources="code 87/88 verdict card",
+         status="tension", note="damage-driven termination cannot produce low-dose oscillation; intra-literature tension, registered"),
+    dict(id="L10", en="p21 tracking", name="downstream p21 transcriptional tracking", constant="exact delay value pending extraction",
+         sources="v01 G3 (Hafner 2020)",
+         status="gap", note="qualitative co-oscillation established; quantitative delay pending extraction from the original figure"),
+    dict(id="L11", en="info budget", name="information budget I(D;fate)", constant="0.55-0.63 bits (after correction)",
+         sources="code 81's 1.325 was falsified by C1 for relying on dose-dependent timing",
+         status="closed", note="retraction and correction both registered; the paper never cited 1.325"),
+    dict(id="L12", en="Wip1 RNAi", name="Wip1 RNAi phenotype", constant="amplitude direction: model up vs Batchelor down 45%",
+         sources="code 82 validation target 5",
+         status="tension", note="runaway and widening predictions reproduced; the amplitude-direction conflict is registered as a model-experiment mismatch"),
+    dict(id="L13", en="width K2", name="pulse width K2 = 3.5 h", constant="molecular layer not decomposed",
+         sources="v02 registry section D",
+         status="gap", note="set by the ATM* plateau, not a pure sum of delays; pending decomposition"),
 ]
 res["A_static_links"] = links
 n_closed = sum(1 for l in links if l["status"] == "closed")
@@ -106,9 +106,9 @@ n_tension = sum(1 for l in links if l["status"] == "tension")
 n_gap = sum(1 for l in links if l["status"] == "gap")
 res["A_summary"] = dict(total=len(links), closed=n_closed, tension=n_tension, gap=n_gap)
 
-# ================= B. 动态 onset 分解（t1 链上各段） =================
+# ================= B. Dynamic onset decomposition (chain segments of t1) =================
 DSB_STEP = 100.0
-S_basal = PAR["Smax"] * np.log(2.0 / PAR["gam"] + 1)   # 背景约 2 DSB
+S_basal = PAR["Smax"] * np.log(2.0 / PAR["gam"] + 1)   # background ~2 DSB
 S_step = PAR["Smax"] * np.log(DSB_STEP / PAR["gam"] + 1)
 
 x_basal = fsolve(lambda x: rhs_vec(0, x, S_basal),
@@ -119,21 +119,21 @@ t = np.linspace(0, 12, 12001)
 x = sol.sol(t)
 ATM, P53 = x[0], x[1]
 
-# γH2AX 段：外部常数，峰值 0.5 h（K5）
+# γH2AX segment: external constant, peak 0.5 h (K5)
 t_gamma = 0.5
-# ATM* 半升（相对其首峰最大值）
+# ATM* half-rise (relative to its first-peak maximum)
 atm_peak = ATM.max()
 atm_half = 0.5 * (atm_peak + ATM[0])
 i_atm = np.argmax(ATM >= atm_half) if np.any(ATM >= atm_half) else len(t) - 1
 t_atm = t[i_atm]
-# p53 阈值穿越（检测阈 0.8 AU，代码82 口径）
+# p53 threshold crossing (detection threshold 0.8 AU, code 82 convention)
 i_thr = np.argmax(P53 >= 0.8) if np.any(P53 >= 0.8) else len(t) - 1
 t_p53_thr = t[i_thr]
-# p53 首峰
+# p53 first peak
 i_peak = np.argmax(P53[:np.searchsorted(t, 10)])
 t_peak = t[i_peak]
 
-t1_pred_onset = t_gamma + t_p53_thr   # γH2AX 段 + ATM/p53 上升段（onset 口径）
+t1_pred_onset = t_gamma + t_p53_thr   # γH2AX segment + ATM/p53 rising segment (onset convention)
 res["B_onset_decomposition"] = dict(
     S_basal=float(S_basal), S_step=float(S_step),
     basal_fixed_point=[float(v) for v in x_basal],
@@ -143,30 +143,30 @@ res["B_onset_decomposition"] = dict(
     p53_first_peak_h=float(t_peak),
     t1_pred_onset_h=float(t1_pred_onset),
     t1_measured_band_h=[2.5, 3.0],
-    t1_definition="文献 t1 = 首峰时刻（D1：MCF7 2-3 h）；onset 是阈穿越，不等于 t1",
-    finding="感知段（γH2AX 0.5 + ATM 上升 %.2f + p53 阈值 %.2f）合计仅 %.2f h；"
-            "t1 的大头是 p53 积累爬坡到峰（%.2f h），不是感知延迟"
+    t1_definition="literature t1 = first-peak time (D1: MCF7 2-3 h); onset is the threshold crossing, not equal to t1",
+    finding="the sensing segment (γH2AX 0.5 + ATM rise %.2f + p53 threshold %.2f) totals only %.2f h; "
+            "the bulk of t1 is the p53 accumulation ramp to the peak (%.2f h), not sensing delay"
             % (t_atm - t_gamma, t_p53_thr - t_atm, t_p53_thr, t_peak - t_p53_thr),
     peak_closes=bool(t_peak <= 3.0 + 0.5),
 )
 
-# 链上时序排序检查：γH2AX(0.5) < ATM 半升 < p53 阈值 < 首峰 < 周期 5.5
+# on-chain timing-order check: γH2AX(0.5) < ATM half-rise < p53 threshold < first peak < period 5.5
 ordering_ok = bool(t_gamma <= t_atm <= t_p53_thr <= t_peak <= 5.5)
 res["B_ordering_ok"] = ordering_ok
 
-# ================= C. 矛盾登记汇总 =================
+# ================= C. Contradiction-registry summary =================
 res["C_tensions_register"] = [
-    "L5: 计数律 D_c 3.8 倍差（换算假设）",
-    "L9: 0.3 Gy 低剂量振荡（文献内部张力）",
-    "L12: Wip1 RNAi 幅度方向（模型-实验不符）",
-    "B: 模拟首峰 %.2f h vs 实测 t1 带 2.5-3.0 h（阶跃口径差）" % t_peak,
+    "L5: counting-law D_c 3.8x discrepancy (conversion assumption)",
+    "L9: 0.3 Gy low-dose oscillation (intra-literature tension)",
+    "L12: Wip1 RNAi amplitude direction (model-experiment mismatch)",
+    "B: simulated first peak %.2f h vs measured t1 band 2.5-3.0 h (step-convention difference)" % t_peak,
 ]
 
-# ================= 图：两面体 =================
+# ================= Figure: two-panel =================
 fig = plt.figure(figsize=(12.5, 7.6))
 gs = fig.add_gridspec(2, 1, height_ratios=[1.15, 1.0], hspace=0.32)
 
-# (a) 链路图
+# (a) link diagram
 ax = fig.add_subplot(gs[0])
 status_color = {"closed": "#55A868", "tension": "#DD8452", "gap": "#C44E52"}
 n = len(links)
@@ -175,7 +175,7 @@ for k, lk in enumerate(links):
     row = k // cols
     col = k % cols
     if row == 1:
-        col = cols - 1 - col  # 第二行反向，蛇形
+        col = cols - 1 - col  # second row reversed, serpentine
     xc = 0.06 + col * (0.88 / (cols - 1))
     yc = 0.72 if row == 0 else 0.18
     ax.annotate("", xy=(0, 0))  # noop keep autoscale off
@@ -188,7 +188,7 @@ for k, lk in enumerate(links):
     ax.text(xc, yc - 0.045, lk["en"], transform=ax.transAxes,
             ha="center", fontsize=6.5, color="white", wrap=True)
     lk["_pos"] = (xc, yc, row)
-# 箭头
+# arrows
 order_idx = list(range(cols)) + list(range(cols, n))
 for a, b in zip(order_idx[:-1], order_idx[1:]):
     xa, ya, ra = links[a]["_pos"]
@@ -215,7 +215,7 @@ ax.legend(handles, [f"closed ({n_closed})", f"registered tension ({n_tension})",
 ax.set_title("a  Full-chain audit: dose -> DSB -> gH2AX -> ATM -> p53 engine -> count/t1 -> decoding\n"
              "every link carries its archived constant and a verdict", fontsize=10)
 
-# (b) onset 分解
+# (b) onset decomposition
 ax = fig.add_subplot(gs[1])
 segs = [("gH2AX formation\n(K5: 0.5 h)", t_gamma, "#4C72B0"),
         ("ATM* rise to half-max\n(model: %.2f h)" % t_atm, max(t_atm - t_gamma, 0.0), "#55A868"),

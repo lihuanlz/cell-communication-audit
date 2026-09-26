@@ -2,44 +2,44 @@
 """
 代码68_D2R动力学机制检验.py  v1.0.0
 ============================================================
-细胞线4 · 挖深轮：D2R 断裂的动力学机制裁决
+Cell line 4 · deepening round: kinetic-mechanism adjudication of the D2R breakage
 
-问题：代码63 判定 bifeprunox/aripiprazole/cariprazine 三个高亲和力部分激动剂
-存在结合态(pKi≈8.9–10.4)与功能态(pKA_func≈6.9–7.8)的 −1.2…−3.5 dex 断裂，
-且偏向因子随时间反转（bifeprunox vs ropinirole −0.42 → +1.93 dex）。
-Klein Herenbrink 2016 自己提出"动力学语境"定性解释（慢解离配体未达平衡）。
-本代码做定量裁决：用该文 SI 表5/表6 实测的 kon/koff，构造非平衡占用率
+Question: Code 63 ruled that the three high-affinity partial agonists bifeprunox/aripiprazole/cariprazine
+show a −1.2…−3.5 dex breakage between binding state (pKi≈8.9–10.4) and functional state (pKA_func≈6.9–7.8),
+and that the bias factor reverses over time (bifeprunox vs ropinirole −0.42 → +1.93 dex).
+Klein Herenbrink 2016 itself proposed a qualitative "kinetic context" explanation (slow-dissociating ligands not at equilibrium).
+This code makes the quantitative adjudication: using the kon/koff measured in that paper's SI Tables 5/6, construct the non-equilibrium occupancy
   ρ(L,t) = [kon·L/(kon·L+koff)]·(1−e^{−(kon·L+koff)·t})
-代入运算模型（n=1，E = Em·τρ/(1+ρ(τ−1))），τ 由 90' Emax 反演（Esys=100，
-ropinirole 满激动剂参照），生成表观浓度-反应曲线并提取表观 pEC50(t)，
-与 SI 表7 实测的 8 个时间点 pEC50 轨迹对账。**零自由参数**（Kd 不拟合，
-直接取动力学测量值）。
+substitute into the operational model (n=1, E = Em·τρ/(1+ρ(τ−1))), with τ inverted from the 90' Emax (Esys=100,
+ropinirole full-agonist reference), generate apparent concentration–response curves and extract apparent pEC50(t),
+and reconcile against the measured pEC50 trajectories at 8 time points of SI Table 7. **Zero free parameters** (Kd not fitted,
+kinetic measurements used directly).
 
-判决逻辑：非平衡只能把表观 potency 暂时压到平衡值以下；t→∞ 时模型地板为
-pKd+log10(1+τ) ≥ pKd。若观测 pEC50 在任何时刻都低于该地板 1 dex 以上，
-动力学解释在定量上不成立，断裂存活。
+Ruling logic: non-equilibrium can only press apparent potency temporarily below its equilibrium value; as t→∞ the model floor is
+pKd+log10(1+τ) ≥ pKd. If the observed pEC50 lies more than 1 dex below that floor at any time,
+the kinetic explanation fails quantitatively and the breakage survives.
 
-数据（Klein Herenbrink 2016, Nat Commun 7:10842, SI）：
-  表5：[3H]spiperone 示踪竞争结合动力学（仅3个慢配体可测）
-  表6：PPHT-red 荧光示踪 Tag-lite 结合动力学（7配体）
-  表7：cAMP/Gαo/CI × 2–90 min × 7配体 的 pEC50/Emax
-  ——注意：表5 与表6 对 cariprazine 的 kon 差 82 倍（pKd 7.50 vs 9.56），
-    论文自身结合数据内部不一致，如实记录并做双示踪剂敏感性分析。
+Data (Klein Herenbrink 2016, Nat Commun 7:10842, SI):
+  Table 5: [3H]spiperone tracer competition binding kinetics (measurable only for 3 slow ligands)
+  Table 6: PPHT-red fluorescent tracer Tag-lite binding kinetics (7 ligands)
+  Table 7: pEC50/Emax for cAMP/Gαo/CI × 2–90 min × 7 ligands
+  — note: Table 5 vs Table 6 differ 82-fold in kon for cariprazine (pKd 7.50 vs 9.56);
+    the paper's own binding data are internally inconsistent; recorded as-is with a two-tracer sensitivity analysis.
 ============================================================
 """
 import numpy as np
 from scipy.interpolate import interp1d
 
 LIGS7 = ["Ropinirole","Dopamine","Aripiprazole","Cariprazine","Bifeprunox","Pardoprunox","S-3PPP"]
-# SI 表6（PPHT）
+# SI Table 6 (PPHT)
 KON6 = {"Ropinirole":1.46e6,"Dopamine":3.14e5,"Aripiprazole":1.01e9,"Cariprazine":1.27e9,
         "Bifeprunox":1.84e8,"Pardoprunox":1.25e8,"S-3PPP":3.25e6}
 KOFF6= {"Ropinirole":2.60,"Dopamine":2.00,"Aripiprazole":0.21,"Cariprazine":0.35,
         "Bifeprunox":0.01,"Pardoprunox":2.28,"S-3PPP":1.51}
-# SI 表5（spiperone，仅三慢配体）
+# SI Table 5 (spiperone, three slow ligands only)
 KON5 = {"Aripiprazole":1.31e8,"Cariprazine":1.55e7,"Bifeprunox":1.07e8}
 KOFF5= {"Aripiprazole":0.14,"Cariprazine":0.49,"Bifeprunox":0.01}
-PKI  = {"Aripiprazole":9.43,"Cariprazine":8.90,"Bifeprunox":10.36}  # 表5 pKi
+PKI  = {"Aripiprazole":9.43,"Cariprazine":8.90,"Bifeprunox":10.36}  # Table 5 pKi
 
 TIMES=[2,5,10,15,30,45,60,75,90]
 T7={
@@ -82,9 +82,9 @@ def apparent(lig, t, tau, Em, kon, koff):
     return -float(np.interp(half, y, xgrid))   # pEC50 = -log10(EC50)
 
 def run(KON, KOFF, tag, ligands):
-    print(f"\n########## 示踪剂 {tag} ##########")
+    print(f"\n########## tracer {tag} ##########")
     for a in ["cAMP","Gao","CI"]:
-        print(f"--- {a} ---  (残差 = model − obs, dex)")
+        print(f"--- {a} ---  (residual = model − obs, dex)")
         for lig in ligands:
             em90 = T7[a][lig][1][8]
             tau  = em90/(100-em90) if em90 < 99.5 else 200.0
@@ -92,13 +92,13 @@ def run(KON, KOFF, tag, ligands):
             obs  = T7[a][lig][0]
             pKd  = -np.log10(KOFF[lig]/KON[lig])
             dm   = pred[8]-pred[0] if np.isfinite(pred[0]) and np.isfinite(pred[8]) else np.nan
-            print(f"{lig:14s} pKd={pKd:5.2f} τ={tau:6.1f}  漂移 model={dm:+.2f}/obs={obs[8]-obs[0]:+.2f}"
-                  f"  90'残差={(pred[8]-obs[8]):+.2f}")
-            print("    残差 2'→90': " + " ".join(f"{(p-o):+.2f}" if np.isfinite(p) else "  nan"
+            print(f"{lig:14s} pKd={pKd:5.2f} τ={tau:6.1f}  drift model={dm:+.2f}/obs={obs[8]-obs[0]:+.2f}"
+                  f"  90' residual={(pred[8]-obs[8]):+.2f}")
+            print("    residuals 2'→90': " + " ".join(f"{(p-o):+.2f}" if np.isfinite(p) else "  nan"
                                                  for p,o in zip(pred,obs)))
 
-print("表5 vs 表6 动力学亲和自对比：",
+print("Table 5 vs Table 6 kinetic-affinity self-comparison:",
       {l: f"pKd5={-np.log10(KOFF5[l]/KON5[l]):.2f} / pKd6={-np.log10(KOFF6[l]/KON6[l]):.2f} / pKi={PKI[l]}"
        for l in KON5})
-run(KON6, KOFF6, "表6（PPHT-red）", LIGS7)
-run(KON5, KOFF5, "表5（[3H]spiperone）", list(KON5))
+run(KON6, KOFF6, "Table 6 (PPHT-red)", LIGS7)
+run(KON5, KOFF5, "Table 5 ([3H]spiperone)", list(KON5))

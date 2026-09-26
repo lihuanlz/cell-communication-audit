@@ -1,39 +1,39 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-代码61 逐行 Hill 陡峭度检验：不对称协同性猜想的判决实验 v1.0.0
+Code 61 row-wise Hill steepness test: the adjudication experiment for the asymmetric-cooperativity conjecture v1.0.0
 ================================================
-任务：判决"不对称协同性"猜想——若 T 态协同弱（N≈2–4，解释 K1/2
-Weber 线）而 R 态协同强（N≈12–39，解释幅值表），则实测剂量曲线的
-表观 Hill 系数应超出任何单 N MWC 模型在同一浓度窗口内能产生的范围。
+Task: adjudicate the "asymmetric cooperativity" conjecture — if T-state cooperativity is weak (N≈2-4, explaining the
+K1/2 Weber line) while R-state cooperativity is strong (N≈12-39, explaining the amplitude table), then the apparent
+Hill coefficient of the measured dose curves should exceed the range any single-N MWC model can produce in the same window.
 
-设计（替代用户原始"按幅值分箱测局部斜率"方案——该方案被饱和曲线
-两端天然平缓的几何假象污染，见 §22）：
-  §1 逐背景档对全体中位剂量曲线做 Hill 拟合 da(T)=dmax·Tⁿ/(Kⁿ+Tⁿ)，
-     (a) dmax 自由（三参数）；(b) dmax=1 固定（饱和脉冲校准含义）。
-  §2 模型侧对照：文献参数 (Ki=0.81,Ka=200,N=6) 与幅值最优参数
-     (Ki=30.7,Ka=133,N=39) 的标准单 N MWC，在完全相同的浓度窗口
-     上做同样的 Hill 拟合，给出单 N 模型的表观 n 包络。
-  判据：若实测 n(B) 系统性超出包络 → 不对称协同性获支持；
-        若落在包络内 → 证伪，本分支封板。
+Design (replacing the user's original "bin by amplitude, measure local slope" plan — that plan is contaminated by the
+geometric artifact that saturation curves are naturally flat at both ends, see §22):
+  §1 Per background level, Hill-fit the whole-population median dose curve da(T)=dmax·Tⁿ/(Kⁿ+Tⁿ):
+     (a) dmax free (three parameters); (b) dmax=1 fixed (saturated-pulse calibration meaning).
+  §2 Model-side control: standard single-N MWC with literature parameters (Ki=0.81,Ka=200,N=6) and with
+     amplitude-optimal parameters (Ki=30.7,Ka=133,N=39), Hill-fitted in exactly the same concentration windows,
+     giving the apparent-n envelope of single-N models.
+  Criterion: if measured n(B) systematically exceeds the envelope -> asymmetric cooperativity is supported;
+        if it falls inside the envelope -> falsified, this branch is sealed.
 
-结果（v1.0.0 实跑）：
-  实测 n(dmax自由): 0.91 / 1.40 / 1.67 / 2.34 / 3.14 / 13.63 / 16.85
+Results (v1.0.0 live run):
+  Measured n(dmax free): 0.91 / 1.40 / 1.67 / 2.34 / 3.14 / 13.63 / 16.85
                     (B = 0 / 0.01 / 0.1 / 0.3 / 1 / 10 / 100)
-  实测 n(dmax=1):   0.69 / 0.79 / 0.87 / 1.09 / 1.29 / 3.12 / 2.11
-                    （高 B 行 R²=0.81/0.69，固定渐近线 Hill 在高 B 拟合差）
-  文献模型 n:       1.96 / 2.01 / 2.47 / 3.35 / 5.78 / 11.76 / 12.10
-  幅值最优模型 n:   1.25 / 1.28 / 1.51 / 1.98 / 3.52 / 14.28 / 26.33
-  → 实测 n(B) 的上升（~1→17）与单 N MWC 同窗口表观 n 的上升同型，
-    且处处落在两个单 N 模型包络之内或之下。
-  → 不对称协同性猜想证伪：不需要两个 N。本分支封板。
+  Measured n(dmax=1):   0.69 / 0.79 / 0.87 / 1.09 / 1.29 / 3.12 / 2.11
+                    (high-B rows R²=0.81/0.69; fixed-asymptote Hill fits poorly at high B)
+  Literature model n:   1.96 / 2.01 / 2.47 / 3.35 / 5.78 / 11.76 / 12.10
+  Amplitude-optimal n:  1.25 / 1.28 / 1.51 / 1.98 / 3.52 / 14.28 / 26.33
+  -> The rise of measured n(B) (~1->17) has the same shape as the rise of the single-N MWC same-window apparent n,
+    and falls everywhere inside or below the envelope of the two single-N models.
+  -> Asymmetric-cooperativity conjecture falsified: no second N is needed. This branch is sealed.
 
-注：高 B 处模型 dmax_app→0 是窗口只覆盖增量曲线底部所致（§21 尾部
-统计警告的同源现象），不影响 n 的包络比较。
+Note: model dmax_app->0 at high B is because the window covers only the bottom of the incremental curve (the same-source
+phenomenon as the §21 tail-statistic warning); it does not affect the envelope comparison of n.
 
-数据：Moore 2024 Dryad doi:10.5061/dryad.nvx0k6dzz（CC0）
-运行：python3 代码61_逐行Hill陡峭度检验.py
-依赖：numpy, scipy, 代码54（同目录）
+Data: Moore 2024 Dryad doi:10.5061/dryad.nvx0k6dzz (CC0)
+Run: python3 code61_rowwise_Hill_steepness_test.py
+Depends: numpy, scipy, code54 (same directory)
 """
 
 import os
@@ -49,7 +49,7 @@ warnings.filterwarnings("ignore")
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 spec = importlib.util.spec_from_file_location(
-    "c54", os.path.join(HERE, "代码54_K12联合拟合_断裂度定量.py"))
+    "c54", os.path.join(HERE, "code54_K12_joint_fit_rupture_quantification.py"))
 c54 = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(c54)
 
@@ -67,7 +67,7 @@ def a_post(L, Ki, Ka, N):
     return 1.0 / (1.0 + np.exp(LAM + N * gL(L, Ki, Ka)))
 
 def mwc_da(Ts, B, Ki, Ka, N):
-    """单 N 标准 MWC 的增量曲线（amax=1, a*=1/3 固定）。"""
+    """Incremental curve of the single-N standard MWC (amax=1, a*=1/3 fixed)."""
     return a_post(B, Ki, Ka, N) - a_post(np.asarray(Ts), Ki, Ka, N)
 
 def hill(T, K, n, dmax):
@@ -78,7 +78,7 @@ def hill_fix1(T, K, n):
     return hill(T, K, n, 1.0)
 
 # ---------------------------------------------------------------
-# 数据：逐细胞 (T=B+F, da) 池化（F=sv−B，与代码59修正版一致）
+# Data: per-cell (T=B+F, da) pooling (F=sv−B, consistent with the code-59 fixed version)
 # ---------------------------------------------------------------
 def pooled_curves():
     out = defaultdict(list)
@@ -105,7 +105,7 @@ def pooled_curves():
                 pre = np.arange(0, stim[0]) if len(stim) else None
                 if pre is None or len(pre) < 4 or len(stim) < 6:
                     continue
-                F = sv - B                    # 同配体文件 s 含背景
+                F = sv - B                    # same-ligand files: s includes background
                 if F <= 0:
                     continue
                 lev[round(F, 4)].append(float(np.median(a[row, pre[-4:]]))
@@ -133,8 +133,8 @@ def fit_hill(Ts, das, fix_dmax1=False):
 def main():
     pooled = pooled_curves()
 
-    print("§1 实测逐行 Hill 拟合（全体中位曲线，T=B+F 轴）")
-    print(f"{'B':>7} {'n(自由)':>8} {'K(自由)':>9} {'dmax':>6} {'R²':>6}"
+    print("§1 measured row-wise Hill fits (whole-population median curves, T=B+F axis)")
+    print(f"{'B':>7} {'n(free)':>8} {'K(free)':>9} {'dmax':>6} {'R²':>6}"
           f" | {'n(dmax=1)':>10} {'K(dmax=1)':>10} {'R²':>6}")
     rows = {}
     for B in sorted(pooled):
@@ -148,8 +148,8 @@ def main():
         print(f"{B:7.2f} {n1:8.2f} {K1:9.2f} {d1:6.3f} {r1:6.3f}"
               f" | {n2:10.2f} {K2:10.2f} {r2:6.3f}")
 
-    print("\n§2 模型侧同窗口表观 Hill 系数（dmax 自由）")
-    print(f"{'B':>7} {'文献N=6':>9} {'幅值最优N=39':>13}")
+    print("\n§2 model-side same-window apparent Hill coefficients (dmax free)")
+    print(f"{'B':>7} {'lit N=6':>9} {'amp-opt N=39':>13}")
     for B in sorted(rows):
         Ts, _ = rows[B]
         line = f"{B:7.2f}"

@@ -2,39 +2,39 @@
 """
 代码69_D2R功能态跨臂亲和力地图.py  v1.0.0
 ============================================================
-细胞线4 · 挖深轮②：代码68 残余断裂（绝对差分量）的定位
+Cell line 4 · deepening round 2: locating Code 68's residual breakage (the absolute-difference component)
 
-代码68 结论：慢解离动力学能解释漂移，但 cAMP/Gαo 臂的平衡态绝对差
-（bifeprunox 2+ dex）存活。本代码问：这个绝对差到底是"结合态 vs 功能态"
-还是"功能态内部跨臂"的问题？
+Code 68 concluded: slow-dissociation kinetics can explain the drift, but the equilibrium-state absolute
+difference in the cAMP/Gαo arms (bifeprunox 2+ dex) survives. This code asks: is that absolute difference
+a "binding state vs functional state" problem or a "cross-arm within the functional state" problem?
 
-方法：对 SI 表7 的每个（配体, 臂, 时刻）格点反演功能态 pKA：
-  τ(t) = Emax(t)/(100−Emax(t))   （ropinirole=100 参照，满激动剂 τ 取 200 仅代表）
+Method: for each (ligand, arm, time) grid point of SI Table 7, invert the functional-state pKA:
+  τ(t) = Emax(t)/(100−Emax(t))   (ropinirole=100 reference; full agonists τ=200 as placeholder only)
   pKA(t) = pEC50(t) − log10(1+τ(t))
-部分激动剂（τ 有限）的 pKA 反演稳健；满激动剂（Ropinirole/Dopamine，τ 仅能
-取下界）pKA 数值依赖所取 τ，仅作参考方向。
+pKA inversion is robust for partial agonists (finite τ); for full agonists (Ropinirole/Dopamine, where only
+a lower bound on τ exists) the pKA value depends on the chosen τ and serves as direction reference only.
 
-结果概要：
-  - cAMP 与 Gαo 两臂始终互洽（晚期差 0.1–0.5 dex）；
-  - CI 臂 pEC50 对全部 7 个配体系统性高出 0.7–1.6 dex，导致功能态 pKA
-    跨臂差 1.4–2.2 dex（90'，5个部分激动剂）；
-  - 该跨臂差对三个慢配体随时间增大（CI 臂 pKA 爬升），快配体稳定；
-  - 晚期 CI 臂 pKA 与结合 pKi/动力学 pKd 近乎重合（aripiprazole 9.29 vs
-    pKi 9.43；cariprazine 9.45 vs 表6 pKd 9.56），bifeprunox 残差收敛到 0.9 dex；
-  - 同一配体在同一细胞背景上：cAMP 说"低亲和强部分激动"（bifeprunox
-    Emax 88%），CI 说"高亲和弱部分激动"（Emax 44%）——单一 (KA,τ) 无法
-    同时满足两臂，这就是纯化后的跨臂断裂（AT1R 型，在同一篇论文内部）。
+Results summary:
+  - the cAMP and Gαo arms are always mutually consistent (late-time difference 0.1–0.5 dex);
+  - CI-arm pEC50 is systematically 0.7–1.6 dex higher for all 7 ligands, producing functional-state pKA
+    cross-arm differences of 1.4–2.2 dex (90', 5 partial agonists);
+  - this cross-arm difference grows with time for the three slow ligands (CI-arm pKA climbs); fast ligands are stable;
+  - late-time CI-arm pKA nearly coincides with binding pKi / kinetic pKd (aripiprazole 9.29 vs
+    pKi 9.43; cariprazine 9.45 vs Table 6 pKd 9.56); the bifeprunox residual converges to 0.9 dex;
+  - the same ligand on the same cellular background: cAMP says "low-affinity strong partial agonism"
+    (bifeprunox Emax 88%), CI says "high-affinity weak partial agonism" (Emax 44%) — no single (KA,τ)
+    can satisfy both arms; this is the purified cross-arm breakage (AT1R type, within one paper).
 
-解释纪律：CI 是 xCELLigence 全细胞阻抗（不同仪器/板型/可能不同克隆），
-严格的"臂内"比较不成立；但方向性事实（近端 BRET 臂组 vs 全细胞整合臂）
-与配体无关的一致性使其成为可检验的结构事实。
+Interpretation discipline: CI is xCELLigence whole-cell impedance (different instrument/plate format/possibly
+different clone), so a strict "within-arm" comparison does not hold; but the directional fact (proximal BRET
+arm group vs whole-cell integrative arm) is ligand-independent and consistent, making it a testable structural fact.
 ============================================================
 """
 import numpy as np
 
 LIGS7 = ["Ropinirole","Dopamine","Aripiprazole","Cariprazine","Bifeprunox","Pardoprunox","S-3PPP"]
 TIMES = [2,5,10,15,30,45,60,75,90]
-T7 = {  # Klein Herenbrink 2016 SI 表7（pEC50, Emax）——与代码68 同一份转录
+T7 = {  # Klein Herenbrink 2016 SI Table 7 (pEC50, Emax) — same transcription as Code 68
 "cAMP":{
  "Ropinirole":([8.02,7.65,7.38,7.37,7.46,7.01,6.73,6.97,6.76],[100]*9),
  "Dopamine":([8.40,8.07,7.71,7.65,7.78,7.29,6.97,7.30,7.03],[98,98,98,99,102,101,105,98,102]),
@@ -61,7 +61,7 @@ T7 = {  # Klein Herenbrink 2016 SI 表7（pEC50, Emax）——与代码68 同一
  "S-3PPP":([7.66,7.67,7.58,7.58,7.50,7.41,7.39,7.40,7.41],[46,46,36,32,26,23,21,19,17])}}
 PKI = {"Ropinirole":5.60,"Dopamine":5.05,"Aripiprazole":9.43,"Cariprazine":8.90,
        "Bifeprunox":10.36,"Pardoprunox":7.63,"S-3PPP":5.84}
-PKD6 = {"Aripiprazole":9.68,"Cariprazine":9.56,"Bifeprunox":10.26}  # 表6 动力学 pKd
+PKD6 = {"Aripiprazole":9.68,"Cariprazine":9.56,"Bifeprunox":10.26}  # Table 6 kinetic pKd
 
 def pka_row(a, lig):
     out=[]
@@ -71,7 +71,7 @@ def pka_row(a, lig):
         out.append(pec-np.log10(1+tau))
     return out
 
-print("功能态 pKA(臂, 时刻) 地图   [列为 2' 5' 10' 15' 30' 45' 60' 75' 90']")
+print("Functional-state pKA (arm, time) map   [columns: 2' 5' 10' 15' 30' 45' 60' 75' 90']")
 print("="*108)
 PARTIAL=["Aripiprazole","Cariprazine","Bifeprunox","Pardoprunox","S-3PPP"]
 for lig in LIGS7:
@@ -81,21 +81,21 @@ for lig in LIGS7:
         M[a]=pka_row(a,lig)
         print(f"  {a:5s}: "+" ".join(f"{v:5.2f}" for v in M[a]))
     arr=np.array([M["cAMP"],M["Gao"],M["CI"]])
-    print("  跨臂展布: "+" ".join(f"{arr[:,k].max()-arr[:,k].min():.2f}" for k in range(9)))
+    print("  cross-arm spread: "+" ".join(f"{arr[:,k].max()-arr[:,k].min():.2f}" for k in range(9)))
 
 print("\n" + "="*108)
-print("关键截面（90'）：部分激动剂的 功能态 pKA 跨臂差 vs 结合亲和")
-print(f"{'配体':14s} {'pKA_cAMP':>8s} {'pKA_Gao':>8s} {'pKA_CI':>8s} {'CI−cAMP':>8s} {'pKi':>6s} {'CI−pKi':>7s} {'cAMP−pKi':>8s}")
+print("Key cross-section (90'): functional-state pKA cross-arm difference vs binding affinity, partial agonists")
+print(f"{'ligand':14s} {'pKA_cAMP':>8s} {'pKA_Gao':>8s} {'pKA_CI':>8s} {'CI−cAMP':>8s} {'pKi':>6s} {'CI−pKi':>7s} {'cAMP−pKi':>8s}")
 for lig in PARTIAL:
     c,g,i=pka_row("cAMP",lig)[8],pka_row("Gao",lig)[8],pka_row("CI",lig)[8]
     print(f"{lig:14s} {c:8.2f} {g:8.2f} {i:8.2f} {i-c:+8.2f} {PKI[lig]:6.2f} {i-PKI[lig]:+7.2f} {c-PKI[lig]:+8.2f}")
 
-print("\n跨臂差的时间演化（CI−cAMP, dex）：")
+print("\nTime evolution of the cross-arm difference (CI−cAMP, dex):")
 for lig in PARTIAL:
     c=pka_row("cAMP",lig); i=pka_row("CI",lig)
     print(f"  {lig:14s}: "+" ".join(f"{i[k]-c[k]:+.2f}" for k in range(9)))
 
-print("\ncAMP 与 Gαo 互洽性（|Gao−cAMP|, 90'）：",
+print("\ncAMP–Gαo mutual consistency (|Gao−cAMP|, 90'):",
       {lig: round(abs(pka_row('Gao',lig)[8]-pka_row('cAMP',lig)[8]),2) for lig in PARTIAL})
-print("CI 晚期 pKA 与表6动力学 pKd 对照：",
+print("Late-time CI pKA vs Table 6 kinetic pKd:",
       {lig: f"{pka_row('CI',lig)[8]:.2f} vs {PKD6[lig]}" for lig in ["Aripiprazole","Cariprazine","Bifeprunox"]})

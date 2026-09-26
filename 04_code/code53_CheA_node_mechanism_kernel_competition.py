@@ -1,31 +1,31 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-代码53 CheA 节点机制检验（臂2）+ 核模型竞赛（臂3）v1.0.0
+Code 53 CheA-node mechanism test (arm 2) + kernel-model competition (arm 3) v1.0.0
 ================================================
-背景：代码52 排除了归一化协议伪影，矛盾收窄到 (a) 受体→CheA→CheY-P 窄段
-的生物坐标变换，或 (b) 实验 regime。本代码两臂执行：
+Background: code52 ruled out normalization-protocol artifacts, narrowing the contradiction to (a) the biological
+coordinate transform of the narrow receptor→CheA→CheY-P segment, or (b) the experimental regime. This code executes two arms:
 
-臂 2（§1–§3）：带显式适应动力学的 受体→CheA→CheY-P 最小模型
-  状态 (m, Yp)；a = 1/(1+exp(N[α(m0-m)+g(L)]))，g(L)=ln((1+L/Ki)/(1+L/Ka))
-  dm/dt = kR(1-a) − kB·a（Barkai-Leibler 精确适应；适应稳态解析求得）
-  dYp/dt = kP·a·(1−Yp) − kZ·Yp        标准型
-       或 − kZ·Yp/(Km+Yp)             CheZ 饱和（零级超灵敏候选）
-  协议严格复刻 Moore：背景适应 → 阶跃 → 固定时刻 t_meas 读 ΔYp。
-  扫描 Ki×t_meas×kR（27 组）+ CheZ 饱和 Km×Ki（9 组）。
-  问题：这段窄链路能否长出增量型（logF 主导）或绝对锚点 Fc≈0.17 µM？
+Arm 2 (§1–§3): minimal receptor→CheA→CheY-P model with explicit adaptation dynamics
+  state (m, Yp); a = 1/(1+exp(N[α(m0-m)+g(L)])), g(L)=ln((1+L/Ki)/(1+L/Ka))
+  dm/dt = kR(1-a) − kB·a (Barkai-Leibler precise adaptation; adapted steady state solved analytically)
+  dYp/dt = kP·a·(1−Yp) − kZ·Yp        standard form
+       or − kZ·Yp/(Km+Yp)             CheZ saturation (zero-order ultrasensitivity candidate)
+  protocol strictly mirrors Moore: background adaptation → step → read ΔYp at fixed time t_meas.
+  scan Ki×t_meas×kR (27 sets) + CheZ saturation Km×Ki (9 sets).
+  question: can this narrow link grow an increment-type (logF-dominated) response or an absolute anchor Fc≈0.17 µM?
 
-臂 3（§4）：核模型竞赛。Moore 自己的 Discussion 提出"线性 regime（感知绝对
-  变化）→ 对数 regime（感知倍数）"两 regime 转变，其 MWC 移位 Hill 模型
-  解释了 K1/2 多样性数据。问题：他们自己的模型形式能否解释【幅值单元表】？
-  竞赛：G3' 原经验核(logF+衰减)、G6 线性F+衰减、G7/G8 Moore 式移位 Hill、
-  G10 锚定对数 log(1+F/Kc)+衰减、G11 无衰减版。
-  在 a 字段单元表与原始 FRET 字段单元表上各跑一次。
-  另：行内（B=0.01 与 B=100）logF vs 线性F 可分性检验。
+Arm 3 (§4): kernel-model competition. Moore's own Discussion proposes a "linear regime (sensing absolute
+  changes) → logarithmic regime (sensing fold changes)" two-regime transition, and their MWC shifted-Hill model
+  explains the K1/2 diversity data. Question: can their own model form explain the [amplitude unit table]?
+  competition: G3' original empirical kernel (logF+decay), G6 linear-F+decay, G7/G8 Moore-style shifted Hill,
+  G10 anchored logarithm log(1+F/Kc)+decay, G11 no-decay version.
+  run once each on the a-field unit table and the raw FRET-field unit table.
+  also: within-row (B=0.01 and B=100) logF vs linear-F separability test.
 
-数据：Moore 2024 Dryad doi:10.5061/dryad.nvx0k6dzz（CC0）
-运行：python3 代码53_CheA节点机制检验与核模型竞赛.py
-依赖：numpy, scipy, pandas
+Data: Moore 2024 Dryad doi:10.5061/dryad.nvx0k6dzz (CC0)
+Run: python3 代码53_CheA节点机制检验与核模型竞赛.py
+Dependencies: numpy, scipy, pandas
 """
 
 import os
@@ -55,7 +55,7 @@ def r2(x, y):
 
 
 # ===============================================================
-# §1 臂 2：受体→CheA→CheY-P 动力学模型
+# §1 arm 2: receptor→CheA→CheY-P dynamical model
 # ===============================================================
 ALPHA, M0 = 1.0, 1.0
 
@@ -65,14 +65,14 @@ def act(m, L, N, Ki, Ka):
 
 def simulate(B, F, N=6.0, Ki=1.0, Ka=50.0, kR=0.02, kB=0.04,
              kP=2.0, kZ=1.0, Km=None, t_meas=8.0):
-    """精确适应稳态解析求得，只积阶跃段。Km=None → 标准 CheZ；否则饱和型。"""
+    """Adapted steady state solved analytically; only the step segment is integrated. Km=None → standard CheZ; otherwise saturating."""
     astar = kR / (kR + kB)
     m0 = brentq(lambda m: act(m, B, N, Ki, Ka) - astar, M0 - 20, M0 + 20, xtol=1e-10)
     if Km is None:
         yp0 = kP * astar / (kP * astar + kZ)
         def dephos(Yp): return kZ * Yp
     else:
-        # 稳态：kP*a*(1-Y)(Km+Y) = kZ*Y → 二次方程
+        # steady state: kP*a*(1-Y)(Km+Y) = kZ*Y → quadratic equation
         A = kP * astar
         b = kZ - A * (1 - Km); c = -A * Km
         yp0 = (-b + np.sqrt(b * b - 4 * A * c)) / (2 * A)
@@ -97,21 +97,21 @@ def unit_table_sim(**kw):
     return Rs, (r2(np.log10(Fs), Rs), r2(np.log10((Bs + Fs) / Bs), Rs),
                 r2(np.log10(Bs + Fs), Rs))
 
-print("== §2 臂2 标准链路扫描（Ki × 读数时刻 × 适应速率，a*=1/3 固定）==")
+print("== §2 arm-2 standard-link scan (Ki × readout time × adaptation rate, a*=1/3 fixed) ==")
 print(f"{'Ki':>4} {'t':>4} {'kR':>6} | logF   logr   logT   max")
 for Ki, t_m, kR_ in itertools.product([0.2, 1.0, 5.0], [2.0, 8.0, 30.0],
                                       [0.005, 0.02, 0.1]):
     Rv, c = unit_table_sim(Ki=Ki, kR=kR_, kB=2 * kR_, t_meas=t_m)
     print(f"{Ki:4.1f} {t_m:4.0f} {kR_:6.3f} | {c[0]:.3f}  {c[1]:.3f}  {c[2]:.3f}  {Rv.max():.3f}")
 
-print("\n== §3 臂2 CheZ 饱和变体（Km × Ki，t=8s, kR=0.02）==")
+print("\n== §3 arm-2 CheZ saturation variant (Km × Ki, t=8s, kR=0.02) ==")
 for Km, Ki in itertools.product([0.01, 0.05, 0.2], [0.2, 1.0, 5.0]):
     Rv, c = unit_table_sim(Ki=Ki, Km=Km)
     print(f"Km={Km:4.2f} Ki={Ki:3.1f} | logF={c[0]:.3f} logr={c[1]:.3f} "
           f"logT={c[2]:.3f} max={Rv.max():.3f}")
 
 # ===============================================================
-# §4 臂 3：核模型竞赛（a 字段单元表 + 原始 FRET 单元表）
+# §4 arm 3: kernel-model competition (a-field unit table + raw FRET unit table)
 # ===============================================================
 _df = pd.read_csv(CSV)
 B_A = _df["B_uM"].to_numpy(float); F_A = _df["F_uM"].to_numpy(float)
@@ -128,7 +128,7 @@ FILES = {
 }
 
 def extract_raw():
-    """原始 FRET 字段单元表（流程同代码49b/52）。"""
+    """Raw FRET-field unit table (same pipeline as code49b/52)."""
     rec = []
     for name, bg in FILES.items():
         p = os.path.join(ROOT, name + ".mat")
@@ -185,50 +185,50 @@ def kG10(X, A, Kc, Bs, p): return A * np.log(1 + X[1] / Kc) / (1 + (X[0] / Bs) *
 def kG11(X, A, Kc):        return A * np.log(1 + X[1] / Kc)
 
 RACE = [
-    ("G3'  log10(F/Fc)+衰减   ", kG3,  [0.3, 0.17, 100, 0.8], ([0, 1e-4, 1e-2, .05], [1e3, 1e3, 1e5, 5])),
-    ("G6   线性F+衰减         ", kG6,  [0.1, 100, 0.8],       ([0, 1e-2, .05],       [1e3, 1e5, 5])),
-    ("G7   Moore移位Hill n=1  ", kG7,  [0.5, 0.2, 10],        ([0, 1e-4, 1e-2],      [1e3, 1e3, 1e4])),
-    ("G8   Moore移位Hill 自由n", kG8,  [0.5, 0.2, 10, 1.5],   ([0, 1e-4, 1e-2, .3],  [1e3, 1e3, 1e4, 6])),
-    ("G10  log(1+F/Kc)+衰减   ", kG10, [0.2, 0.5, 70, 0.8],   ([0, 1e-4, 1e-2, .05], [1e3, 1e3, 1e5, 5])),
-    ("G11  log(1+F/Kc) 无B项  ", kG11, [0.2, 0.5],            ([0, 1e-4],            [1e3, 1e3])),
+    ("G3'  log10(F/Fc)+decay      ", kG3,  [0.3, 0.17, 100, 0.8], ([0, 1e-4, 1e-2, .05], [1e3, 1e3, 1e5, 5])),
+    ("G6   linear F+decay         ", kG6,  [0.1, 100, 0.8],       ([0, 1e-2, .05],       [1e3, 1e5, 5])),
+    ("G7   Moore shifted Hill n=1 ", kG7,  [0.5, 0.2, 10],        ([0, 1e-4, 1e-2],      [1e3, 1e3, 1e4])),
+    ("G8   Moore shifted Hill free n", kG8, [0.5, 0.2, 10, 1.5],  ([0, 1e-4, 1e-2, .3],  [1e3, 1e3, 1e4, 6])),
+    ("G10  log(1+F/Kc)+decay      ", kG10, [0.2, 0.5, 70, 0.8],   ([0, 1e-4, 1e-2, .05], [1e3, 1e3, 1e5, 5])),
+    ("G11  log(1+F/Kc) no B term  ", kG11, [0.2, 0.5],            ([0, 1e-4],            [1e3, 1e3])),
 ]
 
 def race(Bv, Fv, Rv, tag):
-    print(f"\n== 核模型竞赛 @ {tag}（n={len(Rv)}）==")
+    print(f"\n== kernel-model competition @ {tag} (n={len(Rv)}) ==")
     for nm, fn, p0, bd in RACE:
         try:
             p_, _ = curve_fit(fn, (Bv, Fv), Rv, p0=p0, bounds=bd, maxfev=40000)
             pr = fn((Bv, Fv), *p_)
             ss = 1 - ((pr - Rv) ** 2).sum() / ((Rv - Rv.mean()) ** 2).sum()
-            print(f"  {nm}: R²fit={ss:.3f}  参数={np.round(p_, 3)}")
+            print(f"  {nm}: R²fit={ss:.3f}  params={np.round(p_, 3)}")
         except Exception as e:
-            print(f"  {nm}: 拟合失败 {str(e)[:40]}")
+            print(f"  {nm}: fit failed {str(e)[:40]}")
 
-race(B_A, F_A, R_A, "a 字段单元表（49b 主判）")
+race(B_A, F_A, R_A, "a-field unit table (49b primary verdict)")
 Br_, Fr_, Rr_ = extract_raw()
-race(Br_, Fr_, Rr_, "原始 FRET 字段单元表")
+race(Br_, Fr_, Rr_, "raw FRET-field unit table")
 
-print("\n== 行内可分性：logF vs 线性F（a 字段）==")
+print("\n== within-row separability: logF vs linear F (a field) ==")
 for B_ in [0.01, 100.0]:
     m = B_A == B_
     print(f"  B={B_:6.2f}: R²(logF)={r2(np.log10(F_A[m]), R_A[m]):.3f}  "
-          f"R²(线性F)={r2(F_A[m], R_A[m]):.3f}")
+          f"R²(linear F)={r2(F_A[m], R_A[m]):.3f}")
 
 print("""
-== v1.0.0 总结 ==
-臂2：标准链路 27 组 + CheZ 饱和 9 组，全部保持倍数/总量原生型
-   （logF 最高 0.13），未长出增量或 Fc 锚点 → CheA 节点（标准动力学）
-   不能完成倍数→增量变换。NEGATIVE。
-臂3：Moore 自己的移位 Hill 模型形式（G7/G8）在【幅值单元表】上
-   R²fit≈0.61–0.67（raw 上 0.53–0.57），明显低于锚定对数核
-   G10（0.967/0.906），且 G8 需把 Ki 推到参数边界 10⁴（退化极限）。
-   Moore 模型解释的是 K1/2 多样性统计量，不解释幅值表。
-新经验核（更新）：R = A·ln(1+F/Kc)/(1+(B/Bs)^p)，Kc≈0.46–0.57 µM，
-   Bs≈63–70 µM，p≈0.8–0.9，a 字段 R²=0.967、raw R²=0.906。
-   行内检验：B=0.01 与 B=100 行均为 logF 主导（0.97/0.99）。
-解读：幅值响应是【绝对增量 F 的对数】，参考零点锚定在 Kc（II 类
-   结构常数），背景只通过衰减项进入——等效于自由能参考态固定在
-   零配体、适应只调增益。这不被任何标准精确适应机制
-   （h(g(B+F)−g(B)) 家族、Moore 自己的移位 Hill、CheA 段动力学）
-   复现。该幅值表是先前未被任何模型解释过的经验规律。
+== v1.0.0 Summary ==
+Arm 2: standard-link 27 sets + CheZ saturation 9 sets, all stay fold/total-native
+   (logF at best 0.13), no increment or Fc anchor emerges → the CheA node (standard dynamics)
+   cannot perform the fold→increment transform. NEGATIVE.
+Arm 3: Moore's own shifted-Hill model forms (G7/G8) on the [amplitude unit table]
+   reach R²fit≈0.61–0.67 (0.53–0.57 on raw), clearly below the anchored-log kernel
+   G10 (0.967/0.906), and G8 must push Ki to the parameter boundary 10⁴ (degenerate limit).
+   Moore's model explains the K1/2 diversity statistic, not the amplitude table.
+New empirical kernel (updated): R = A·ln(1+F/Kc)/(1+(B/Bs)^p), Kc≈0.46–0.57 µM,
+   Bs≈63–70 µM, p≈0.8–0.9, a-field R²=0.967, raw R²=0.906.
+   Within-row test: B=0.01 and B=100 rows are both logF-dominated (0.97/0.99).
+Interpretation: the amplitude response is [the logarithm of the absolute increment F],
+   with the reference zero anchored at Kc (a class-II structural constant); background enters only
+   through the decay term — equivalent to the free-energy reference state fixed at zero ligand, adaptation
+   adjusting only the gain. Not reproduced by any standard precise-adaptation mechanism (the h(g(B+F)−g(B))
+   family, Moore's own shifted Hill, CheA-segment dynamics). An empirical regularity no prior model explains.
 """)

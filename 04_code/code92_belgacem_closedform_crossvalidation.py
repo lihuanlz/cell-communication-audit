@@ -1,16 +1,16 @@
 # -*- coding: utf-8 -*-
 """
-代码92：Belgacem 闭式 Hopf 周期 x 我们的分子常数——两条独立路线交叉核验
-来源：arXiv 2605.23722（2026-05）Section 9 p53 标定：
-  γ1=γ2=ln2≈0.693/h（1h 蛋白半衰期），环路增益反演使 τc=1h（实测转录延迟），
-  得 AB≈1.72，闭式 Tc=2π/ωc≈5.6 h（对 5.5 h 差 3% 内）。
-本卡四件事：
-  P1 复现其闭式算术（ωc、τc、T 三个公式独立重算）；
-  P2 用 Python 数值积分其 logistic 两基因 DDE，独立验证闭式公式（他用 R 做的）；
-  P3 把我们登记表 v02 的分子常数代入同一闭式框架：τ 取 K3（实测 2.0 h /
-     分解 1.70 h），γ 取不同口径，看闭式周期落在哪；
-  P4 与我们的 Mönke 数值结果（模拟 5.48 h / Jacobian 5.95 h）和实测 5.5 h 对账。
-纪律：确定性，种子标记 20260925；JSON + PNG/SVG + 判词卡。
+Code 92: Belgacem closed-form Hopf period x our molecular constants — cross-validation of two independent routes
+Source: arXiv 2605.23722 (2026-05) Section 9 p53 calibration:
+  γ1=γ2=ln2≈0.693/h (1 h protein half-life); loop-gain inversion for τc=1 h (measured transcriptional delay),
+  gives AB≈1.72, closed-form Tc=2π/ωc≈5.6 h (within 3% of 5.5 h).
+This card does four things:
+  P1 reproduce their closed-form arithmetic (three formulas ωc, τc, T recomputed independently);
+  P2 numerically integrate their logistic two-gene DDE in Python, independently verifying the closed form (they used R);
+  P3 plug our registry v02 molecular constants into the same closed-form framework: τ from K3 (measured 2.0 h /
+     decomposed 1.70 h), γ under different conventions, and see where the closed-form period lands;
+  P4 reconcile with our Mönke numerical results (simulation 5.48 h / Jacobian 5.95 h) and the measured 5.5 h.
+Discipline: deterministic, seed tag 20260925; JSON + PNG/SVG + verdict card.
 """
 import json
 import numpy as np
@@ -31,7 +31,7 @@ LN2 = np.log(2.0)
 res = {"seed": SEED_TAG,
        "source": "arXiv 2605.23722 Section 9 (PDF belgacem_2605.23722.pdf 本地存档)"}
 
-# ---------------- 闭式公式（论文 Section 4） ----------------
+# ---------------- Closed-form formulas (paper Section 4) ----------------
 def omega_c(g1, g2, AB):
     p = (-(g1**2 + g2**2) + np.sqrt((g1**2 - g2**2)**2 + 4 * AB**2)) / 2
     return np.sqrt(p) if p > 0 else np.nan
@@ -44,12 +44,12 @@ def T_of(g1, g2, AB):
     return 2 * np.pi / omega_c(g1, g2, AB)
 
 def AB_from_tauc(g1, g2, tau_target):
-    """给定降解率与目标临界延迟，反演环路增益 AB。"""
+    """Invert loop gain AB given degradation rates and a target critical delay."""
     f = lambda AB: tau_c(g1, g2, AB) - tau_target
     return brentq(f, g1 * g2 * (1 + 1e-6), 1e6,
                   xtol=1e-14, rtol=1e-14)
 
-# ---------------- P1：复现 Belgacem Section 9 算术 ----------------
+# ---------------- P1: reproduce Belgacem Section 9 arithmetic ----------------
 g = LN2
 AB_rep = AB_from_tauc(g, g, 1.0)
 res["P1_reproduce"] = dict(
@@ -60,9 +60,9 @@ res["P1_reproduce"] = dict(
     T_closed_h=float(T_of(g, g, AB_rep)), T_paper_h=5.6, T_measured_h=5.5,
     reproduce_ok=bool(abs(AB_rep - 1.72) < 0.02 and abs(T_of(g, g, AB_rep) - 5.6) < 0.1))
 
-# ---------------- P2：数值积分其 DDE（Python 独立复核其 R 验证） ----------------
-# 对称参数化：κ1=κ2=κ, θ1=θ2=θ, λ=4；平衡点 x*=θ 处 f*=1/2，A=B=κλ/4=κ
-# AB=κ²=1.72 -> κ=1.3114；平衡点条件 κ·0.5/γ=θ -> θ=0.946
+# ---------------- P2: numerically integrate their DDE (independent Python check of their R verification) ----------------
+# Symmetric parameterization: κ1=κ2=κ, θ1=θ2=θ, λ=4; at the fixed point x*=θ, f*=1/2, A=B=κλ/4=κ
+# AB=κ²=1.72 -> κ=1.3114; fixed-point condition κ·0.5/γ=θ -> θ=0.946
 KAPPA = float(np.sqrt(AB_rep))
 LAM = 4.0
 THETA = KAPPA * 0.5 / LN2
@@ -78,7 +78,7 @@ def f_plus(x):
 
 
 def simulate_dde(tau_total, t_end=240.0, dt=0.002):
-    """显式 Euler + 常数历史，τ1=τ2=τ/2。确定性。"""
+    """Explicit Euler + constant history, τ1=τ2=τ/2. Deterministic."""
     n = int(t_end / dt)
     lag = int(tau_total / 2 / dt)
     x1 = np.full(n + lag + 1, 0.4)
@@ -105,32 +105,32 @@ res["P2_dde_integration"] = dict(kappa=KAPPA, lam=LAM, theta=THETA, gamma=GAM,
                                  rows=dde_rows,
                                  note="τ=1.0 位于临界点上（边缘），周期仅在 τ>τc 的极限环上有意义")
 
-# ---------------- P3：我们的分子常数代入闭式框架 ----------------
+# ---------------- P3: our molecular constants in the closed-form framework ----------------
 def T_from_measured_tau(g1, g2, tau_measured):
     AB = AB_from_tauc(g1, g2, tau_measured)
     return float(AB), float(T_of(g1, g2, AB))
 
 p3 = []
-# 行1：Belgacem 标定（对照）
+# Row 1: Belgacem calibration (control)
 AB1, T1 = T_from_measured_tau(LN2, LN2, 1.0)
 p3.append(dict(case="Belgacem calib: g=ln2/1h both, tau=1.0h",
                g1=LN2, g2=LN2, tau=1.0, AB=AB1, T_h=T1))
-# 行2：同一半衰期口径，τ 换成我们 K3 实测 2.0 h
+# Row 2: same half-life convention, τ replaced by our K3 measured 2.0 h
 AB2, T2 = T_from_measured_tau(LN2, LN2, 2.0)
 p3.append(dict(case="same half-lives, tau=K3 measured 2.0h",
                g1=LN2, g2=LN2, tau=2.0, AB=AB2, T_h=T2))
-# 行3：τ = 代码89 相位分解值 1.70 h
+# Row 3: τ = code89 phase-decomposition value 1.70 h
 AB3, T3 = T_from_measured_tau(LN2, LN2, 1.70)
 p3.append(dict(case="same half-lives, tau=K3 decomposed 1.70h (code89)",
                g1=LN2, g2=LN2, tau=1.70, AB=AB3, T_h=T3))
-# 行4：应激态口径——p53 MDM2 依赖半衰期 ~15 min（γ=ln2/0.25），Mdm2 dM=2/h，τ=2.0 h
+# Row 4: stress-regime convention — p53 MDM2-dependent half-life ~15 min (γ=ln2/0.25), Mdm2 dM=2/h, τ=2.0 h
 g_p53_fast = LN2 / 0.25
 AB4, T4 = T_from_measured_tau(g_p53_fast, 2.0, 2.0)
 p3.append(dict(case="stress regime: g_p53=ln2/0.25h, g_Mdm2=2/h, tau=2.0h",
                g1=g_p53_fast, g2=2.0, tau=2.0, AB=AB4, T_h=T4))
 res["P3_our_constants_in_closed_form"] = p3
 
-# ---------------- P4：总对账 ----------------
+# ---------------- P4: overall reconciliation ----------------
 res["P4_reconciliation"] = dict(
     measured_period_h=5.5,
     belgacem_closed_form_h=T1,
@@ -138,7 +138,7 @@ res["P4_reconciliation"] = dict(
     ours_tau2_closed_form_h=T2,
     verdict="见判词卡")
 
-# ---------------- 图：两面体 ----------------
+# ---------------- Figure: two-panel ----------------
 fig, axes = plt.subplots(1, 2, figsize=(12.5, 4.6))
 
 ax = axes[0]

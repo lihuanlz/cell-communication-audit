@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
 """
-代码51r4 p53 Fisher 审计收尾（两阶段）
-part A（快速）：核心噪声标定——σ 扫描使 IPI CV→30%（Lahav: 100/330min），
-       在标定点 σ* 重跑 P2' 延迟扫描，验证结果3（独立随机感知级签名）在真实噪声量级下稳健。
-part B（重）：M=4000 + 前向差分（公共随机数）收紧 σ 软方向信息上界，
-       与 r3 的 M=400 对照。
-用法：python 代码51r4_p53_Fisher收尾.py A|B
+Code 51r4 p53 Fisher audit wrap-up (two stages)
+part A (fast): core noise calibration — σ scan driving IPI CV→30% (Lahav: 100/330min),
+       re-run the P2' delay scan at the calibration point σ*, verifying result 3 (independent random perception-level signature) is robust at realistic noise magnitude.
+part B (heavy): M=4000 + forward differences (common random numbers) tighten the information upper bound along the σ soft direction,
+       compared against r3's M=400.
+usage: python 代码51r4_p53_Fisher收尾.py A|B
 """
 import sys, json
 from pathlib import Path
@@ -92,13 +92,13 @@ def nanmean_cols(obs):
 
 
 def simulate_hetero(theta, m, het_name, het_cv, seed0=0):
-    """慢异质性检验：指定参数逐细胞抽取 ~ LogN(0, het_cv)，其余全局。σ 保持低位。"""
+    """Slow-heterogeneity test: the named parameter drawn per cell ~ LogN(0, het_cv), all others global. σ kept low."""
     n = int(TMAX / DT)
     rng = np.random.default_rng(seed0)
     v = np.full(m, -1.05)
     w = np.full(m, -0.65)
     t_ax = np.linspace(0.0, TMAX, n + 1)
-    het = np.exp(het_cv * rng.standard_normal(m))   # 乘性逐细胞因子
+    het = np.exp(het_cv * rng.standard_normal(m))   # multiplicative per-cell factor
     def pv(name):
         val = theta[name]
         return val * het if name == het_name else np.full(m, float(val))
@@ -118,7 +118,7 @@ def simulate_hetero(theta, m, het_name, het_cv, seed0=0):
 
 
 def part_A():
-    print("[A1] σ 标定扫描（目标 IPI CV≈0.30，约束：计数律不破 N∈[8,12]）...", flush=True)
+    print("[A1] σ calibration scan (target IPI CV≈0.30, constraint: counting rule unbroken N∈[8,12]) ...", flush=True)
     calib = []
     for sig in [0.06, 0.15, 0.20, 0.25, 0.30, 0.50, 0.80, 1.20]:
         th = dict(THETA0); th["sigma"] = sig
@@ -129,14 +129,14 @@ def part_A():
         ipi_cv = float(np.nanmean(obs[:, 5] / np.nanmean(T)))
         calib.append(dict(sigma=sig, cv_T=cv_T, ipi_cv=ipi_cv,
                           frac_valid=float(valid.mean()), N_mean=float(np.nanmean(obs[:, 3]))))
-        print(f"      σ={sig:.2f}  CV(T)={cv_T:.3f}  细胞级IPI_CV={ipi_cv:.3f}  "
+        print(f"      σ={sig:.2f}  CV(T)={cv_T:.3f}  cell-level IPI_CV={ipi_cv:.3f}  "
               f"valid={valid.mean():.2f}  N={np.nanmean(obs[:, 3]):.1f}", flush=True)
-    # 选标定点：IPI_cv 最接近 0.30，valid 全，且计数律不破（N∈[8,12]）
+    # pick calibration point: IPI_cv closest to 0.30, all valid, counting rule unbroken (N∈[8,12])
     ok = [c for c in calib if c["frac_valid"] >= 0.98 and 8.0 <= c["N_mean"] <= 12.0]
     star = min(ok, key=lambda c: abs(c["ipi_cv"] - CV_TARGET))
     sig_star = star["sigma"]
-    print(f"[A2] 标定点 σ*={sig_star}（IPI_CV={star['ipi_cv']:.3f}, N={star['N_mean']:.1f}），"
-          f"重跑 P2' 延迟扫描 ...", flush=True)
+    print(f"[A2] calibration point σ*={sig_star} (IPI_CV={star['ipi_cv']:.3f}, N={star['N_mean']:.1f}), "
+          f"re-running P2' delay scan ...", flush=True)
     th_star = dict(THETA0); th_star["sigma"] = sig_star
     obs0 = run_group(th_star, m=400, seed0=0)
     T0 = float(np.nanmean(obs0[:, 1]))
@@ -149,7 +149,7 @@ def part_A():
         rows.append(dict(mu_d_over_T=frac, var_ratio=ratio, pass_P2p=ratio >= 4))
         print(f"      μd/T={frac:.2f}  VarRatio={ratio:.2f}  P2'={'过' if ratio>=4 else '不过'}",
               flush=True)
-    print("[A3] 噪声颜色判别：慢异质性能否同时满足 IPI_CV≈0.30 与 N≈9 ...", flush=True)
+    print("[A3] noise-color discrimination: can slow heterogeneity satisfy IPI_CV≈0.30 and N≈9 simultaneously ...", flush=True)
     hetero = []
     for name in ["a", "eps", "s", "tau_r"]:
         for hcv in [0.05, 0.10, 0.20]:
@@ -182,7 +182,7 @@ def fisher_M(theta0, M, hrel):
     for i, name in enumerate(PARAM_NAMES):
         th_p = dict(theta0); th_p[name] = theta0[name] * (1 + hrel)
         gp = nanmean_cols(run_group(th_p, m=M, seed0=0))
-        J[:, i] = (gp - g0) / np.log(1 + hrel)   # 前向差分省一半组数
+        J[:, i] = (gp - g0) / np.log(1 + hrel)   # forward differences halve the number of groups
     scale = np.where(np.abs(g0) > 1e-9, np.abs(g0), 1.0)
     Jn = J / scale[:, None]
     Sn = Sigma / np.outer(scale, scale)
@@ -217,10 +217,10 @@ def _group_mean_cache(name, factor, M, hrel, cache):
 
 
 def part_B(idx_lo, idx_hi):
-    """中心差分 M=4000，分段跑（绕开300s上限），缓存断点续。"""
+    """Central differences M=4000, run in segments (to dodge the 300 s limit), cache resumes at breakpoint."""
     cache = json.loads(CACHE.read_text(encoding="utf-8")) if CACHE.exists() else {}
     M, hrel = 4000, 0.02
-    # 基准组
+    # baseline group
     key0 = f"BASE|{M}"
     if key0 in cache:
         base = np.array(cache[key0])
@@ -230,16 +230,16 @@ def part_B(idx_lo, idx_hi):
     for i in range(idx_lo, idx_hi):
         name = PARAM_NAMES[i]
         _group_mean_cache(name, 1 + hrel, M, hrel, cache)
-        print(f"      +{name} 完成", flush=True)
+        print(f"      +{name} done", flush=True)
         _group_mean_cache(name, 1 - hrel, M, hrel, cache)
-        print(f"      -{name} 完成", flush=True)
+        print(f"      -{name} done", flush=True)
         CACHE.write_text(json.dumps(cache), encoding="utf-8")
     CACHE.write_text(json.dumps(cache), encoding="utf-8")
-    print(f"[B2] 段[{idx_lo},{idx_hi}) 缓存完成，共 {len(cache)} 组", flush=True)
+    print(f"[B2] segment [{idx_lo},{idx_hi}) cached, {len(cache)} groups total", flush=True)
 
 
 def part_B3():
-    """缓存齐后合成 Fisher。"""
+    """Assemble Fisher once the cache is complete."""
     cache = json.loads(CACHE.read_text(encoding="utf-8"))
     M, hrel = 4000, 0.02
     g0 = np.array(cache[f"BASE|{M}"])
@@ -248,7 +248,7 @@ def part_B3():
         gp = np.array(cache[f"{name}|{1+hrel}|{M}|{hrel}"])
         gm = np.array(cache[f"{name}|{1-hrel}|{M}|{hrel}"])
         J[:, i] = (gp - gm) / (np.log(1 + hrel) - np.log(1 - hrel))
-    # Σ 用 M=4000 基准组的轨迹协方差——缓存只存了均值，补跑基准拿协方差
+    # Σ uses trajectory covariance of the M=4000 baseline group — cache stores means only, re-run baseline for covariance
     obs = run_group(THETA0, m=M, seed0=0)
     X = obs.copy()
     for i in range(X.shape[1]):
@@ -277,8 +277,8 @@ def part_B3():
                cond_full=cond_full, cond_resolved=cond_res, soft_top=soft_top,
                share=share.tolist(), N_mean=float(np.nanmean(obs[:, 3])))
     OUT_B.write_text(json.dumps(res, ensure_ascii=False, indent=2), encoding="utf-8")
-    print(f"[B3] 中心差分 M=4000: cond_full={cond_full:.3e} cond_resolved={cond_res:.3e} "
-          f"最软={soft_top}", flush=True)
+    print(f"[B3] central-difference M=4000: cond_full={cond_full:.3e} cond_resolved={cond_res:.3e} "
+          f"softest={soft_top}", flush=True)
     print(f"      λ7/λ1={evals[-1]/evals[0]:.2e}  λ7={evals[-1]:.3e}", flush=True)
     return res
 
@@ -294,18 +294,18 @@ def make_figure(resA, resB):
 
     ax = axes[0, 0]
     cal = resA["calib"]
-    ax.plot([c["sigma"] for c in cal], [c["ipi_cv"] for c in cal], "o-", label="细胞内 IPI CV")
-    ax.plot([c["sigma"] for c in cal], [c["cv_T"] for c in cal], "s--", label="群体 CV(T)")
-    ax.axhline(0.30, ls=":", color="red", label="文献 IPI CV ≈ 0.30")
+    ax.plot([c["sigma"] for c in cal], [c["ipi_cv"] for c in cal], "o-", label="intracellular IPI CV")
+    ax.plot([c["sigma"] for c in cal], [c["cv_T"] for c in cal], "s--", label="population CV(T)")
+    ax.axhline(0.30, ls=":", color="red", label="literature IPI CV ≈ 0.30")
     ax2 = ax.twinx()
     ax2.plot([c["sigma"] for c in cal], [c["N_mean"] for c in cal], "^:", color="#e67e22",
-             label="N（右轴，计数律警戒）")
+             label="N (right axis, counting-rule watch)")
     ax2.axhline(9.0, ls=":", color="#e67e22", alpha=0.5)
     ax2.set_ylabel("N")
     ax.axvline(resA["sigma_star"], ls="--", color="gray",
                label=f"σ*={resA['sigma_star']}（IPI_CV={resA['star']['ipi_cv']:.2f}, N={resA['star']['N_mean']:.0f}）")
     ax.set_xscale("log")
-    ax.set_title("(a) 快噪声标定：IPI CV 达标 ↔ N 膨胀的权衡")
+    ax.set_title("(a) fast-noise calibration: IPI CV on target ↔ N inflation trade-off")
     ax.set_xlabel("σ（log）"); ax.set_ylabel("CV")
     h1, l1 = ax.get_legend_handles_labels(); h2, l2 = ax2.get_legend_handles_labels()
     ax.legend(h1 + h2, l1 + l2, fontsize=8)
@@ -313,20 +313,20 @@ def make_figure(resA, resB):
     ax = axes[0, 1]
     rows = resA["lit_matched"]
     ax.plot([r["mu_d_over_T"] for r in rows], [r["ratio_lit"] for r in rows],
-            "o-", color="#8e44ad", label=f"σ*=0.25 文献同款比值")
-    ax.axhline(5.8, ls=":", color="red", label="文献实测 5.8（Lahav）")
-    ax.axhline(4, ls="--", color="gray", label="P2' 判据 =4")
-    ax.annotate("μ_d/T=1.0 外推 ≈5.7", xy=(0.73, 3.01), xytext=(0.30, 2.2),
+            "o-", color="#8e44ad", label=f"σ*=0.25 literature-matched ratio")
+    ax.axhline(5.8, ls=":", color="red", label="literature measured 5.8 (Lahav)")
+    ax.axhline(4, ls="--", color="gray", label="P2' criterion =4")
+    ax.annotate("μ_d/T=1.0 extrapolation ≈5.7", xy=(0.73, 3.01), xytext=(0.30, 2.2),
                 arrowprops=dict(arrowstyle="->", color="black"), fontsize=9)
-    ax.set_title("(b) 真实噪声下 P2' + 定量复现（μ_d≈T → 5.7≈5.8）")
-    ax.set_xlabel("sd(τ_d)/T"); ax.set_ylabel("Var(t1)/mean Var(IPI内)")
+    ax.set_title("(b) P2' under realistic noise + quantitative reproduction (μ_d≈T → 5.7≈5.8)")
+    ax.set_xlabel("sd(τ_d)/T"); ax.set_ylabel("Var(t1)/mean Var(IPI within)")
     ax.legend(fontsize=8)
 
     ax = axes[1, 0]
     ev = np.array(resB["evals"])
     ax.bar(range(1, 8), np.log10(np.maximum(ev, 1e-300)), color="#3a7bd5")
-    ax.set_title(f"(c) M=4000 中心差分 Fisher 谱  λ7/λ1≈1e-19（σ 方向=零，压穿机器精度）")
-    ax.set_xlabel("模式序号"); ax.set_ylabel("log10 特征值"); ax.set_xticks(range(1, 8))
+    ax.set_title(f"(c) M=4000 central-difference Fisher spectrum  λ7/λ1≈1e-19 (σ direction = zero, crushed below machine precision)")
+    ax.set_xlabel("mode index"); ax.set_ylabel("log10 eigenvalue"); ax.set_xticks(range(1, 8))
 
     ax = axes[1, 1]
     het = resA["hetero"]
@@ -334,18 +334,18 @@ def make_figure(resA, resB):
     for name in ["a", "eps", "s", "tau_r"]:
         pts = [h for h in het if h["param"] == name]
         ax.plot([h["cv_T"] for h in pts], [h["ipi_cv"] for h in pts], mk[name] + "-",
-                label=f"慢异质 {name}", alpha=0.8)
+                label=f"slow-hetero {name}", alpha=0.8)
     cal = resA["calib"]
     ax.plot([c["cv_T"] for c in cal], [c["ipi_cv"] for c in cal], "o--",
-            color="red", lw=2, label="快白噪声 σ")
+            color="red", lw=2, label="fast white noise σ")
     ax.axhline(0.30, ls=":", color="red")
-    ax.annotate("文献落点区\n(CV(T)≈0.30?, IPI_CV=0.30)", xy=(0.15, 0.31), fontsize=8,
+    ax.annotate("literature landing zone\n(CV(T)≈0.30?, IPI_CV=0.30)", xy=(0.15, 0.31), fontsize=8,
                 color="red")
-    ax.set_title("(d) 噪声颜色判别：慢异质性永远到不了 IPI_CV=0.30")
-    ax.set_xlabel("群体 CV(T)"); ax.set_ylabel("细胞内 IPI CV")
+    ax.set_title("(d) noise-color discrimination: slow heterogeneity never reaches IPI_CV=0.30")
+    ax.set_xlabel("population CV(T)"); ax.set_ylabel("intracellular IPI CV")
     ax.legend(fontsize=7, loc="upper left")
 
-    fig.suptitle("代码51r4 · p53 Fisher 收尾（噪声标定 / P2'定量复现 / M=4000 / 噪声颜色判别）",
+    fig.suptitle("Code 51r4 · p53 Fisher wrap-up (noise calibration / P2' quantitative reproduction / M=4000 / noise-color discrimination)",
                  y=0.995)
     fig.tight_layout()
     fig.savefig(OUT_PNG, bbox_inches="tight")
@@ -366,4 +366,4 @@ if __name__ == "__main__":
         resA = json.loads(OUT_A.read_text(encoding="utf-8"))
         resB = json.loads(OUT_B.read_text(encoding="utf-8"))
         make_figure(resA, resB)
-        print("已写出：", OUT_PNG.name)
+        print("written:", OUT_PNG.name)

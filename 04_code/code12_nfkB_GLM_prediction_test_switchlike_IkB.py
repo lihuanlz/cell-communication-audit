@@ -1,28 +1,28 @@
 # -*- coding: utf-8 -*-
 """
-代码 12（v2）：GLM 预言的计算检验——开关化 IκBα 降解是否把 Krishna 模型从 NF 移到 EXC
+Code 12 (v2): GLM prediction compute test — does switch-like IκBα degradation move the Krishna model from NF to EXC?
 ================================================================================
-背景：v0.9 记录 NF-κB 模型-实验落差（Krishna α=0.714 vs Tay 2010 α=0.151）。
-GLM 诊断：模型与实验处在不同泛类（NF 自持极限环 vs EXC 阻尼可兴奋），
-预言：把 IκBα 的 IKK 驱动降解项从 MM（Hill 1）换为开关型（Hill 4），
-模型应从 NF 类移到 EXC 类——α 降至 <0.3、出现 fold/canard 结构。
+Background: v0.9 recorded the NF-κB model-experiment gap (Krishna α=0.714 vs Tay 2010 α=0.151).
+GLM diagnosis: model and experiment sit in different generic classes (NF self-sustained limit cycle vs EXC damped excitable);
+prediction: changing the IKK-driven degradation term of IκBα from MM (Hill 1) to switch-like (Hill 4)
+should move the model from the NF class to the EXC class — α drops below 0.3, fold/canard structures appear.
 
-【须先声明的事实】Krishna 模型 ε=2×10⁻⁵：I/(ε+I) 在数值上已近阶跃。
-GLM 修改（n=1→4, K=ε）的边际效果存疑——本代码不预判，如实输出。
+[Fact that must be declared first] Krishna model ε=2×10⁻⁵: I/(ε+I) is already numerically near-step.
+The actual effect of the GLM modification (n=1->4, K=ε) is doubtful — this code does not prejudge; it reports faithfully.
 
-方程（Krishna 2006；GLM 修改仅作用于 dI/dt 降解项 degr(I)）：
+Equations (Krishna 2006; the GLM modification acts only on the degradation term degr(I) of dI/dt):
   dN_n/dt = A(1−N_n)/(ε+I) − B·I·N_n/(δ+N_n)
   dI_m/dt = N_n² − I_m
   dI/dt   = I_m − C(1−N_n)·degr(I)
   degr: n=1 → I/(ε+I)；n=4 → I⁴/(ε⁴+I⁴)
 
-稳态化简：I_m=N²；I*(N) = ε·(N²/(C(1−N)−N²))^{1/n}（需 C(1−N)>N²）；
-代回 dN_n=0 一维求根（N 稠密网格 2×10⁵，向量化）。
+Steady-state reduction: I_m=N²; I*(N) = ε·(N²/(C(1−N)−N²))^{1/n} (requires C(1−N)>N²);
+substituted back into dN_n=0 for 1-D root-finding (dense N grid 2×10⁵, vectorized).
 
-审计协议（同代码6/9）：平衡支多值（fold）扫描；Hopf 边界（解析 Jacobian）；
-窗口内极限环振幅→α；起始 A²∝(C−C_H) 检验；可兴奋性探针（窗口外阶梯扰动，
-刻版全或无 vs 渐变阻尼）。
-运行：python3 代码12_GLM预言检验_开关化IκB降解.py（约 3–6 分钟）
+Audit protocol (same as code 6/9): equilibrium-branch multiplicity (fold) scan; Hopf boundary (Jacobian eigenvalues);
+in-window limit-cycle amplitude->α; onset A²∝(C−C_H) test; excitability probe (step perturbations outside the window,
+stereotyped all-or-none vs graded damping).
+Run: python3 code12_nfkB_GLM_prediction_test_switchlike_IkB.py (approx 3-6 min)
 """
 import numpy as np
 from scipy.integrate import solve_ivp
@@ -32,7 +32,7 @@ from scipy.signal import find_peaks
 A_, EPS = 0.007, 2e-5
 
 def steady_roots(B, d, C, n_hill):
-    """向量化一维求根，返回 [(N, Im, I), ...]"""
+    """Vectorized 1-D root-finding, return [(N, Im, I), ...]"""
     Nmax = (-C + np.sqrt(C*C + 4*C))/2
     Ns = np.linspace(1e-9, Nmax*(1-1e-9), 200000)
     gap = Ns**2/(C*(1-Ns) - Ns**2)          # = target/(1-target)
@@ -79,7 +79,7 @@ def make_rhs(B, d, C, n_hill):
     return rhs
 
 def hopf_window(B, d, n_hill):
-    """扫 C∈[1e-4, 1] 失稳区间，返回 [(Cin, Cout), ...] 与多值点数"""
+    """Scan C∈[1e-4, 1] for the instability interval, return [(Cin, Cout), ...] and the multiplicity-point count"""
     Cs = np.logspace(-4, 0, 150)
     flags, multi = [], 0
     for C in Cs:
@@ -127,12 +127,12 @@ def excitability_probe(B, d, C, n_hill):
     return Ds, np.array(peaks), N0
 
 def audit(B, d, n_hill, label):
-    print(f"\n{'='*72}\n【{label}】B={B}, δ={d}, Hill n={n_hill}\n{'='*72}")
+    print(f"\n{'='*72}\n[{label}] B={B}, δ={d}, Hill n={n_hill}\n{'='*72}")
     wins, multi = hopf_window(B, d, n_hill)
-    print(f"平衡支多值 C 网格点：{multi}/150（>0 → fold/双稳存在）")
-    print(f"失稳窗口：{[(f'{a:.3e}', f'{b:.3e}') for a, b in wins]}")
+    print(f"equilibrium-branch multiplicity C grid points: {multi}/150 (>0 -> fold/bistability exists)")
+    print(f"instability windows: {[(f'{a:.3e}', f'{b:.3e}') for a, b in wins]}")
     if not wins:
-        print("无失稳窗口——该参数组无自持振荡区。")
+        print("no instability window — this parameter set has no self-sustained oscillation region.")
     else:
         Cin, Cout = wins[0]
         hi = min(Cin*60, Cout*0.98)
@@ -146,35 +146,35 @@ def audit(B, d, n_hill, label):
             la, lc = np.log(amps), np.log(Cs_ok)
             sl, ic = np.polyfit(lc, la, 1)
             r2 = 1 - np.sum((la-(sl*lc+ic))**2)/np.sum((la-la.mean())**2)
-            print(f"极限环振幅 {len(amps)} 点：{min(amps):.3g}–{max(amps):.3g}"
-                  f"（{max(amps)/min(amps):.2f} 倍跨度）")
-            print(f"α = ∂lnA/∂lnC = {sl:+.3f}（R²={r2:.3f}）")
-            print(f"周期跨度：{max(pers)/min(pers):.2f} 倍")
+            print(f"limit-cycle amplitude {len(amps)} points: {min(amps):.3g}–{max(amps):.3g}"
+                  f" ({max(amps)/min(amps):.2f}-fold span)")
+            print(f"α = ∂lnA/∂lnC = {sl:+.3f} (R²={r2:.3f})")
+            print(f"period span: {max(pers)/min(pers):.2f}-fold")
             k = min(6, len(amps))
             dc = np.array(Cs_ok[:k]) - Cin
             a2 = np.array(amps[:k])**2
             if np.all(dc > 0) and a2.std() > 0:
                 s2, i2 = np.polyfit(dc, a2, 1)
                 r2s = 1 - np.sum((a2-(s2*dc+i2))**2)/np.sum((a2-a2.mean())**2)
-                print(f"起始检验（近起始 {k} 点 A²∝(C−C_in)）：R²={r2s:.3f}"
-                      f"（→1 超临界 √ 起始；差→canard/不连续）")
+                print(f"onset test (first {k} points near onset A²∝(C−C_in)): R²={r2s:.3f}"
+                      f" (->1 supercritical sqrt onset; poor -> canard/discontinuous)")
         else:
-            print(f"极限环点不足（{len(amps)}）。")
-        # 可兴奋性探针：窗口下边界以下
+            print(f"too few limit-cycle points ({len(amps)}).")
+        # excitability probe: below the window lower boundary
         C_sub = Cin/3
         pr = excitability_probe(B, d, C_sub, n_hill)
         if pr:
             Ds, pk, N0 = pr
-            print(f"可兴奋性探针（C={C_sub:.2e}=窗口下界/3，稳态 N*={N0:.4f}）：")
+            print(f"excitability probe (C={C_sub:.2e}=window lower bound/3, steady state N*={N0:.4f}):")
             print(f"  Δ     = {Ds}")
-            print(f"  响应峰= {np.round(pk, 5)}")
+            print(f"  response peaks= {np.round(pk, 5)}")
             if pk[0] > 0:
-                print(f"  最强/最弱响应比 = {pk[-1]/pk[0]:.1f}，扰动跨度比 = {Ds[-1]/Ds[0]:.0f}"
-                      f"（两比接近→渐变阻尼螺线=NF 静息侧；响应比≪扰动比→阈值刻版=EXC 候选）")
+                print(f"  strongest/weakest response ratio = {pk[-1]/pk[0]:.1f}, perturbation span ratio = {Ds[-1]/Ds[0]:.0f}"
+                      f" (ratios similar -> graded damped spiral = NF resting side; response ratio << perturbation ratio -> threshold-stereotyped = EXC candidate)")
 
-print("GLM 预言检验：开关化 IκBα 降解（n=1→4）是否把 Krishna 模型移出 NF 类")
+print("GLM prediction test: does switch-like IκBα degradation (n=1->4) move the Krishna model out of the NF class?")
 print("="*72)
-audit(3, 0.005, 1, "原版 soft")
-audit(3, 0.005, 4, "GLM 修改版 soft（n=4）")
-audit(954.5, 0.029, 1, "原版 spiky（标准参数）")
-audit(954.5, 0.029, 4, "GLM 修改版 spiky（n=4）")
+audit(3, 0.005, 1, "original soft")
+audit(3, 0.005, 4, "GLM modified soft (n=4)")
+audit(954.5, 0.029, 1, "original spiky (standard parameters)")
+audit(954.5, 0.029, 4, "GLM modified spiky (n=4)")

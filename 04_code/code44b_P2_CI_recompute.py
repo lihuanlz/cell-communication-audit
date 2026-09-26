@@ -1,23 +1,23 @@
 # -*- coding: utf-8 -*-
 """
-代码44b · P2 附属补算：bootstrap CI（v0.1.2）
+Code 44b · P2 supplementary computation: bootstrap CI (v0.1.2)
 ================================================
-性质：附属补算脚本。**判决已冻结于注册·七十二（2026-08-14），本脚本不含、
-不打印、不改变任何判决逻辑。** 唯一任务：补交付预注册 v0.1 承诺的
-bootstrap 2000 次（逐细胞重抽样）置信区间——该交付物因代码44 的 CI 触发
-条件笔误（strat_key/strat_tag 混用）未能产出。
+Nature: supplementary computation script. **The adjudication is frozen at registry No. 72 (2026-08-14); this script
+contains, prints, and changes no adjudication logic.** Sole task: deliver the bootstrap 2000x (per-cell resampling)
+confidence interval promised by pre-registration v0.1 — a deliverable that was not produced because of a typo in
+code 44's CI trigger condition (strat_key/strat_tag mix-up).
 
-范围（与预注册一致）：7 个野生型启动子 × 3 剂量对 × 3 主通道
-（mol_peak / au_peak / time_k3），主分析时长 50min，尺寸三分层，共 63 行。
-种子仍为 20260814（锁）。
+Scope (per pre-registration): 7 wild-type promoters x 3 dose pairs x 3 main channels
+(mol_peak / au_peak / time_k3), main-analysis duration 50min, size-tercile stratified, 63 rows total.
+Seed remains 20260814 (locked).
 
-复现一致性检查：本脚本在写 CI 前，先重算 63 行的点估计并与同目录下
-代码44 的《代码44_单元表.csv》（正式裁决运行的落盘）逐格比对（容差 1e-12）。
-不一致则大声报警——那意味着补算环境偏离了正式运行，CI 不可入账。
-若同目录无该 CSV，跳过比对并注明（CI 仍算，但须人工核对点估计）。
+Reproducibility check: before writing the CI, this script recomputes the point estimates of all 63 rows and compares
+them cell by cell (tolerance 1e-12) against "代码44_单元table.csv" (saved by the formal ruling run) in the same directory.
+Any mismatch triggers a loud alarm — it would mean the supplementary environment deviates from the formal run and the CI cannot be entered into the record.
+If that CSV is absent from the same directory, skip the comparison and note it (the CI is still computed, but the point estimates must be manually cross-checked).
 
-输出：代码44b_日志.txt、代码44b_CI单元表.csv（写于本脚本所在目录）。
-运行：同代码44（ROOT 指到直接含 ALD3 等启动子文件夹的那层）；纯 CPU 约 1–3 分钟。
+Output: 代码44b_日志.txt, 代码44b_CI单元table.csv (written to the directory of this script).
+Run: same as code 44 (ROOT points to the level directly containing the promoter folders such as ALD3); pure CPU, approx 1-3 min.
 """
 import os
 import sys
@@ -27,7 +27,7 @@ import numpy as np
 from scipy.io import loadmat
 from scipy.stats import rankdata
 
-# ---------------- 用户配置区 ----------------
+# ---------------- user config area ----------------
 ROOT = r"C:/Users/lihua/Desktop/NC/data/HansenZechner2021"
 if len(sys.argv) > 1 and os.path.isdir(sys.argv[1]):
     ROOT = sys.argv[1]
@@ -52,7 +52,7 @@ def log(msg=""):
         _log_fh.flush()
 
 
-# ---------------- 以下函数与代码44 完全一致（判决逻辑所在，逐字保留） ----------------
+# ---------------- functions below identical to code 44 (adjudication logic, preserved verbatim) ----------------
 def cond_path(prom, series, dur, dose_tag):
     return os.path.join(ROOT, prom, f"{prom}_{series}_{dur}_{dose_tag}_size.mat")
 
@@ -121,7 +121,7 @@ def delta_strat(v_lo, v_hi, l_lo, l_hi):
     return ap - float(np.mean(ts)), ap, float(np.mean(ts))
 
 
-# ---------------- 唯一的修复：bootstrap 现在真正执行 ----------------
+# ---------------- the only fix: the bootstrap now actually runs ----------------
 def boot_delta(v_lo, v_hi, l_lo, l_hi, rng):
     nL, nH = len(v_lo), len(v_hi)
     out = np.full(N_BOOT, np.nan)
@@ -136,7 +136,7 @@ def boot_delta(v_lo, v_hi, l_lo, l_hi, rng):
     return tuple(np.percentile(out[ok], [2.5, 97.5]))
 
 
-# ---------------- 主入口 ----------------
+# ---------------- main entry ----------------
 def main():
     t_start = _time.time()
     global _log_fh
@@ -145,10 +145,10 @@ def main():
 
     rng = np.random.default_rng(SEED)
     log("=" * 72)
-    log("代码44b · P2 附属补算：bootstrap CI（v0.1.2）")
-    log("判决已冻结于注册·七十二；本脚本不打印、不改变任何判决。")
-    log(f"种子 {SEED} ｜ bootstrap {N_BOOT} ｜ 范围 7启动子×3剂量对×3主通道 @ {MAIN_DUR} 尺寸分层")
-    log(f"数据根目录：{ROOT}")
+    log("Code 44b · P2 supplementary computation: bootstrap CI (v0.1.2)")
+    log("Adjudication frozen at registry No. 72; this script prints and changes no adjudication.")
+    log(f"seed {SEED} ｜ bootstrap {N_BOOT} ｜ scope 7 promoters x 3 dose pairs x 3 main channels @ {MAIN_DUR} size-stratified")
+    log(f"data root directory: {ROOT}")
     log("=" * 72)
 
     rows = []
@@ -158,7 +158,7 @@ def main():
         for dose in (100, 275, 690, 3000):
             p = cond_path(prom, "DM", MAIN_DUR, DOSE_TAG[dose])
             if not os.path.isfile(p):
-                log(f"[警告] 缺文件：{prom} {MAIN_DUR} {DOSE_TAG[dose]}")
+                log(f"[warning] missing file: {prom} {MAIN_DUR} {DOSE_TAG[dose]}")
                 ok = False
                 break
             conds[dose] = extract(p)
@@ -177,17 +177,17 @@ def main():
                              "auc_pool": ap, "auc_terc": mt, "delta": d,
                              "ci_lo": ci_lo, "ci_hi": ci_hi,
                              "n_lo": nL, "n_hi": len(fhi[ch])})
-        log(f"[完成] {prom}")
+        log(f"[done] {prom}")
 
     if not rows:
         log("!" * 72)
-        log("中止：未加载到任何数据，检查 ROOT。")
+        log("Abort: no data loaded; check ROOT.")
         log("!" * 72)
         _log_fh.close()
         return
 
-    # ---------------- 复现一致性检查（对正式运行的单元表） ----------------
-    ref_path = os.path.join(outdir, "代码44_单元表.csv")
+    # ---------------- reproducibility check (against the formal run's unit table) ----------------
+    ref_path = os.path.join(outdir, "代码44_单元table.csv")
     if os.path.isfile(ref_path):
         ref = {}
         with open(ref_path, encoding="utf-8-sig") as fh:
@@ -203,23 +203,23 @@ def main():
                 nchk += 1
                 for a, b in zip((r["auc_pool"], r["auc_terc"], r["delta"]), ref[key]):
                     maxdiff = max(maxdiff, abs(a - b))
-        verdict = "通过（点估计与正式运行逐格一致）" if (nchk == 63 and maxdiff < 1e-12) \
-            else f"**不一致**（比对 {nchk}/63 行，最大差 {maxdiff:.2e}）——CI 不可入账，需排查"
+        verdict = "pass (point estimates match the formal run cell by cell)" if (nchk == 63 and maxdiff < 1e-12) \
+            else f"**MISMATCH** (compared {nchk}/63 rows, max diff {maxdiff:.2e}) — CI cannot be entered into the record; investigate"
         log("")
-        log(f"复现一致性检查：比对 {nchk}/63 行，最大偏差 {maxdiff:.2e} → {verdict}")
+        log(f"Reproducibility check: compared {nchk}/63 rows, max deviation {maxdiff:.2e} -> {verdict}")
     else:
         log("")
-        log("复现一致性检查：同目录未找到《代码44_单元表.csv》，跳过比对（请人工核对点估计）。")
+        log("Reproducibility check: 代码44_单元table.csv not found in the same directory; comparison skipped (please cross-check the point estimates manually).")
 
-    # ---------------- 落盘与打印 ----------------
-    csv_path = os.path.join(outdir, "代码44b_CI单元表.csv")
+    # ---------------- save and print ----------------
+    csv_path = os.path.join(outdir, "代码44b_CI单元table.csv")
     with open(csv_path, "w", newline="", encoding="utf-8-sig") as fh:
         w = csv.DictWriter(fh, fieldnames=list(rows[0].keys()))
         w.writeheader()
         for r in rows:
             w.writerow(r)
     log("")
-    log("63 单元 CI 明细（Δ 的 bootstrap 2000 次 95% CI）：")
+    log("63-unit CI details (bootstrap 2000x 95% CI of Delta):")
     for ch in CHANNELS_MAIN:
         log(f"  [{ch}]")
         for r in rows:
@@ -227,8 +227,8 @@ def main():
                 log(f"    {r['promoter']:<8s} {r['pair']:<9s} Δ={r['delta']:+.4f} "
                     f"CI=[{r['ci_lo']:+.4f}, {r['ci_hi']:+.4f}] n={r['n_lo']}/{r['n_hi']}")
     log("")
-    log(f"单元表 → {csv_path}")
-    log(f"总耗时 {_time.time() - t_start:.0f} s")
+    log(f"unit table -> {csv_path}")
+    log(f"total elapsed {_time.time() - t_start:.0f} s")
     _log_fh.close()
 
 

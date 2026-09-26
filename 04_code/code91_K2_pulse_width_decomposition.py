@@ -1,14 +1,14 @@
 # -*- coding: utf-8 -*-
 """
-代码91：K2 脉冲宽度（3.5 h）分子层分解 + 全链路缺口 L13 闭合
-命题：宽度不归延迟管，归 ATM* 平台期管——
-  W = Wip1 诱导延迟(K4 已闭合) + Wip1 积累到熄灭阈值的时长 + p53 快崩塌尾(分钟级)
-方法：
-  B1 Mönke 2025 勘误版 DSB=100 恒定输入，提取 p53 首脉冲 FWHM、ATM* 平台期、
-     Wip1 熄灭阈值，逐段核对分解式；
-  B2 剂量扫描（DSB 50/100/200/400）复核宽度剂量无关（归档主张）；
-  B3 Wip1 产生率扰动（Tw x0.85/x0.70）复核宽度不变性主张（v01 K2 vs 代码82 V5 的张力）。
-纪律：确定性，种子标记 20260925；JSON + PNG/SVG + 判词卡。
+Code 91: K2 pulse width (3.5 h) molecular-level decomposition + full-chain gap L13 closure
+Proposition: the width is governed not by the delay but by the ATM* plateau —
+  W = Wip1 induction delay (K4, already closed) + time for Wip1 to accumulate to the extinction threshold + fast p53 collapse tail (minute scale)
+Method:
+  B1 Mönke 2025 errata version with constant DSB=100 input; extract p53 first-pulse FWHM, ATM* plateau,
+     Wip1 extinction threshold; check the decomposition segment by segment;
+  B2 dose scan (DSB 50/100/200/400) to re-check width dose-independence (archived claim);
+  B3 Wip1 production-rate perturbation (Tw x0.85/x0.70) to re-check the width-invariance claim (v01 K2 vs code82 V5 tension).
+Discipline: deterministic, seed tag 20260925; JSON + PNG/SVG + verdict card.
 """
 import json
 import numpy as np
@@ -55,7 +55,7 @@ def S_of(DSB):
 
 
 def simulate_first_pulse(par, DSB, t_end=12.0):
-    """从基态定点阶跃，返回时间轴与六物种轨迹。"""
+    """Step from the basal fixed point; return the time axis and six-species trajectories."""
     rhs = make_rhs(par)
     S_basal = S_of(2.0)
     x0 = fsolve(lambda x: rhs(0, x, S_basal), [0.05, 0.3, 0.3, 0.3, 0.3, 0.1])
@@ -66,7 +66,7 @@ def simulate_first_pulse(par, DSB, t_end=12.0):
 
 
 def first_pulse_fwhm(t, P53):
-    """首脉冲半高宽；返回 (width, t_rise, t_fall, t_peak) 或 None。"""
+    """First-pulse full width at half maximum; returns (width, t_rise, t_fall, t_peak) or None."""
     i_pk = int(np.argmax(P53))
     pk = P53[i_pk]
     half = 0.5 * (pk + P53[0])
@@ -85,7 +85,7 @@ def first_pulse_fwhm(t, P53):
 
 
 def atm_plateau(t, ATM):
-    """ATM* 首平台的半高起止。"""
+    """Half-max start and end of the first ATM* plateau."""
     i_pk = int(np.argmax(ATM))
     pk = ATM[i_pk]
     half = 0.5 * (pk + ATM[0])
@@ -101,25 +101,25 @@ def atm_plateau(t, ATM):
 
 res = {"seed": SEED_TAG}
 
-# ================= B1：DSB=100 分解 =================
+# ================= B1: DSB=100 decomposition =================
 t, x = simulate_first_pulse(PAR, 100.0)
 ATM, P53, Wip1 = x[0], x[1], x[5]
 fw = first_pulse_fwhm(t, P53)
 W_meas, t_rise, t_fall, t_peak = fw
 a_r, a_f, a_plateau = atm_plateau(t, ATM)
 
-# Wip1 熄灭阈值：ATM* 降至半峰时刻的 Wip1 值
+# Wip1 extinction threshold: Wip1 value at the moment ATM* falls to half peak
 i_af = int(np.searchsorted(t, a_f))
 W_threshold = float(Wip1[i_af])
-# Wip1 从脉冲启动（p53 阈穿越，0.8 AU）到阈值所需时长
+# Time for Wip1 to go from pulse start (p53 threshold crossing, 0.8 AU) to the threshold
 i_start = int(np.argmax(P53 >= 0.8))
 t_start = float(t[i_start])
 t_wip1_to_threshold = a_f - t_start
-# p53 崩塌尾：ATM* 熄灭后 p53 降到半峰的时间
+# p53 collapse tail: time for p53 to fall to half peak after ATM* extinction
 tail = t_fall - a_f
-# 分解式：宽度 = (ATM* 熄灭 - p53 半升) + 崩塌尾
+# Decomposition: width = (ATM* extinction - p53 half-rise) + collapse tail
 W_decomp = (a_f - t_rise) + tail
-# K4 诱导延迟（代码89 闭合值）在宽度中的角色：Wip1 从 p53 启动到越过基线抬头
+# Role of the K4 induction delay (code89 closed value) in the width: Wip1 lifting off baseline after p53 start
 res["B1_decomposition"] = dict(
     DSB=100.0,
     W_meas_FWHM_h=W_meas,
@@ -144,7 +144,7 @@ res["B1_decomposition"] = dict(
             % (a_f - t_rise, tail, W_decomp, W_meas),
 )
 
-# ================= B2：剂量扫描，宽度剂量无关复核 =================
+# ================= B2: dose scan, width dose-independence re-check =================
 dose_scan = []
 for DSB in [50.0, 100.0, 200.0, 400.0]:
     t2, x2 = simulate_first_pulse(PAR, DSB)
@@ -154,7 +154,7 @@ res["B2_dose_scan"] = dose_scan
 ws = [d["FWHM_h"] for d in dose_scan if d["FWHM_h"] is not None]
 res["B2_width_cv"] = float(np.std(ws) / np.mean(ws)) if len(ws) > 1 else None
 
-# ================= B3：Wip1 扰动，宽度不变性复核 =================
+# ================= B3: Wip1 perturbation, width-invariance re-check =================
 wip1_scan = []
 for scale in [1.0, 0.85, 0.70]:
     par2 = dict(PAR)
@@ -164,7 +164,7 @@ for scale in [1.0, 0.85, 0.70]:
     wip1_scan.append(dict(Tw_scale=scale, FWHM_h=fw3[0] if fw3 else None))
 res["B3_wip1_perturbation"] = wip1_scan
 
-# ================= 图：三面体 =================
+# ================= Figure: three-panel =================
 fig, axes = plt.subplots(1, 3, figsize=(14.5, 4.4)
 
 )

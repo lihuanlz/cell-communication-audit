@@ -1,32 +1,32 @@
 # -*- coding: utf-8 -*-
 """
-代码83：为什么数字化、为什么噪声在上游 —— L1 损失分解 + 编码器结构变分竞赛
+Code 83: why digital, why noise upstream — L1 loss decomposition + encoder-structure variational race
 =================================================================================
-日期：2026-09-25 ｜ 种子固定：20260925 ｜ 确定性部分全程确定
+Date: 2026-09-25 | seed fixed: 20260925 | deterministic parts fully deterministic
 
-谱系：
-  - 编码器层封卷：判词卡/封卷卡 2026-09-18（代码51r3/51r4A 归档参数）
-  - 全链路级联审计：代码81（判词卡 2026-09-23）——本脚本直接复用其全部常数与互信息口径
-  - 机制模型审计：代码82（判词卡 2026-09-23）——"94.2/5.5 是噪声标定口径函数"的登记出处
+Lineage:
+  - Encoder-layer SEAL: verdict card / seal card 2026-09-18 (code 51r3/51r4A archived parameters)
+  - Full-chain cascade audit: code 81 (verdict card 2026-09-23) — this script directly reuses all of its constants and mutual-information conventions
+  - Mechanism-model audit: code 82 (verdict card 2026-09-23) — registry source of "94.2/5.5 is a function of the noise-calibration convention"
 
-问题（用户命题，2026-09-25）：
-  Q-A：代码81 判得 L1 传感层损失 0.872 bits = 31% H(D) 是全链路最弱层。
-       这 0.872 里多少是物理上不可约的（DSB Poisson 涨落 + 修复稀释），
-       多少是映射设计选择（聚类常数 c=50）？最优量化器能挽回多少？
-  Q-B：把同一份上游噪声（Poisson DSB + 聚类 + Exp(1.0T) 首脉冲弥散 + IPI 抖动 CV 0.085）
-       平等注入三种候选编码器结构：
-         臂A 固定周期计数（观察到的架构：T=5.5h 钉死、幅度钉死、剂量走计数）
-         臂B 周期调制（FM：剂量走周期 T(D)，脉冲数固定）
-         臂C 幅度调制（AM：剂量走幅度 A(D)，脉冲数固定）
-       在各统计量"天然承受"的散布下（计数：上游注入；周期：归档 CV(T) 钉死；
-       幅度：细胞间增益 LogNormal sigma_k），谁的端到端信息最大？
-       若观察到的架构=竞赛赢家，则"细胞选数字化"从归纳升级为变分最优性陈述。
+Questions (user proposition, 2026-09-25):
+  Q-A: Code 81 ruled the L1 sensing-layer loss of 0.872 bits = 31% H(D) to be the weakest layer of the full chain.
+       How much of this 0.872 is physically irreducible (DSB Poisson fluctuation + repair thinning),
+       and how much is a mapping design choice (clustering constant c=50)? How much can an optimal quantizer recover?
+  Q-B: Inject the same upstream noise (Poisson DSB + clustering + Exp(1.0T) first-pulse smearing + IPI jitter CV 0.085)
+       equally into three candidate encoder structures:
+         Arm A: fixed-period counting (the observed architecture: T=5.5h pinned, amplitude pinned, dose carried by count)
+         Arm B: period modulation (FM: dose carried by period T(D), pulse count fixed)
+         Arm C: amplitude modulation (AM: dose carried by amplitude A(D), pulse count fixed)
+       Under the dispersion each statistic "natively bears" (count: injected upstream; period: archived CV(T) pinned;
+       amplitude: cell-to-cell gain LogNormal sigma_k), which has the largest end-to-end information?
+       If the observed architecture = race winner, then "the cell chose digital" upgrades from induction to a variational-optimality statement.
 
-公平性约束（双录）：
-  - 三臂共用同一 L0/L1 上游生成器与同口径 t1 弥散；
-  - 臂B/C 脉冲数固定 N=5（隔离编码变量，防止计数信息泄漏进 FM/AM 臂）；
-  - 臂B 的 T(D) 动态范围（2 倍）与臂C 的 A(D) 动态范围（约 2 倍）对齐；
-  - 解码级（B2）三臂共用同一对泄漏积分器（p21 型 tau=10h / PUMA 型 tau=4h）。
+Fairness constraints (double-recorded):
+  - All three arms share the same L0/L1 upstream generator and the same t1 smearing convention;
+  - Arms B/C use a fixed pulse count N=5 (isolating the coding variable, preventing count information from leaking into the FM/AM arms);
+  - Arm B's T(D) dynamic range (2x) is aligned with Arm C's A(D) dynamic range (~2x);
+  - The decoding stage (B2) shares the same pair of leaky integrators across arms (p21-type tau=10h / PUMA-type tau=4h).
 """
 
 import json
@@ -53,8 +53,8 @@ OUT_PNG = ROOT / "结果" / "代码83_变分竞赛_六面体.png"
 OUT_SVG = ROOT / "结果" / "代码83_变分竞赛_六面体.svg"
 plt.rcParams["svg.fonttype"] = "none"
 
-# ---------------- 与代码81逐字一致的归档常数 ----------------
-DOSES = np.array([0.1, 0.25, 0.5, 1.0, 2.5, 5.0, 10.0])   # Gy，等权 -> H(D)=log2(7)
+# ---------------- Archived constants identical to code 81 verbatim ----------------
+DOSES = np.array([0.1, 0.25, 0.5, 1.0, 2.5, 5.0, 10.0])   # Gy, equal weights -> H(D)=log2(7)
 N_CELLS = 4000
 K0_DSB = 35.0
 C_CLUSTER = 50.0
@@ -70,14 +70,14 @@ QPU, TAUPU, PUMA_NTHR = 100.0, 4.0, 3
 H_D = float(np.log2(len(DOSES)))
 N_BOOT = 200
 
-# 臂B/C 专用常数（显式声明，非拟合）
-N_FIXED = 5            # FM/AM 臂固定脉冲数（预算匹配：臂A 全体平均脉冲数 ~2.5，FM/AM 用 5，属对 FM/AM 有利的偏置，双录）
-GAMMA_T = 0.15         # T(D) = T_PERIOD * (D/1Gy)^(-GAMMA_T)：D 0.1->10 对应 T 7.77->3.89 h（2 倍范围）
-AMP_SLOPE = 0.15       # A(D) = A0*(1+0.15*ln(D/1Gy))（代码81 假想幅度臂口径）
-AMP_INTR = 0.15        # 假想幅度臂内生 CV（代码81 同口径）
+# Constants specific to arms B/C (explicitly declared, not fitted)
+N_FIXED = 5            # fixed pulse count for FM/AM arms (budget matching: arm A's population-mean pulse count ~2.5, FM/AM use 5 — a bias in favor of FM/AM, double-recorded)
+GAMMA_T = 0.15         # T(D) = T_PERIOD * (D/1Gy)^(-GAMMA_T): D 0.1->10 maps to T 7.77->3.89 h (2x range)
+AMP_SLOPE = 0.15       # A(D) = A0*(1+0.15*ln(D/1Gy)) (code 81 hypothetical amplitude-arm convention)
+AMP_INTR = 0.15        # endogenous CV of the hypothetical amplitude arm (same convention as code 81)
 ETA_OBS = 0.02
 
-# ---------------- 互信息工具（与代码81同口径） ----------------
+# ---------------- Mutual-information utilities (same convention as code 81) ----------------
 
 def mi_discrete(x, y):
     x = np.asarray(x); y = np.asarray(y)
@@ -104,7 +104,7 @@ def qbin(v, nbin):
         return np.zeros(len(v), dtype=int)
     return np.clip(np.digitize(v, edges[1:-1]), 0, len(edges) - 2)
 
-# ---------------- Part A：L1 损失分解 ----------------
+# ---------------- Part A: L1 loss decomposition ----------------
 
 def log_poisson_pmf(n, lam):
     n = np.asarray(n, dtype=float)
@@ -112,7 +112,7 @@ def log_poisson_pmf(n, lam):
 
 
 def poisson_channel(doses, k0, phi=1.0, vmax=600):
-    """P(n|D) 矩阵，n=0..vmax；phi 为存活（未修复）比例。"""
+    """P(n|D) matrix, n=0..vmax; phi is the surviving (unrepaired) fraction."""
     ns = np.arange(vmax + 1)
     P = np.zeros((len(doses), vmax + 1))
     for di, D in enumerate(doses):
@@ -122,8 +122,8 @@ def poisson_channel(doses, k0, phi=1.0, vmax=600):
 
 
 def mi_of_quantizer(P, assign):
-    """P: (nDose, nVal) 条件分布；assign: 每个取值 -> 箱号。返回 I(D; bin)。
-    下溢防护：pbD < 1e-15 的贡献视为 0（其真实贡献 < 1e-13 bits，可忽略）。"""
+    """P: (nDose, nVal) conditional distribution; assign: each value -> bin index. Returns I(D; bin).
+    Underflow guard: contributions with pbD < 1e-15 are treated as 0 (their true contribution < 1e-13 bits, negligible)."""
     nD = P.shape[0]
     prior = 1.0 / nD
     nb = assign.max() + 1
@@ -139,20 +139,20 @@ def mi_of_quantizer(P, assign):
 
 
 def optimal_quantizer_dp(P, M):
-    """精确 DP：连续箱划分最小化 sum_b p(b) H(D|b)（等价最大化 I(D;bin)）。
-    返回 (assign, I_opt)。复杂度 O(V^2 M)，V<=601。"""
+    """Exact DP: contiguous bin partition minimizing sum_b p(b) H(D|b) (equivalently maximizing I(D;bin)).
+    Returns (assign, I_opt). Complexity O(V^2 M), V<=601."""
     nD, V = P.shape
     prior = 1.0 / nD
-    # bin(i..j) 的成本：p(bin) * H(D|bin)，用累计和 O(1) 算
+    # cost of bin(i..j): p(bin) * H(D|bin), computed in O(1) with cumulative sums
     cs = np.cumsum(P, axis=1)  # (nD, V)
     neg_inf = -1e18
-    # 预计算所有 bin 成本
+    # precompute all bin costs
     cost = np.full((V + 1, V + 1), np.inf)  # cost[i][j] = bin i..j-1
     for i in range(V):
         pj = np.zeros(nD)
         cum_prev = cs[:, i - 1] if i > 0 else np.zeros(nD)
-        # 逐 j 扩展太慢则向量化：直接矩阵算
-    # 向量化版：对每对 (i,j)
+        # expanding per j is too slow, so vectorize: compute directly with matrices
+    # vectorized version: for every pair (i,j)
     idx = np.arange(V)
     for i in range(V):
         seg = cs[:, i:] - (cs[:, i - 1:i] if i > 0 else np.zeros((nD, 1)))  # (nD, V-i)
@@ -172,7 +172,7 @@ def optimal_quantizer_dp(P, M):
             k = int(np.argmin(cand))
             dp[m, j] = cand[k]
             bp[m, j] = k
-    # 回溯
+    # backtrack
     bounds = []
     j = V
     for m in range(M, 0, -1):
@@ -192,27 +192,27 @@ def optimal_quantizer_dp(P, M):
 
 def part_A():
     log = lambda *a: print(*a, flush=True)
-    log("[A] L1 损失分解启动")
+    log("[A] L1 loss decomposition started")
     P, ns = poisson_channel(DOSES, K0_DSB)
-    I_DSB = mi_of_quantizer(P, ns)  # 恒等映射（每取值一箱）
-    log(f"  I(D;N_DSB) 精确值 = {I_DSB:.4f} bits（代码81 MC 口径 2.526）")
+    I_DSB = mi_of_quantizer(P, ns)  # identity mapping (one bin per value)
+    log(f"  I(D;N_DSB) exact = {I_DSB:.4f} bits (code 81 MC convention: 2.526)")
 
-    # A1：聚类常数扫描
+    # A1: clustering-constant sweep
     C_LIST = [1, 2, 5, 10, 25, 50, 100, 200]
     c_sweep = []
     for c in C_LIST:
         assign = np.minimum(np.ceil(ns / c).astype(int), N_MAX)
-        # ceil(0/c)=0 -> 与 1..c 同箱？ceil(0)=0 单独一箱，保持
+        # ceil(0/c)=0 -> same bin as 1..c? ceil(0)=0 stays in its own bin; keep
         I_c = mi_of_quantizer(P, assign)
         c_sweep.append(dict(c=c, I=I_c, loss=I_DSB - I_c))
-        log(f"  c={c:>4}: I(D;N_trig)={I_c:.4f} bits, 映射损失={I_DSB - I_c:.4f}")
+        log(f"  c={c:>4}: I(D;N_trig)={I_c:.4f} bits, mapping loss={I_DSB - I_c:.4f}")
 
-    # A2：M=13 级最优量化器（脉冲帽约束下的信息上限）
+    # A2: optimal M=13-level quantizer (information upper bound under the pulse cap)
     assign_opt, I_opt, bounds = optimal_quantizer_dp(P, N_MAX + 1)
-    log(f"  最优 {N_MAX + 1} 级量化器: I={I_opt:.4f} bits, 损失={I_DSB - I_opt:.4f}, "
-        f"边界 N={bounds}")
+    log(f"  optimal {N_MAX + 1}-level quantizer: I={I_opt:.4f} bits, loss={I_DSB - I_opt:.4f}, "
+        f"bounds N={bounds}")
 
-    # A3：修复稀释（thinning）——传感层"物理上"要付的部分
+    # A3: repair thinning — the part the sensing layer "physically" has to pay
     PHI = [1.0, 0.8, 0.6, 0.4, 0.25, 0.15, 0.1, 0.05]
     thin_sweep = []
     for phi in PHI:
@@ -220,9 +220,9 @@ def part_A():
         _, ns_t = poisson_channel(DOSES, K0_DSB, phi=phi)
         ns_t = np.arange(Pt.shape[1])
         I_full = mi_of_quantizer(Pt, ns_t)
-        # 同一 phi 下的最优 13 级量化
+        # optimal 13-level quantization at the same phi
         ao, Io, _ = optimal_quantizer_dp(Pt, N_MAX + 1)
-        # 同一 phi 下的 c=50 聚类
+        # c=50 clustering at the same phi
         ac = np.minimum(np.ceil(ns_t / C_CLUSTER).astype(int), N_MAX)
         Ic = mi_of_quantizer(Pt, ac)
         thin_sweep.append(dict(phi=phi, I_perfect_sense=I_full,
@@ -230,21 +230,21 @@ def part_A():
                                loss_thinning=I_DSB - I_full,
                                loss_total_optimal=I_DSB - Io,
                                loss_total_c50=I_DSB - Ic))
-        log(f"  phi={phi:.2f}: 完美传感 I={I_full:.4f} | 最优量化 {Io:.4f} | "
-            f"c=50 聚类 {Ic:.4f} | 稀释损失 {I_DSB - I_full:.4f}")
+        log(f"  phi={phi:.2f}: perfect sensing I={I_full:.4f} | optimal quantizer {Io:.4f} | "
+            f"c=50 clustering {Ic:.4f} | thinning loss {I_DSB - I_full:.4f}")
 
     return dict(I_DSB_exact=I_DSB, L0_poisson_floor=H_D - I_DSB,
                 c_sweep=c_sweep, optimal_quantizer=dict(M=N_MAX + 1, I=I_opt,
                 loss=I_DSB - I_opt, bounds=bounds),
                 thinning_sweep=thin_sweep)
 
-# ---------------- Part B：编码器结构竞赛 ----------------
+# ---------------- Part B: encoder-structure race ----------------
 
 def gen_train(n_trig, T_code, n, rng):
-    """脉冲串生成：t1~Exp(1.0*T_cell)，IPI 抖动 CV 0.085，T_cell 逐细胞散布由调用方给。
-    n_trig: (n,) 每细胞脉冲数；T_code: (n,) 编码周期（含逐细胞散布后的由调用方先乘好）。"""
+    """Pulse-train generation: t1~Exp(1.0*T_cell), IPI jitter CV 0.085; per-cell dispersion of T_cell supplied by caller.
+    n_trig: (n,) pulses per cell; T_code: (n,) coding period (caller pre-multiplies any per-cell dispersion)."""
     times = np.full((n, N_MAX), np.nan)
-    t1 = rng.exponential(T_code)  # 上游弥散口径：mu_d = 1.0 * T_cell（代码81: Exp(1.0*T)）
+    t1 = rng.exponential(T_code)  # upstream smearing convention: mu_d = 1.0 * T_cell (code 81: Exp(1.0*T))
     tcur = t1.copy()
     for j in range(N_MAX):
         times[:, j] = tcur
@@ -258,7 +258,7 @@ def gen_train(n_trig, T_code, n, rng):
 
 
 def decoder(times, active):
-    """p21/PUMA 泄漏积分器（代码81 同口径）。"""
+    """p21/PUMA leaky integrators (same convention as code 81)."""
     with np.errstate(invalid="ignore"):
         m_p21 = np.nansum(np.where(active, Q21 * TAU21 * (1.0 - np.exp(-(W - times) / TAU21)), 0.0), axis=1)
         pidx = np.arange(N_MAX)[None, :]
@@ -269,33 +269,33 @@ def decoder(times, active):
 
 def part_B():
     log = lambda *a: print(*a, flush=True)
-    log("[B] 编码器结构竞赛启动")
+    log("[B] Encoder-structure race started")
     rng = np.random.default_rng(SEED + 10)
     n_tot = N_CELLS * len(DOSES)
     d = np.repeat(np.arange(len(DOSES)), N_CELLS)
     D = DOSES[d]
 
-    # 共同上游（三臂同一生成器同一随机流）
+    # shared upstream (all three arms use the same generator and the same random stream)
     n_dsb = rng.poisson(K0_DSB * D, n_tot)
     n_trig = np.minimum(np.ceil(n_dsb / C_CLUSTER).astype(int), N_MAX)
 
-    # ---- 臂A：固定周期计数（观察到的架构） ----
+    # ---- Arm A: fixed-period counting (the observed architecture) ----
     timesA, actA = gen_train(n_trig, np.full(n_tot, T_PERIOD), n_tot, rng)
     n_pulse_A = actA.sum(1)
     I_A_enc = mi_discrete(d, n_pulse_A)
     m21A, mpuA = decoder(timesA, actA)
     I_A_dec = mi_discrete(d, qbin(m21A, 12) * 12 + qbin(mpuA, 12))
-    log(f"  臂A 计数: I(D;N)={I_A_enc:.4f} bits, 过解码器 I={I_A_dec:.4f}, "
-        f"平均脉冲 {n_pulse_A.mean():.2f}")
+    log(f"  Arm A counting: I(D;N)={I_A_enc:.4f} bits, through decoder I={I_A_dec:.4f}, "
+        f"mean pulses {n_pulse_A.mean():.2f}")
 
-    # ---- 臂B：周期调制（FM） ----
+    # ---- Arm B: period modulation (FM) ----
     T_code = T_PERIOD * np.power(D, -GAMMA_T)  # D=1 -> 5.5h
     CVT_LIST = [0.0, 0.016, 0.05, 0.1, 0.2]
     B_rows = []
     for cvT in CVT_LIST:
         T_cell = T_code * (1.0 + cvT * rng.standard_normal(n_tot))
         timesB, actB = gen_train(np.full(n_tot, N_FIXED), T_cell, n_tot, rng)
-        # OLS 周期估计（归档口径）
+        # OLS period estimation (archived convention)
         T_est = np.full(n_tot, np.nan)
         for i in range(n_tot):
             k = int(actB[i].sum())
@@ -307,22 +307,22 @@ def part_B():
         I_B_dec = mi_discrete(d, qbin(m21B, 12) * 12 + qbin(mpuB, 12))
         B_rows.append(dict(cvT=cvT, I_enc=I_B_enc, I_dec=I_B_dec,
                            frac_estimable=float(ok.mean())))
-        log(f"  臂B FM @CV(T)={cvT:.3f}: I(D;T_hat)={I_B_enc:.4f} bits, "
-            f"过解码器 I={I_B_dec:.4f}")
+        log(f"  Arm B FM @CV(T)={cvT:.3f}: I(D;T_hat)={I_B_enc:.4f} bits, "
+            f"through decoder I={I_B_dec:.4f}")
 
-    # ---- 臂C：幅度调制（AM） ----
+    # ---- Arm C: amplitude modulation (AM) ----
     A_code = A0 * (1.0 + AMP_SLOPE * np.log(D))
-    SK_LIST = [0.0, 0.02, 0.05, 0.075, 0.1, 0.2, 0.3, 0.45, 0.6]  # 加密低端网格以定位 AM<->计数交叉点
+    SK_LIST = [0.0, 0.02, 0.05, 0.075, 0.1, 0.2, 0.3, 0.45, 0.6]  # densify the low-end grid to locate the AM<->counting crossover
     C_rows = []
     for sk in SK_LIST:
         k = np.exp(rng.standard_normal(n_tot) * sk - 0.5 * sk * sk)
-        # 过解码器：幅度串进积分器；逐脉冲内生噪声 AMP_INTR（与编码器读出同口径）
+        # through decoder: amplitudes feed the integrators; per-pulse endogenous noise AMP_INTR (same convention as the encoder readout)
         timesC, actC = gen_train(np.full(n_tot, N_FIXED), np.full(n_tot, T_PERIOD), n_tot, rng)
         ampsC = np.where(actC, A_code[:, None] * k[:, None] *
                          (1.0 + AMP_INTR * rng.standard_normal(timesC.shape)), np.nan)
-        # 编码器出口读出：同一组逐脉冲幅度的细胞均值（N_FIXED 脉冲取平均，口径一致）
+        # encoder-output readout: per-cell mean of the same per-pulse amplitudes (averaged over N_FIXED pulses, consistent convention)
         amp_meas = np.nanmean(ampsC, axis=1) + ETA_OBS * rng.standard_normal(n_tot)
-        okc = ~np.isnan(amp_meas)  # 极少数首脉冲晚于观测窗的细胞（~0.02%），剔除以免 NaN 毒化分箱
+        okc = ~np.isnan(amp_meas)  # very few cells (~0.02%) whose first pulse falls after the observation window; drop them so NaN does not poison the binning
         I_C_enc = mi_discrete(d[okc], qbin(amp_meas[okc], 16))
         with np.errstate(invalid="ignore"):
             kernel21 = Q21 * TAU21 * (1.0 - np.exp(-(W - timesC) / TAU21))
@@ -334,28 +334,28 @@ def part_B():
         I_C_dec = mi_discrete(d, qbin(m21C, 12) * 12 + qbin(mpuC, 12))
         assert I_C_dec <= H_D + 0.05, f"data-processing violation at sigma_k={sk}"
         C_rows.append(dict(sigma_k=sk, I_enc=I_C_enc, I_dec=I_C_dec))
-        log(f"  臂C AM @sigma_k={sk:.2f}: I(D;A_hat)={I_C_enc:.4f} bits, "
-            f"过解码器 I={I_C_dec:.4f}")
+        log(f"  Arm C AM @sigma_k={sk:.2f}: I(D;A_hat)={I_C_enc:.4f} bits, "
+            f"through decoder I={I_C_dec:.4f}")
 
-    # ---- 归档交叉验证：臂C 应复现代码81 假想幅度臂口径 ----
-    # 代码81：sigma_k=0.6 时 I_amp=0.096 bits（假想臂，幅度份额 5.7%）
+    # ---- Archive cross-check: arm C should reproduce the code 81 hypothetical amplitude-arm convention ----
+    # code 81: at sigma_k=0.6, I_amp=0.096 bits (hypothetical arm, amplitude share 5.7%)
     return dict(armA=dict(I_enc=I_A_enc, I_dec=I_A_dec,
                           mean_pulses=float(n_pulse_A.mean())),
                 armB_fm=B_rows, armC_am=C_rows,
-                note_budget=f"臂B/C 固定 N={N_FIXED} 脉冲（对 FM/AM 有利的预算偏置）")
+                note_budget=f"arms B/C use fixed N={N_FIXED} pulses (a budget bias in favor of FM/AM)")
 
-# ---------------- 主流程 ----------------
+# ---------------- Main flow ----------------
 
 def main():
     log = lambda *a: print(*a, flush=True)
-    log(f"[代码83] 种子 {SEED}，H(D)={H_D:.3f} bits")
+    log(f"[code83] seed {SEED}, H(D)={H_D:.3f} bits")
     A = part_A()
     B = part_B()
 
-    # ---- 汇总判词逻辑 ----
+    # ---- Summary verdict logic ----
     c50 = [r for r in A["c_sweep"] if r["c"] == int(C_CLUSTER)][0]
     opt = A["optimal_quantizer"]
-    # B 竞赛在"天然散布"点的对比：FM @ CV(T)=0.016（归档钉死值）；AM @ sigma_k=0.3（S5.6 细胞蛋白变异）
+    # Part B race compared at the "native dispersion" points: FM @ CV(T)=0.016 (archived pinned value); AM @ sigma_k=0.3 (S5.6 cellular protein variation)
     fm_native = [r for r in B["armB_fm"] if abs(r["cvT"] - 0.016) < 1e-9][0]
     am_native = [r for r in B["armC_am"] if abs(r["sigma_k"] - 0.3) < 1e-9][0]
     am_06 = [r for r in B["armC_am"] if abs(r["sigma_k"] - 0.6) < 1e-9][0]
@@ -367,27 +367,27 @@ def main():
         count_wins_enc=B["armA"]["I_enc"] > max(fm_native["I_enc"], am_native["I_enc"]),
         count_wins_dec=B["armA"]["I_dec"] > max(fm_native["I_dec"], am_native["I_dec"]),
     )
-    log(f"  [判词] 天然散布点: 计数 {verdict['A_count_enc']:.4f} vs "
+    log(f"  [verdict] native dispersion point: counting {verdict['A_count_enc']:.4f} vs "
         f"FM {verdict['FM_native_enc']:.4f} vs AM {verdict['AM_native_enc']:.4f} bits "
-        f"(编码器出口)；过解码器 {verdict['A_count_dec']:.4f} / "
+        f"(encoder output); through decoder {verdict['A_count_dec']:.4f} / "
         f"{verdict['FM_native_dec']:.4f} / {verdict['AM_native_dec']:.4f}")
-    log(f"  [判词] 计数臂是否双赢: enc={verdict['count_wins_enc']} dec={verdict['count_wins_dec']}")
+    log(f"  [verdict] does the counting arm win both: enc={verdict['count_wins_enc']} dec={verdict['count_wins_dec']}")
 
     double_record = [
-        "Part A 全部用解析 Poisson 信道（非 MC），与代码81 的 MC 口径（I(D;N_DSB)=2.526）并列报告；两者差异为估计口径差异",
-        "最优量化器为精确 DP（最小化 sum p(b) H(D|b)），M=13 级对齐 N_MAX=12+1；它给出的是'脉冲帽约束下的信息上限'，不代表生物可实现性",
-        "修复稀释臂 phi 为自由参数（DSB 在触发前被修复的存活比例），文献半衰期范围未锁死，按扫描报告，结论只在'phi 越小损失越大'的单调层面引用",
-        "臂B/C 固定 N=5 脉冲：臂A 全体平均脉冲约 2.5，该选择对 FM/AM 臂有利（更多脉冲=更好的周期/幅度估计），属保守（不利于计数臂）的公平性偏置",
-        "FM 臂 T(D) 映射（gamma=0.15，2 倍动态范围）为任意选择；扫描显示结论对该斜率的方向不敏感的部分在 JSON 中，斜率本身未优化",
-        "AM 臂直接复用代码81 假想幅度臂口径（斜率 0.15/ln、内生 CV 0.15、LogNormal 增益），sigma_k=0.6 行应与代码81 的 I_amp=0.096 bits 同量级",
-        "解码级三臂共用同一对泄漏积分器（tau=10h/4h）：这本身偏袒计数臂，因为积分器天然是计数器；该偏置正是论点的一部分（已知解码器硬件是积分器），但登记为结构性偏置",
-        "互信息为分箱 plug-in 估计（12x12 / 16 分位分箱），绝对值有偏、趋势可靠（代码50/81 同口径声明）",
+        "Part A uses the analytic Poisson channel throughout (not MC), reported alongside code 81's MC convention (I(D;N_DSB)=2.526); the difference between the two is an estimation-convention difference",
+        "The optimal quantizer is an exact DP (minimizing sum p(b) H(D|b)), M=13 levels aligned with N_MAX=12+1; it gives the 'information upper bound under the pulse cap', and does not represent biological realizability",
+        "In the repair-thinning arm, phi is a free parameter (the fraction of DSBs surviving unrepaired before triggering); the literature half-life range is not pinned down, so it is reported as a sweep, and conclusions are cited only at the monotonic level of 'smaller phi means larger loss'",
+        "Arms B/C use fixed N=5 pulses: arm A's population-mean pulse count is about 2.5, so this choice favors the FM/AM arms (more pulses = better period/amplitude estimation) — a conservative fairness bias (against the counting arm)",
+        "The FM arm's T(D) mapping (gamma=0.15, 2x dynamic range) is an arbitrary choice; the part of the sweep showing the conclusion is insensitive to the direction of this slope is in the JSON; the slope itself was not optimized",
+        "The AM arm directly reuses the code 81 hypothetical amplitude-arm convention (slope 0.15/ln, endogenous CV 0.15, LogNormal gain); the sigma_k=0.6 row should be on the same order as code 81's I_amp=0.096 bits",
+        "The decoding stage shares the same pair of leaky integrators across all three arms (tau=10h/4h): this itself favors the counting arm, because an integrator is natively a counter; this bias is part of the argument (the known decoder hardware is an integrator), but is registered as a structural bias",
+        "Mutual information is a binned plug-in estimate (12x12 / 16-quantile binning); absolute values are biased, trends are reliable (same-convention declaration as code 50/81)",
     ]
 
     results = dict(
         meta=dict(script="代码83_为什么数字化_变分竞赛.py", seed=SEED, date="2026-09-25",
-                  question="Q-A: L1 损失 0.872 bits 的物理不可约部分 vs 设计部分；"
-                           "Q-B: 同一上游噪声下计数/FM/AM 三编码器结构的变分竞赛",
+                  question="Q-A: the physically irreducible part vs the design part of the L1 loss of 0.872 bits; "
+                           "Q-B: a variational race of three encoder structures (counting/FM/AM) under the same upstream noise",
                   constants=dict(K0_DSB=K0_DSB, C_CLUSTER=C_CLUSTER, N_MAX=N_MAX,
                                  T_PERIOD=T_PERIOD, JIT_IPI=JIT_IPI, W=W,
                                  N_FIXED=N_FIXED, GAMMA_T=GAMMA_T,
@@ -406,13 +406,13 @@ def main():
         return str(o)
     with open(OUT_JSON, "w", encoding="utf-8") as f:
         json.dump(results, f, ensure_ascii=False, indent=2, default=_js)
-    log("JSON 已写出:", OUT_JSON)
+    log("JSON written:", OUT_JSON)
 
-    # ---------------- 六面体图 ----------------
+    # ---------------- Six-panel figure ----------------
     fig = plt.figure(figsize=(17, 10.5))
     gs = fig.add_gridspec(2, 3, hspace=0.44, wspace=0.32)
 
-    # (a) 聚类常数扫描 + 最优量化器上限
+    # (a) clustering-constant sweep + optimal-quantizer upper bound
     axa = fig.add_subplot(gs[0, 0])
     cs = [r["c"] for r in A["c_sweep"]]
     Is = [r["I"] for r in A["c_sweep"]]
@@ -427,7 +427,7 @@ def main():
     axa.set_ylabel("I(D; $N_{trig}$)  bits"); axa.legend(fontsize=8, loc="lower right")
     axa.set_title("(a) L1 mapping: is c=50 information-optimal?", fontsize=10.5)
 
-    # (b) 修复稀释扫描
+    # (b) repair-thinning sweep
     axb = fig.add_subplot(gs[0, 1])
     phis = [r["phi"] for r in A["thinning_sweep"]]
     axb.plot(phis, [r["I_perfect_sense"] for r in A["thinning_sweep"]], "o-",
@@ -441,9 +441,9 @@ def main():
     axb.set_ylabel("I(D; L1 output)  bits"); axb.legend(fontsize=8, loc="lower left")
     axb.set_title("(b) Repair thinning: the physical part of the L1 loss", fontsize=10.5)
 
-    # (c) L1 损失分解条形
+    # (c) L1 loss-decomposition bars
     axc = fig.add_subplot(gs[0, 2])
-    phi_ref = 0.25  # 参考稀释点（双录：任意选择，只作分解示意）
+    phi_ref = 0.25  # reference thinning point (double-recorded: arbitrary choice, for decomposition illustration only)
     row = [r for r in A["thinning_sweep"] if abs(r["phi"] - phi_ref) < 1e-9][0]
     parts = [H_D - A["I_DSB_exact"], row["loss_thinning"],
              row["loss_total_optimal"] - row["loss_thinning"],
@@ -465,7 +465,7 @@ def main():
     axc.set_ylabel("bits")
     axc.set_title("(c) L1 loss decomposition (illustrative $\\varphi$=0.25)", fontsize=10.5)
 
-    # (d) 编码器出口竞赛
+    # (d) encoder-output race
     axd = fig.add_subplot(gs[1, 0])
     axd.plot([r["sigma_k"] for r in B["armC_am"]], [r["I_enc"] for r in B["armC_am"]],
              "s-", color="#c05640", label="AM arm vs gain $\\sigma_k$")
@@ -481,7 +481,7 @@ def main():
     axd.set_ylabel("I(D; statistic)  bits"); axd.legend(fontsize=8, loc="upper right")
     axd.set_title("(d) Encoder-output competition under native noise", fontsize=10.5)
 
-    # (e) 过解码器竞赛
+    # (e) through-decoder race
     axe = fig.add_subplot(gs[1, 1])
     axe.plot([r["sigma_k"] for r in B["armC_am"]], [r["I_dec"] for r in B["armC_am"]],
              "s-", color="#c05640", label="AM arm")
@@ -493,7 +493,7 @@ def main():
     axe.set_ylabel("I(D; mRNA joint)  bits"); axe.legend(fontsize=8)
     axe.set_title("(e) Same competition through the leaky-integrator decoder", fontsize=10.5)
 
-    # (f) 摘要
+    # (f) summary
     axs = fig.add_subplot(gs[1, 2]); axs.axis("off")
     v = verdict
     summary = (
@@ -520,8 +520,8 @@ def main():
                  fontsize=12.5)
     fig.savefig(OUT_PNG, dpi=150, bbox_inches="tight")
     fig.savefig(OUT_SVG, bbox_inches="tight")
-    log("图已写出:", OUT_PNG, "和", OUT_SVG)
-    log("[代码83] 完成。")
+    log("Figure written:", OUT_PNG, "and", OUT_SVG)
+    log("[code83] done.")
 
 
 if __name__ == "__main__":

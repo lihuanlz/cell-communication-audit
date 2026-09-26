@@ -1,13 +1,13 @@
 # -*- coding: utf-8 -*-
 """
-代码51r3 p53脉冲发生器 Fisher 审计（探路三轮）
-修正：①积分器恢复同步欧拉（r2 误为半隐式，N 漂移 9.0→8.3）
-      ②新增上游随机感知延迟级 τ_d~Exp(μ_d)：I(t)=I0·exp(-(t-τ_d)/τ_r)·1[t≥τ_d]
-P2'（跑前钉死）：Var(t1)/Var(T) ≥ 4 当且仅当存在上游随机延迟且其离散度
-      sd(τ_d)/T ≳ O(0.1)；振荡器核心自身的触发离散度远不够（r2 实测 sd(t1)≈0.5%·T）。
-      文献标定：t1 sd ≈ 0.73·T（240/330min）。
-同时保留：7参数Fisher（h=2%/5%双跑+最软方向鉴定）、通道信息份额、
-      计数律、I(D;N)、σ_k 腐蚀对照。
+Code 51r3 p53 pulse-generator Fisher audit (pathfinding round 3)
+Fixes: (1) integrator restored to synchronous Euler (r2 was mistakenly semi-implicit, N drifted 9.0->8.3)
+       (2) new upstream stochastic sensing-delay stage tau_d~Exp(mu_d): I(t)=I0·exp(-(t-tau_d)/tau_r)·1[t>=tau_d]
+P2' (pinned before the run): Var(t1)/Var(T) >= 4 if and only if an upstream stochastic delay exists with dispersion
+       sd(tau_d)/T ≳ O(0.1); the oscillator core's own trigger dispersion is far from sufficient (r2 measured sd(t1)≈0.5%·T).
+       Literature calibration: t1 sd ≈ 0.73·T (240/330min).
+Also retained: 7-parameter Fisher (h=2%/5% double runs + softest-direction identification), channel information shares,
+       counting law, I(D;N), sigma_k corruption control.
 """
 import sys, json
 from pathlib import Path
@@ -28,14 +28,14 @@ IC = 0.33
 
 
 def simulate(theta, m=M, seed0=0, mu_d=0.0):
-    """同步 Euler-Maruyama；mu_d>0 时每细胞独立延迟 τ_d~Exp(mu_d)。"""
+    """Synchronous Euler-Maruyama; for mu_d>0 each cell has an independent delay tau_d~Exp(mu_d)."""
     n = int(TMAX / DT)
     rng = np.random.default_rng(seed0)
     v = np.full(m, -1.05)
     w = np.full(m, -0.65)
     t_ax = np.linspace(0.0, TMAX, n + 1)
     if mu_d > 0:
-        tau_d = rng.exponential(mu_d, size=m)          # 每细胞感知延迟
+        tau_d = rng.exponential(mu_d, size=m)          # per-cell sensing delay
         I = theta["I0"] * np.exp(-np.maximum(t_ax[:, None] - tau_d[None, :], 0.0)
                                  / theta["tau_r"]) * (t_ax[:, None] >= tau_d[None, :])
     else:
@@ -47,7 +47,7 @@ def simulate(theta, m=M, seed0=0, mu_d=0.0):
     s, eps, a, b = theta["s"], theta["eps"], theta["a"], theta["b"]
     for k in range(n):
         noise = sq * rng.standard_normal(m) if sq > 0 else 0.0
-        v_new = v + s * (v - v**3 / 3.0 - w) * DT + noise   # 同步更新：w 用旧 v
+        v_new = v + s * (v - v**3 / 3.0 - w) * DT + noise   # synchronous update: w uses the old v
         w = w + s * eps * (v + a - b * w - I[k]) * DT
         v = v_new
         vs[k + 1] = v
@@ -134,8 +134,8 @@ def fisher_audit(hrel):
 
 
 def delay_scan():
-    """P2'：μ_d/T ∈ {0, 0.1, 0.25, 0.5, 0.73, 1.0}，判据 Var(t1)/Var(T)≥4。"""
-    # 先用无延迟组估计 T0 用于归一
+    """P2': mu_d/T in {0, 0.1, 0.25, 0.5, 0.73, 1.0}, criterion Var(t1)/Var(T)>=4."""
+    # First estimate T0 from the no-delay group for normalization
     obs0 = run_group(THETA0, seed0=0)
     T0 = float(np.nanmean(obs0[:, 1]))
     var_T0 = float(np.nanvar(obs0[:, 1], ddof=1))
@@ -204,39 +204,39 @@ def make_figure(res, delay, cap, gain):
     t_ax, vs, _ = simulate(THETA0, m=6, seed0=7)
     for j in range(3):
         ax.plot(t_ax, vs[:, j] + 3.2 * j, lw=0.8)
-    ax.set_title("(a) FHN 脉冲串（同步积分，N=%.1f）" % res["N_mean"])
-    ax.set_xlabel("时间 (au)"); ax.set_ylabel("v（错位）")
+    ax.set_title("(a) FHN pulse trains (synchronous integration, N=%.1f)" % res["N_mean"])
+    ax.set_xlabel("time (au)"); ax.set_ylabel("v (offset)")
 
     ax = axes[0, 1]
     ev = np.array(res["evals"])
     ax.bar(range(1, 8), np.log10(np.maximum(ev, 1e-300)), color="#3a7bd5")
-    ax.set_title("(b) Fisher 特征谱  cond(h2)=%.1e" % res["cond"])
-    ax.set_xlabel("模式序号"); ax.set_ylabel("log10 特征值"); ax.set_xticks(range(1, 8))
+    ax.set_title("(b) Fisher eigenspectrum  cond(h2)=%.1e" % res["cond"])
+    ax.set_xlabel("mode index"); ax.set_ylabel("log10 eigenvalue"); ax.set_xticks(range(1, 8))
 
     ax = axes[0, 2]
     E = np.abs(np.array(res["evecs"]))
     im = ax.imshow(E, aspect="auto", cmap="viridis", vmin=0, vmax=1)
     ax.set_yticks(range(7)); ax.set_yticklabels(PARAM_NAMES)
     ax.set_xticks(range(7)); ax.set_xticklabels([f"v{i+1}" for i in range(7)])
-    ax.set_title("(c) 特征向量（最软 v7：%s）" % ", ".join(f"{n} {v}" for n, v in res["soft_top"][:2]))
+    ax.set_title("(c) eigenvectors (softest v7: %s)" % ", ".join(f"{n} {v}" for n, v in res["soft_top"][:2]))
     fig.colorbar(im, ax=ax, fraction=0.046)
 
     ax = axes[1, 0]
     sh = np.array(res["share"])
     ax.bar(OBS_NAMES, sh, color=["#c0392b" if o == "A" else "#27ae60" for o in OBS_NAMES])
-    ax.set_title("(d) 通道信息份额：A=%.1f%%，时间类合计=%.1f%%"
+    ax.set_title("(d) channel information shares: A=%.1f%%, timing channels total=%.1f%%"
                  % (100 * sh[2], 100 * (sh[0] + sh[1] + sh[3] + sh[4])))
-    ax.set_ylabel("信息份额")
+    ax.set_ylabel("information share")
 
     ax = axes[1, 1]
     rows = delay["rows"]
     ax.plot([r["mu_d_over_T"] for r in rows], [r["var_ratio"] for r in rows],
             "o-", color="#8e44ad", label="Var(t1)/Var(T)")
-    ax.axhline(4, ls="--", color="gray", label="P2' 判据 =4")
-    ax.axvline(0.73, ls=":", color="red", label="文献 t1 sd ≈ 0.73·T")
+    ax.axhline(4, ls="--", color="gray", label="P2' criterion =4")
+    ax.axvline(0.73, ls=":", color="red", label="literature t1 sd ≈ 0.73·T")
     ax.set_yscale("log")
-    ax.set_title("(e) P2'：上游随机感知延迟 → t1弥散/IPI精确 签名")
-    ax.set_xlabel("sd(τ_d) / T"); ax.set_ylabel("Var(t1)/Var(T)（log）")
+    ax.set_title("(e) P2': upstream stochastic sensing delay -> t1-dispersed/IPI-precise signature")
+    ax.set_xlabel("sd(τ_d) / T"); ax.set_ylabel("Var(t1)/Var(T) (log)")
     ax.legend()
 
     ax = axes[1, 2]
@@ -245,14 +245,14 @@ def make_figure(res, delay, cap, gain):
     mask = nm > 0
     cf = np.polyfit(np.log(d[mask]), nm[mask], 1)
     ax.plot(np.log(d), np.polyval(cf, np.log(d)), "--", color="gray",
-            label="对数律 斜率=%.2f" % cf[0])
+            label="log-law slope=%.2f" % cf[0])
     ax.set_xlabel("ln I0"); ax.set_ylabel("N")
-    ax.set_title("(f) 计数律 + I(D;N)=%.2f/%.2f bits；σ_k: CV(A)%.2f→%.2f, CV(T)钉死%.3f"
+    ax.set_title("(f) counting law + I(D;N)=%.2f/%.2f bits; σ_k: CV(A)%.2f->%.2f, CV(T) pinned %.3f"
                  % (cap["I_DN_bits"], cap["H_D_bits"],
                     gain[0]["cv_A"], gain[-1]["cv_A"], gain[-1]["cv_T"]))
     ax.legend(loc="upper left", fontsize=8)
 
-    fig.suptitle("代码51r3 · p53 Fisher 审计三轮（同步积分 + 上游随机感知级）", y=0.995)
+    fig.suptitle("Code 51r3 · p53 Fisher audit round 3 (synchronous integration + upstream stochastic sensing stage)", y=0.995)
     fig.tight_layout()
     fig.savefig(OUT_PNG, bbox_inches="tight")
     plt.close(fig)
@@ -264,19 +264,19 @@ def main():
     res5 = fisher_audit(0.05)
     print(f"      N={res2['N_mean']:.1f} cond(h2)={res2['cond']:.2e} cond(h5)={res5['cond']:.2e}",
           flush=True)
-    print(f"      最软方向(h2)={res2['soft_top']}  (h5)={res5['soft_top']}", flush=True)
+    print(f"      softest direction(h2)={res2['soft_top']}  (h5)={res5['soft_top']}", flush=True)
     print(f"      share={dict(zip(OBS_NAMES, [round(s,3) for s in res2['share']]))}", flush=True)
-    print("[2/4] P2' 延迟扫描 ...", flush=True)
+    print("[2/4] P2' delay scan ...", flush=True)
     delay = delay_scan()
     print(f"      T0={delay['T0']:.3f}", flush=True)
     for r in delay["rows"]:
         print(f"      μd/T={r['mu_d_over_T']:.2f}  VarRatio={r['var_ratio']:.2f}  "
               f"CV(t1)/CV(T)={r['cv_ratio']:.2f}  P2'={'过' if r['pass_P2p'] else '不过'}",
               flush=True)
-    print("[3/4] 信道容量 ...", flush=True)
+    print("[3/4] channel capacity ...", flush=True)
     cap = channel_capacity()
     print(f"      I(D;N)={cap['I_DN_bits']:.3f}/{cap['H_D_bits']:.3f} bits", flush=True)
-    print("[4/4] 增益腐蚀 ...", flush=True)
+    print("[4/4] gain corruption ...", flush=True)
     gain = gain_corruption()
     for r in gain:
         print(f"      σ_k={r['sigma_k']:.1f}  CV(A)={r['cv_A']:.3f}  CV(T)={r['cv_T']:.3f}",
@@ -286,7 +286,7 @@ def main():
                fisher_h2=res2, fisher_h5=res5, delay=delay, capacity=cap, gain=gain)
     OUT_JSON.write_text(json.dumps(out, ensure_ascii=False, indent=2), encoding="utf-8")
     make_figure(res2, delay, cap, gain)
-    print("已写出：", OUT_JSON.name, OUT_PNG.name, flush=True)
+    print("Written:", OUT_JSON.name, OUT_PNG.name, flush=True)
 
 
 if __name__ == "__main__":

@@ -1,34 +1,34 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-代码64 D2R 上游速率排序检验（原始时程深挖）v1.0.0 —— 数据质量不足，如实记负
+Code 64 D2R upstream rate-ordering test (deep dig into raw time courses) v1.0.0 — data quality insufficient, negative recorded as-is
 ================================================
-任务：检验"通路动力学是否配体无关"。单活性态+平衡级联预言：同一通路
-内各配体的归一化响应波形应当重合（速率排序是通路属性）。若配体给
-通路留下动力学指纹，则存在更深层的态分辨。
+Task: test "whether pathway kinetics are ligand-independent". Single-active-state + equilibrium cascade
+predicts: within one pathway all ligands' normalized response waveforms should coincide (rate ordering
+is a pathway property). If ligands leave kinetic fingerprints on the pathway, deeper state resolution exists.
 
-数据：Klein Herenbrink 2016 Supplementary Data 1（6 通路的单浓度
-饱和刺激时程，n=3–4 次重复/配体）。
+Data: Klein Herenbrink 2016 Supplementary Data 1 (single-concentration saturating-stimulus time courses
+for 6 pathways, n=3–4 repeats/ligand).
 
-结果（v1.0.0 实跑）：
-  直接 t50 提取给出配体间巨大差异（如 Gαi1: dopamine 0.9 min vs
-  bifeprunox 17.9 min）——看似"配体指纹"。
-  ⚠️ 但质量控制暴露三个致命问题：
-  1. 单调度普遍 0.3–0.7（轨迹漂移/噪声大，非干净单相上升）；
-  2. 平台归一化振幅出现物理不合理值（pERK bifeprunox=多巴胺的572%、
-     Gαi1 aripiprazole=804%），与 SI Table 7 的 Emax 排序矛盾——
-     说明基线/平台估计被漂移污染；
-  3. pERK 时程窗口从 30 min 才开始（捕获的是衰减尾），其 t50 无定义。
-判定：**该批原始时程不足以支持动力学排序检验**——t50 的表观配体
-差异不可信，既不能作为断裂证据，也不能作为无断裂证据。如实记负。
-动力学断裂的可用证据保持为代码63 检验3（SI T7 的 pEC50 时程，
-那是逐时点完整浓度-响应拟合，统计量级完全不同）。
+Results (v1.0.0 actual run):
+  Direct t50 extraction gives huge ligand-to-ligand differences (e.g. Gαi1: dopamine 0.9 min vs
+  bifeprunox 17.9 min) — an apparent "ligand fingerprint".
+  ⚠️ But quality control exposes three fatal problems:
+  1. Monotonicity generally 0.3–0.7 (trajectory drift / high noise, not a clean monophasic rise);
+  2. Plateau-normalized amplitudes take physically unreasonable values (pERK bifeprunox = 572% of dopamine,
+     Gαi1 aripiprazole = 804%), contradicting the Emax ordering of SI Table 7 —
+     meaning baseline/plateau estimates are contaminated by drift;
+  3. The pERK time-course window starts only at 30 min (capturing the decay tail); its t50 is undefined.
+Verdict: **this batch of raw time courses is insufficient to support a kinetic-ordering test** — the apparent
+ligand differences in t50 are not credible, usable neither as breakage evidence nor as no-breakage evidence. Negative recorded as-is.
+The usable evidence for kinetic breakage remains Code 63 Test 3 (the SI T7 pEC50 time course,
+which is a full concentration–response fit at each time point, a completely different statistical scale).
 
-教训（双录）：单浓度时程 + 低重复 + 基线漂移的组合不能做波形归一化
-比较；此类检验需要逐时点浓度-响应曲面（time × dose 矩阵）。
+Lesson (double-recorded): single-concentration time courses + low replication + baseline drift cannot support
+waveform-normalization comparisons; such tests need per-time-point concentration–response surfaces (time × dose matrix).
 
-运行：python3 代码64_D2R上游速率排序检验.py
-依赖：numpy, pandas, openpyxl
+Run: python3 代码64_D2R上游速率排序检验.py
+Dependencies: numpy, pandas, openpyxl
 """
 
 import numpy as np
@@ -67,7 +67,7 @@ def t50(t, y):
 def main():
     sheets = {sh: parse_sheet(sh)
               for sh in ["CAMYEL cAMP", "pERK12", "B-arrestin2", "Gai1", "Gao"]}
-    print("== 表观 t50（min）与质量控制 ==")
+    print("== Apparent t50 (min) and quality control ==")
     for sh, cu in sheets.items():
         spans = {lig: np.mean(y[int(len(y)*0.8):]) - np.mean(y[:3])
                  for lig, (t, y) in cu.items()}
@@ -77,14 +77,14 @@ def main():
             base = np.mean(y[:3]); plat = np.mean(y[int(len(y)*0.8):])
             yn = (y - base) / (plat - base + 1e-12)
             mono = np.mean(np.diff(yn) >= -0.05)
-            print(f"  {lig:13s}: t50={t50(t,y):6.1f} min, 幅={100*abs(spans[lig])/d0:6.1f}% DA, "
-                  f"单调度={mono:.2f}, 窗口=[{t.min():.0f},{t.max():.0f}] min")
+            print(f"  {lig:13s}: t50={t50(t,y):6.1f} min, amp={100*abs(spans[lig])/d0:6.1f}% DA, "
+                  f"monotonicity={mono:.2f}, window=[{t.min():.0f},{t.max():.0f}] min")
     print("""
-== 判定 ==
-单调度 0.3–0.7、归一化振幅物理不合理（pERK 572%、Gαi1 804%）、
-pERK 窗口只含衰减尾 → 表观 t50 配体差异不可信。
-该批单浓度时程不足以做动力学排序检验（记负，双录）。
-动力学断裂的有效证据保持为代码63 检验3（SI T7 pEC50 时程）。
+== Verdict ==
+Monotonicity 0.3–0.7, physically unreasonable normalized amplitudes (pERK 572%, Gαi1 804%),
+pERK window contains only the decay tail -> apparent t50 ligand differences are not credible.
+This batch of single-concentration time courses is insufficient for a kinetic-ordering test (negative, double-recorded).
+Valid evidence for kinetic breakage remains Code 63 Test 3 (SI T7 pEC50 time course).
 """)
 
 if __name__ == "__main__":

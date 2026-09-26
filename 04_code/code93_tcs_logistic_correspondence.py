@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
 """
-代码93：TCS 标度不变 x Belgacem logistic 替换的结构对应验证
-三个数值命题（全部确定性，种子标记 20260925）：
-  V1 Hill↔logistic 对数恒等式：Hill_n(x;θ) ≡ logistic_{λ=n}(ln x; ln θ)，机器精度；
-  V2 周期公式的浓度标度自由：Belgacem 系统在 (κ,θ,x→s·, λ→λ/s) 下动力学等价，
-     两组不同浓度标度的参数给出同一平衡结构、同一 ωc、同一周期；
-  V3 事件时间泛函的单调重标不变性（T′ 定理的构造性实例）：Mönke 模拟 p53 轨迹
-     经任意严格增非线性振幅重标后，峰位/周期不变而振幅统计改变。
+Code 93: structural-correspondence verification of TCS scale invariance x Belgacem logistic substitution
+Three numerical propositions (all deterministic, seed tag 20260925):
+  V1 Hill<->logistic log identity: Hill_n(x;θ) ≡ logistic_{λ=n}(ln x; ln θ), to machine precision;
+  V2 concentration-scale freedom of the period formula: the Belgacem system is dynamically equivalent under (κ,θ,x→s·, λ→λ/s);
+     two parameter sets at different concentration scales give the same equilibrium structure, the same ωc, the same period;
+  V3 monotone-rescaling invariance of event-time functionals (constructive instance of the T′ theorem): after any strictly
+     increasing nonlinear amplitude rescaling of the Mönke-simulated p53 trajectory, peak positions/period are invariant while amplitude statistics change.
 """
 import json
 import numpy as np
@@ -26,7 +26,7 @@ plt.rcParams.update({"svg.fonttype": "none", "font.size": 9,
 
 res = {"seed": SEED}
 
-# ---------------- V1：Hill↔logistic 对数恒等式 ----------------
+# ---------------- V1: Hill<->logistic log identity ----------------
 xs = np.logspace(-3, 2, 2000)
 for n, th in [(1.0, 0.7), (2.4, 1.3), (9.0, 0.5)]:
     hill = 1.0 / (1.0 + (xs / th) ** (-n))
@@ -36,38 +36,38 @@ for n, th in [(1.0, 0.7), (2.4, 1.3), (9.0, 0.5)]:
         dict(n=n, theta=th, max_abs_error=err))
 res["V1_verdict"] = bool(all(r["max_abs_error"] < 1e-12 for r in res["V1_identity"]))
 
-# ---------------- V2：浓度标度自由 ----------------
+# ---------------- V2: concentration-scale freedom ----------------
 def omega_c(g1, g2, AB):
     p = (-(g1**2 + g2**2) + np.sqrt((g1**2 - g2**2)**2 + 4 * AB**2)) / 2
     return float(np.sqrt(p))
 
 def equil_and_gains(kappa, lam, theta, gam):
-    """对称两基因 logistic 系统：x*=θ 设计点，A=B=κλ/4（f*=1/2）。"""
+    """Symmetric two-gene logistic system: x*=θ design point, A=B=κλ/4 (f*=1/2)."""
     xstar = kappa * 0.5 / gam
     A = kappa * lam * 0.25
     return xstar, A
 
 gam = np.log(2.0)
 AB_target = 1.7204
-base_kappa = np.sqrt(AB_target)          # λ=4 设计点：A=B=κ·4/4=κ
+base_kappa = np.sqrt(AB_target)          # λ=4 design point: A=B=κ·4/4=κ
 v2 = []
 for s in [1.0, 3.7]:
     kappa = base_kappa * s
     lam = 4.0 / s
     theta = 0.946 * s
     xstar, A = equil_and_gains(kappa, lam, theta, gam)
-    # 平衡结构：f(x*) 应为 0.5（设计点）需 θ=xstar；检验缩放后是否仍满足
+    # Equilibrium structure: f(x*) should be 0.5 (design point) requiring θ=xstar; check it still holds after scaling
     fstar = 1.0 / (1.0 + np.exp(-lam * (xstar - theta)))
     w = omega_c(gam, gam, A * A)
     v2.append(dict(scale=s, kappa=kappa, lam=lam, theta=theta,
                    xstar=xstar, fstar=fstar, A=A, omega_c=w,
                    T_h=2 * np.pi / w))
 res["V2_scale_freedom"] = v2
-# 物理主张：ωc 与 fstar 跨标度不变（fstar 与精确 0.5 的偏差来自平衡点数值解，非标度效应）
+# Physical claim: ωc and fstar are invariant across scales (fstar's deviation from exact 0.5 comes from the numerical fixed-point solve, not a scale effect)
 res["V2_verdict"] = bool(abs(v2[0]["omega_c"] - v2[1]["omega_c"]) < 1e-9
                          and abs(v2[0]["fstar"] - v2[1]["fstar"]) < 1e-12)
 
-# ---------------- V3：事件时间泛函在任意单调振幅重标下不变 ----------------
+# ---------------- V3: event-time functionals invariant under arbitrary monotone amplitude rescaling ----------------
 PAR = dict(A=30.5, P=22.0, C=1.4, g=2.5, dAM=20.0,
            Tm=1.2, TM=4.0, Tw=1.2, TW=1.0,
            dA=0.16, dP=0.1, dm=1.0, dM=2.0, dw=1.3, dW=2.3,
@@ -98,7 +98,7 @@ def pulse_times(sig):
     pk, _ = find_peaks(sig, prominence=0.3, height=0.8)
     return t[pk]
 
-# 任意严格增重标：y = x^1.7 + 0.3*sqrt(x)（非线性，改变所有振幅统计）
+# Arbitrary strictly increasing rescaling: y = x^1.7 + 0.3*sqrt(x) (nonlinear, changes all amplitude statistics)
 p53_warped = p53**1.7 + 0.3 * np.sqrt(np.maximum(p53, 0))
 pk0 = pulse_times(p53)
 pk1 = pulse_times(p53_warped)
@@ -113,13 +113,13 @@ res["V3_event_time_invariance"] = dict(
     period_orig_h=float(np.mean(np.diff(pk0))),
     period_warped_h=float(np.mean(np.diff(pk1))),
 )
-# 物理主张：事件时间不变（shift≈0），振幅统计被重标显著改变（相对变化>10% 即可，方向不限）
+# Physical claim: event times invariant (shift≈0), amplitude statistics significantly changed by the rescaling (relative change >10% suffices, direction irrelevant)
 amp_cv_rel_change = abs(amp_cv1 - amp_cv0) / amp_cv0
 res["V3_event_time_invariance"]["amplitude_cv_rel_change"] = amp_cv_rel_change
 res["V3_verdict"] = bool(time_shift < 1e-6 and amp_cv_rel_change > 0.1
                          and len(pk0) == len(pk1))
 
-# ---------------- 图：三面体 ----------------
+# ---------------- Figure: three-panel ----------------
 fig, axes = plt.subplots(1, 3, figsize=(14, 4.0))
 
 ax = axes[0]

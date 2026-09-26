@@ -2,21 +2,21 @@
 """
 代码71_Atlas全库恒等式流水线.py  v1.0.0
 ============================================================
-细胞线4 · A1：Biased Signaling Atlas 全库审计流水线（代码67 的全量化）
+Cell line 4 · A1: Biased Signaling Atlas full-database audit pipeline (full-scale version of Code 67)
 
-对 Atlas 全部 9041 行逐条过筛，产出机器可读的"不一致地图"数据层：
-  ① 恒等式A（组内配体对）：Δlog(τ/KA) ?= Δlog(Emax/EC50)，Black–Leff n=1 下严格
-  ② Emax 质控标记（>110/150/300%、负值）
-  ③ Δlog(τ/KA) 跨通路三角闭合（库内算术核验）
-聚合维度：文献 × 受体 × 通路 × 细胞系；每条记录给出偏差中位/最大、样本数、
-质控标记数。输出：
-  atlas_audit_entries.csv   逐条目级（含 logRA 与 tc 差）
-  atlas_audit_groups.csv    组级聚合
-  atlas_audit_papers.csv    文献级聚合
-  atlas_audit_summary.json  全库汇总 + 极端组清单
-解释纪律（沿用代码67）：nH≠1 合法拟合与文献直报 τ/KA 都会产生偏差；
-本流水线产出的是"不一致地图"，不是"错误清单"。
-运行：python3 代码71_Atlas全库恒等式流水线.py
+Screen all 9041 Atlas rows one by one, producing a machine-readable "inconsistency map" data layer:
+  (1) Identity A (within-group ligand pairs): Δlog(τ/KA) ?= Δlog(Emax/EC50), strict under Black–Leff n=1
+  (2) Emax QC flags (>110/150/300%, negative values)
+  (3) Δlog(τ/KA) cross-pathway triangle closure (in-database arithmetic check)
+Aggregation dimensions: paper × receptor × pathway × cell line; each record gives deviation median/max,
+sample counts, QC flag counts. Outputs:
+  atlas_audit_entries.csv   entry level (with logRA and tc differences)
+  atlas_audit_groups.csv    group-level aggregation
+  atlas_audit_papers.csv    paper-level aggregation
+  atlas_audit_summary.json  full-database summary + extreme-group list
+Interpretation discipline (as in Code 67): legitimate nH≠1 fits and paper-reported τ/KA both produce deviations;
+this pipeline produces an "inconsistency map", not an "error list".
+Run: python3 代码71_Atlas全库恒等式流水线.py
 ============================================================
 """
 import numpy as np, pandas as pd, itertools, os, json
@@ -44,14 +44,14 @@ df["doi"] = df["Reference DOI or PMID"].astype(str)
 df["receptor"] = df["Receptor UniProt entry name or code"].astype(str)
 df["ligand"] = df["Ligand tested for bias or func. Sel. Name"].astype(str)
 
-# ---------- 条目级 ----------
+# ---------- Entry level ----------
 mask = tc.notna() & em.notna() & np.isfinite(pEC) & (em > 0)
 ent = df[mask].copy()
 ent["logRA"] = np.log10(ent["em"]) + ent["pEC50u"]
 ent["grp"] = (ent["doi"] + "|" + ent["receptor"] + "|" + ent["Measured process"].astype(str)
               + "|" + ent["Pathway level"].astype(str) + "|" + ent["Cell line"].astype(str)
               + "|" + ent["Primary effector subtype"].astype(str))
-# 组内参考：logRA − tc 的组中位数作为该组常数（≈ −log E_sys 的实现值）
+# Within-group reference: group median of logRA − tc as the group constant (≈ realized value of −log E_sys)
 gmed = ent.groupby("grp").apply(lambda x: (x["logRA"]-x["tc"]).median(), include_groups=False)
 ent["dev_entry"] = (ent["logRA"] - ent["tc"]) - ent["grp"].map(gmed)
 ent["doi_"] = ent["doi"]; ent["receptor_"] = ent["receptor"]
@@ -60,7 +60,7 @@ ent_out = ent[["doi_","receptor_","ligand","Measured process","Pathway level","C
                columns={"doi_":"doi","receptor_":"receptor"})
 ent_out.to_csv(os.path.join(OUTDIR,"atlas_audit_entries.csv"), index=False)
 
-# ---------- 组级 ----------
+# ---------- Group level ----------
 rows=[]
 for k, v in ent.groupby("grp"):
     d = v.drop_duplicates("ligand")
@@ -77,7 +77,7 @@ for k, v in ent.groupby("grp"):
 grp_df=pd.DataFrame(rows).sort_values("dev_median",ascending=False)
 grp_df.to_csv(os.path.join(OUTDIR,"atlas_audit_groups.csv"), index=False)
 
-# ---------- 文献级 ----------
+# ---------- Paper level ----------
 pap = grp_df.groupby("doi").agg(
     n_groups=("grp","size"), n_pairs=("n_pairs","sum"),
     dev_median=("dev_median","median"), dev_max=("dev_max","max"),
@@ -85,11 +85,11 @@ pap = grp_df.groupby("doi").agg(
 pap=pap.sort_values("dev_median",ascending=False)
 pap.to_csv(os.path.join(OUTDIR,"atlas_audit_papers.csv"), index=False)
 
-# ---------- Emax 质控 ----------
+# ---------- Emax QC ----------
 qc = {"emax_gt110": int((df["em"]>110).sum()), "emax_gt150": int((df["em"]>150).sum()),
       "emax_gt300": int((df["em"]>300).sum()), "emax_neg": int((df["em"]<0).sum())}
 
-# ---------- 三角闭合 ----------
+# ---------- Triangle closure ----------
 sub2 = df[rtc.notna()].copy()
 sub2["pwy"] = (sub2["Pathway level"].astype(str)+"|"+sub2["Measured process"].astype(str)
                +"|"+sub2["Primary effector subtype"].astype(str))
@@ -123,11 +123,11 @@ summary = {
 with open(os.path.join(OUTDIR,"atlas_audit_summary.json"),"w") as f:
     json.dump(summary, f, ensure_ascii=False, indent=1)
 
-print(f"条目级: {len(ent_out)} 行 → atlas_audit_entries.csv")
-print(f"组级: {len(grp_df)} 组, 配对 {int(grp_df['n_pairs'].sum())} → atlas_audit_groups.csv")
-print(f"文献级: {len(pap)} 篇 → atlas_audit_papers.csv")
-print(f"组偏差中位>0.3: {(grp_df['dev_median']>0.3).sum()}/{len(grp_df)}; "
-      f"文献偏差中位>0.3: {(pap['dev_median']>0.3).sum()}/{len(pap)}")
-print(f"三角闭合: {len(viol)} 个, 违规 {(viol>0.01).sum()}")
+print(f"Entry level: {len(ent_out)} rows → atlas_audit_entries.csv")
+print(f"Group level: {len(grp_df)} groups, pairs {int(grp_df['n_pairs'].sum())} → atlas_audit_groups.csv")
+print(f"Paper level: {len(pap)} papers → atlas_audit_papers.csv")
+print(f"Groups dev median>0.3: {(grp_df['dev_median']>0.3).sum()}/{len(grp_df)}; "
+      f"papers dev median>0.3: {(pap['dev_median']>0.3).sum()}/{len(pap)}")
+print(f"Triangle closures: {len(viol)}, violations {(viol>0.01).sum()}")
 print(f"Emax QC: {qc}")
 print("→ atlas_audit_summary.json")

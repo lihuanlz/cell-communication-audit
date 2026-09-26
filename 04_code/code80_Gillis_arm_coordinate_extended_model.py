@@ -1,41 +1,41 @@
 # -*- coding: utf-8 -*-
 """
-代码80_Gillis测定臂坐标扩展模型.py
-版本 v1.0.0 · 2026-08-16
+code80_Gillis_arm_coordinate_extended_model.py
+version v1.0.0 · 2026-08-16
 
-目的：检验“下一代模型”的最小可生存雏形——不是凭空发明新方程，而是在旧模型骨架上
-      增加一个受约束的测定臂坐标 δ_arm，看 Gillis μOR 断裂是否被合法吸收。
+Purpose: test the minimal viable embryo of a "next-generation model" — not inventing new equations from
+      scratch, but adding one constrained assay-arm coordinate delta_arm onto the old skeleton to see whether the Gillis muOR rupture is legitimately absorbed.
 
-模型：
-  旧模型 M0：Emax 与 pEC50 反推出每个配体×臂的潜 logτ、pKA；
-             主文表3 logτ 与 SI 表S1 log(τ/KA) 应围绕该潜坐标零均值散布。
-  扩展模型 M1：同一潜坐标之外，允许每个测定臂有一个共享报告/功能坐标 δ_arm：
-             logτ_obs = logτ_latent + δ_arm + ε
-             logR_obs = logτ_latent + pKA_latent + δ_arm + ε
-             δ_arm ~ N(0, σ_δ²)
-  用边际似然比较 M0/M1；σ_δ 既做敏感性扫描，也做经验贝叶斯估计。
+Model:
+  old model M0: latent log-tau and pKA per ligand x arm, back-computed from Emax and pEC50;
+             main-text Table 3 log-tau and SI Table S1 log(tau/KA) should scatter zero-mean around that latent coordinate.
+  extended model M1: beyond the same latent coordinate, each assay arm may carry one shared reporter/functional coordinate delta_arm:
+             log-tau_obs = log-tau_latent + delta_arm + eps
+             logR_obs = log-tau_latent + pKA_latent + delta_arm + eps
+             delta_arm ~ N(0, sigma_delta^2)
+  compare M0/M1 by marginal likelihood; sigma_delta is both sensitivity-scanned and empirical-Bayes estimated.
 
-数据处理纪律：
-  GPA 与 cAMP 的 SI logR 列在原文完全相同（代码66 已双录）；主分析剔除 cAMP-logR，
-  避免把重复表值当成两次独立证据；另做不剔除的敏感性分析。
+Data-handling discipline:
+  the SI logR columns of GPA and cAMP are identical in the original paper (double-entered by code 66); the primary
+  analysis drops cAMP-logR to avoid counting duplicated table values as two independent evidences; a no-drop sensitivity analysis is also run.
 
-主分析结果（2026-08-16，独立复跑确认）：
-- 主分析 66 个残差；σ_δ 经验贝叶斯估计 = 0.374 dex。
-- M0 对数边际似然 = -121.638；M1 = +6.589；ΔlogML = +128.227。
-- GIRK 后验坐标：δ_GIRK = -0.805 ± 0.049 dex，95% 区间 [-0.902, -0.708]。
-- 加入 δ_arm 后，GIRK 残差中位 |r| 从 0.811 dex 降至 0.107 dex，最大 0.249 dex。
-- 留一配体后 δ_GIRK 仍在 [-0.843, -0.732] 区间内，非单配体驱动。
-- 次要信号：cAMP 的 logτ 坐标 δ=+0.508 ± 0.163 dex；其 SI logR 因 GPA/cAMP 重复被剔除，
-  证据弱于 GIRK，标为待复核而非主结论。
-- 敏感性（不剔除重复 cAMP logR）：σ_δ=0.320，ΔlogML=+123.844，δ_GIRK=-0.800 ± 0.049。
+Primary-analysis results (2026-08-16, confirmed by an independent re-run):
+- primary analysis: 66 residuals; empirical-Bayes sigma_delta = 0.374 dex.
+- M0 log marginal likelihood = -121.638; M1 = +6.589; delta logML = +128.227.
+- GIRK posterior coordinate: delta_GIRK = -0.805 ± 0.049 dex, 95% interval [-0.902, -0.708].
+- after adding delta_arm, the GIRK median residual |r| drops from 0.811 dex to 0.107 dex, max 0.249 dex.
+- leave-one-ligand-out keeps delta_GIRK within [-0.843, -0.732]; not driven by a single ligand.
+- secondary signal: cAMP log-tau coordinate delta=+0.508 ± 0.163 dex; its SI logR was dropped for the GPA/cAMP duplication,
+  so the evidence is weaker than GIRK and is flagged as to-be-rechecked rather than a main conclusion.
+- sensitivity (keeping duplicate cAMP logR): sigma_delta=0.320, delta logML=+123.844, delta_GIRK=-0.800 ± 0.049.
 
-判决：
-  下一代模型的最小雏形成立，但它的身份必须说清楚——这是一个“测量/坐标感知”的扩展模型，
-  不是新的受体生物物理理论。它证明了：Gillis GIRK 断裂可以被一个约 -0.8 dex 的
-  臂级坐标项系统性吸收；至于这个坐标项对应真实偶联结构、数据处理偏移，还是表格生产事故，
-  现有数据不能裁决。
+Verdict:
+  the minimal embryo of the next-generation model holds, but its identity must be stated clearly — it is a
+  "measurement/coordinate-aware" extended model, not a new receptor-biophysics theory. It proves that the Gillis
+  GIRK rupture can be systematically absorbed by an arm-level coordinate term of about -0.8 dex; whether that term
+  corresponds to real coupling structure, data-processing shift, or a table-production accident, current data cannot adjudicate.
 
-输出：
+Outputs:
 - /mnt/agents/output/04_细胞线4/结果/code80_arm_coordinate_residuals.csv
 - /mnt/agents/output/04_细胞线4/结果/code80_arm_coordinate_posterior.csv
 - /mnt/agents/output/04_细胞线4/结果/code80_model_comparison.csv
@@ -53,7 +53,7 @@ OUTDIR = "/mnt/agents/output/04_细胞线4/结果"
 LIG6 = ["Morphine", "Oxycodone", "Oliceridine", "PZM21", "SR-17018", "Buprenorphine"]
 LN10 = np.log(10)
 
-# Gillis 2020 主文/SI 表格值，逐值核对自代码66
+# Gillis 2020 main-text/SI table values, checked value by value against code 66
 EMAX = {
     "Nb33": [71, 3, 70, 4, 42, 8, 38, 3, 20, 6, 26, 3],
     "mGsi": [80, 7, 75, 3, 51, 7, 52, 5, 35, 5, 36, 3],
@@ -124,7 +124,7 @@ def build_residuals(exclude_duplicate=True):
                     ))
 
             if arm in LOGR:
-                # GPA/cAMP 的 SI logR 列原文完全重复：主分析剔除 cAMP-logR
+                # GPA/cAMP SI logR columns are exact duplicates in the original: primary analysis drops cAMP-logR
                 if exclude_duplicate and arm == "cAMP":
                     continue
                 lr_obs, lr_se = LOGR[arm][2*j:2*j+2]
@@ -223,7 +223,7 @@ def main():
 
     loo = leave_one_out_girk(primary, sigma_hat)
 
-    # 固定先验敏感性：0.089 来自代码77健康文献噪声刻度
+    # fixed-prior sensitivity: 0.089 comes from the code-77 healthy-literature noise scale
     fixed_rows = []
     for sigma in [0.05, 0.089, 0.2, 0.5, 1.0]:
         fixed_rows.append(dict(
@@ -243,12 +243,12 @@ def main():
 
     girk = post[post.arm == "GIRK"].iloc[0]
     girk_res = res[res.arm == "GIRK"]
-    print("代码80 Gillis 测定臂坐标扩展模型完成")
-    print(f"主分析 N={len(primary)}，sigma_delta={sigma_hat:.3f} dex")
-    print(f"M0 logML={ll0:.3f}，M1 logML={ll1:.3f}，Δ={ll1-ll0:.3f}")
-    print(f"GIRK delta={girk.delta:.3f} ± {girk.delta_sd:.3f} dex，95%CI=({girk.ci95_lo:.3f},{girk.ci95_hi:.3f})")
-    print(f"GIRK |r| 中位：{girk_res.residual.abs().median():.3f} → {girk_res.residual_m1.abs().median():.3f} dex；max={girk_res.residual_m1.abs().max():.3f}")
-    print(f"敏感性（不剔重复）：sigma_delta={sigma_s:.3f}，Δ={ll1_s-ll0_s:.3f}")
+    print("code80 Gillis assay-arm coordinate extended model done")
+    print(f"primary N={len(primary)}, sigma_delta={sigma_hat:.3f} dex")
+    print(f"M0 logML={ll0:.3f}, M1 logML={ll1:.3f}, delta={ll1-ll0:.3f}")
+    print(f"GIRK delta={girk.delta:.3f} ± {girk.delta_sd:.3f} dex, 95%CI=({girk.ci95_lo:.3f},{girk.ci95_hi:.3f})")
+    print(f"GIRK |r| median: {girk_res.residual.abs().median():.3f} -> {girk_res.residual_m1.abs().median():.3f} dex; max={girk_res.residual_m1.abs().max():.3f}")
+    print(f"sensitivity (duplicates kept): sigma_delta={sigma_s:.3f}, delta={ll1_s-ll0_s:.3f}")
 
 
 if __name__ == "__main__":

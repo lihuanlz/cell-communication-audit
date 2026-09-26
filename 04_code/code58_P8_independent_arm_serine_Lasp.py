@@ -1,54 +1,54 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-代码58 P8 独立臂检验：丝氨酸系列 + 竞争臂 + L-Asp 背景臂 v1.0.0
+Code 58 P8 independent-arm test: serine series + competition arm + L-Asp background arm v1.0.0
 ================================================
-P8 目的：用**未参与拟合**的独立配体臂检验机制结构的零拟合/少拟合外推。
-数据来源：Moore 2024 Dryad 数据集中此前未下载的 17 个 .mat
-（本轮经 Dryad 页面验证后逐文件内容核验归位；文件身份用 s/s_min_max
-字段与 BackgroundLIst.txt 条件一致性确认。注意：跨配体文件的 s 字段
-只记录前景配体浓度——用 210721（10 µM L-Asp 背景 + meAsp 前景，
-s=2–80 µM meAsp 前景）坐实了这一点）。
+P8 goal: use independent ligand arms **not involved in fitting** to test zero-fit / few-fit extrapolation of the mechanistic structure.
+Data source: 17 previously undownloaded .mat files from the Moore 2024 Dryad dataset
+(this round, each file was content-verified and placed after Dryad page validation; file identity confirmed via s/s_min_max
+fields and consistency with BackgroundLIst.txt conditions. Note: the s field of cross-ligand files
+records only the foreground ligand concentration — confirmed with 210721 (10 µM L-Asp background + meAsp foreground,
+s=2–80 µM meAsp foreground)).
 
-三条臂（均用 49b 同流程提取 da = 刺激前中位 − 刺激末中位）：
+Three arms (all extracted with the same 49b pipeline: da = pre-stimulus median − end-of-stimulus median):
 
-§A 丝氨酸剂量-背景臂（Tsr 受体）：
-   B=0（210910/210913，117 细胞）→ 逐细胞 K1/2 中位 = 0.051 µM
-   B=1 µM ser（210914/210916，192 细胞）→ K1/2 = 1.172 µM（总轴）
-   检验：精确适应预测 F*(B)=c·(Ki+B)，c=0.279 取自 meAsp M2c(λ=1)
-   拟合（零拟合），Ki_ser=0.182 µM 由 B=0 臂自校准（唯一参数）。
-   预测 T(B=1)=1.330 vs 实测 1.172 → Δ=+0.055 dex <0.1 ✓
-   纯增量（无移位）预测 T=1.051，Δ=−0.047 dex 也在容差内——
-   B=1 在总轴上不可区分两者；在前景轴上 fold 预测 F*=0.330、
-   增量预测 F*=0.051、实测 F*=0.172：fold 更接近（0.28 vs 0.53 dex），
-   方向支持适应型移位，但不是决定性区分。
+§A serine dose-background arm (Tsr receptor):
+   B=0 (210910/210913, 117 cells) → per-cell K1/2 median = 0.051 µM
+   B=1 µM ser (210914/210916, 192 cells) → K1/2 = 1.172 µM (total axis)
+   Test: precise adaptation predicts F*(B)=c·(Ki+B), c=0.279 taken from the meAsp M2c(λ=1)
+   fit (zero-fit), Ki_ser=0.182 µM self-calibrated from the B=0 arm (only parameter).
+   Predicted T(B=1)=1.330 vs observed 1.172 → Δ=+0.055 dex <0.1 v
+   Pure-increment (no-shift) prediction T=1.051, Δ=−0.047 dex also within tolerance —
+   B=1 cannot distinguish the two on the total axis; on the foreground axis fold predicts F*=0.330,
+   increment predicts F*=0.051, observed F*=0.172: fold is closer (0.28 vs 0.53 dex),
+   direction supports an adaptation-type shift, but is not a decisive discriminator.
 
-§B 竞争臂（100 µM meAsp 背景 + ser 前景，210920/210921，273 细胞）：
-   逐细胞 K1/2 = 0.051 µM，与 ser B=0 **完全相等**（IQR 几乎重叠）。
-   → 100 µM meAsp 背景对 ser 响应的移位为零：适应记账是受体特异的，
-     不存在跨受体的全局读数坐标。预测（Tsr 不见 meAsp → 不移位）精确命中。
-   这也否决了"读数层全局坐标变换"类解释：若坐标变换在读数层，
-   meAsp 背景应当扭曲 ser 响应，实测没有。
+§B competition arm (100 µM meAsp background + ser foreground, 210920/210921, 273 cells):
+   per-cell K1/2 = 0.051 µM, **exactly equal** to ser B=0 (IQRs nearly overlap).
+   → 100 µM meAsp background shifts the ser response by zero: adaptation bookkeeping is receptor-specific,
+     no cross-receptor global readout coordinate exists. The prediction (Tsr does not see meAsp → no shift) hits exactly.
+   This also rules out "global coordinate transform at the readout layer" explanations: if the transform were at readout,
+   the meAsp background should have distorted the ser response; it does not.
 
-§C L-Asp 背景臂（10 µM L-Asp + meAsp 前景，7 文件，457 细胞）：
-   meAsp 前景响应被强烈衰减：da(F=10)=0.105，远小于同 F 的
-   meAsp 自发背景 B=10 行（G10 预测 0.54）。用 G10 经验核反演有效背景：
-   B_eff≈235 µM meAsp 当量 → ρ≈23（每 µM L-Asp ≈ 23× meAsp 效力，
-   即 Ki_LAsp ≈ Ki_MeAsp/23）。高 F 端吻合好，低 F 端（F≤10）
-   系统超估约 2×——与主数据集"低配体区拟合更难"的缺口形状一致。
+§C L-Asp background arm (10 µM L-Asp + meAsp foreground, 7 files, 457 cells):
+   the meAsp foreground response is strongly attenuated: da(F=10)=0.105, far below the same-F
+   meAsp spontaneous-background B=10 row (G10 predicts 0.54). Inverting the effective background with the G10 empirical kernel:
+   B_eff≈235 µM meAsp equivalent → ρ≈23 (each µM L-Asp ≈ 23× meAsp potency,
+   i.e. Ki_LAsp ≈ Ki_MeAsp/23). The high-F end fits well; the low-F end (F≤10)
+   is systematically overestimated by ~2× — matching the "low-ligand region fits worse" gap shape of the main dataset.
 
-判定：
-1. P8 两臂（ser B=1 移位、竞争臂零移位）与精确适应结构一致；
-   丝氨酸臂只探测 L≤1.4 µM 低浓度区，不触及主数据集断裂所在的
-   meAsp B≥10/F≤40 区——P8 未能否决机制家族，但也**没有覆盖断裂区**。
-2. 竞争臂精确命中（0.051=0.051）是本轮最干净的零拟合预测成功。
-3. L-Asp 臂的 ρ≈23 是可文献核查的独立数值预言。
-4. 主数据集幅值-K1/2 联合断裂维持原判；P8 提供的增量信息是：
-   断裂不是全局读数伪影（竞争臂），适应型移位在独立配体上复现（ser 臂）。
+Verdict:
+1. Both P8 arms (ser B=1 shift, competition-arm zero shift) are consistent with the precise-adaptation structure;
+   the serine arm probes only the L≤1.4 µM low-concentration region and does not touch the
+   meAsp B≥10/F≤40 region where the main-dataset break lives — P8 cannot veto the mechanism family, but it **does not cover the break region** either.
+2. The competition-arm exact hit (0.051=0.051) is the cleanest zero-fit prediction success of this round.
+3. The L-Asp arm's ρ≈23 is an independent, literature-checkable numerical prediction.
+4. The main-dataset amplitude–K1/2 joint break verdict stands; the incremental information from P8 is:
+   the break is not a global readout artifact (competition arm), and the adaptation-type shift replicates on an independent ligand (ser arm).
 
-数据：Moore 2024 Dryad doi:10.5061/dryad.nvx0k6dzz（CC0）
-运行：python3 代码58_P8独立臂检验_丝氨酸与Lasp.py
-依赖：numpy, scipy, pandas
+Data: Moore 2024 Dryad doi:10.5061/dryad.nvx0k6dzz (CC0)
+Run: python3 代码58_P8独立臂检验_丝氨酸与Lasp.py
+Dependencies: numpy, scipy, pandas
 """
 
 import os
@@ -128,40 +128,40 @@ def percell_k12(percell):
 def main():
     tables = {arm: unit_table(fs) for arm, fs in ARMS.items()}
 
-    print("== 单元表 ==")
+    print("== Unit table ==")
     for arm, (lev_all, percell) in tables.items():
-        print(f"[{arm}] {len(percell)} 细胞")
+        print(f"[{arm}] {len(percell)} cells")
         for k in sorted(lev_all):
             print(f"   F={k:7.3f}: da={np.median(lev_all[k]):+.3f} (n={len(lev_all[k])})")
 
-    print("\n== 逐细胞 K1/2 ==")
+    print("\n== Per-cell K1/2 ==")
     k12s = {}
     for arm, (lev_all, percell) in tables.items():
         if arm.startswith("Lasp"):
             continue
         v = percell_k12(percell)
         k12s[arm] = v
-        print(f"[{arm}] n={len(v)}/{len(percell)}, 中位={np.median(v):.3f} µM, "
+        print(f"[{arm}] n={len(v)}/{len(percell)}, median={np.median(v):.3f} µM, "
               f"IQR=[{np.percentile(v, 25):.3f},{np.percentile(v, 75):.3f}]")
 
-    print("\n== §A/B 零拟合预测（M2c λ=1 参数：Ki=14.53, N=11.8, amax=1.63, Ka→∞, β≈1）==")
+    print("\n== §A/B zero-fit predictions (M2c λ=1 parameters: Ki=14.53, N=11.8, amax=1.63, Ka→∞, β≈1) ==")
     Ki_fit, N_fit, amax_fit = 14.53, 11.8, 1.63
     a_post_half = ASTAR - 0.5 / amax_fit
     c_coef = np.expm1((np.log(1 / a_post_half - 1) - LAM) / N_fit)
     K12_ser0 = float(np.median(k12s["ser_B0"]))
     Ki_ser = K12_ser0 / c_coef
-    print(f"c=e^g*−1={c_coef:.3f}；ser B=0 K1/2={K12_ser0:.3f} → 自校准 Ki_ser={Ki_ser:.3f} µM")
+    print(f"c=e^g*−1={c_coef:.3f}; ser B=0 K1/2={K12_ser0:.3f} → self-calibrated Ki_ser={Ki_ser:.3f} µM")
     pred_T = 1 + c_coef * (Ki_ser + 1)
     obs_T = float(np.median(k12s["ser_B1"]))
-    print(f"ser B=1：预测 T={pred_T:.3f} vs 实测 {obs_T:.3f} → Δ={np.log10(pred_T/obs_T):+.3f} dex")
+    print(f"ser B=1: predicted T={pred_T:.3f} vs observed {obs_T:.3f} → Δ={np.log10(pred_T/obs_T):+.3f} dex")
     inc_T = 1 + K12_ser0
-    print(f"  纯增量对照：预测 T={inc_T:.3f} → Δ={np.log10(inc_T/obs_T):+.3f} dex（总轴上两者皆在容差内）")
-    print(f"  前景轴区分：fold F*={c_coef*(Ki_ser+1):.3f}, 增量 F*={K12_ser0:.3f}, 实测 F*={obs_T-1:.3f}")
+    print(f"  pure-increment control: predicted T={inc_T:.3f} → Δ={np.log10(inc_T/obs_T):+.3f} dex (both within tolerance on the total axis)")
+    print(f"  foreground-axis discrimination: fold F*={c_coef*(Ki_ser+1):.3f}, increment F*={K12_ser0:.3f}, observed F*={obs_T-1:.3f}")
     comp = float(np.median(k12s["竞争臂_100meAsp_bg__ser_fg"]))
-    print(f"竞争臂：预测 K1/2=F*(0)={K12_ser0:.3f} vs 实测 {comp:.3f} → "
-          f"Δ={np.log10(comp/K12_ser0):+.3f} dex（零移位预言精确命中）")
+    print(f"competition arm: predicted K1/2=F*(0)={K12_ser0:.3f} vs observed {comp:.3f} → "
+          f"Δ={np.log10(comp/K12_ser0):+.3f} dex (zero-shift prediction hits exactly)")
 
-    print("\n== §C L-Asp 臂有效背景反演（G10 经验核）==")
+    print("\n== §C L-Asp arm effective-background inversion (G10 empirical kernel) ==")
     A_g, Kc_g, Bs_g, p_g = 0.227, 0.57, 69.7, 0.78
     def g10(B, F):
         return A_g * np.log1p(F / Kc_g) / (1 + (B / Bs_g) ** p_g)
@@ -170,18 +170,18 @@ def main():
     obs = np.array([np.median(lev_all[f]) for f in Fs])
     from scipy.optimize import minimize_scalar
     res = minimize_scalar(lambda B: np.sum((g10(B, Fs) - obs) ** 2), bounds=(0, 2000), method="bounded")
-    print(f"B_eff={res.x:.0f} µM meAsp 当量 → ρ≈{res.x/10:.1f}（L-Asp 每 µM ≈ {res.x/10:.0f}× meAsp）")
+    print(f"B_eff={res.x:.0f} µM meAsp equivalent → ρ≈{res.x/10:.1f} (L-Asp per µM ≈ {res.x/10:.0f}× meAsp)")
     for F, o in zip(Fs, obs):
-        print(f"   F={F:5.0f}: 实测{o:.3f} vs G10(B_eff)={g10(res.x, F):.3f}")
-    print(f"   对照：ρ=1 预测 da(10)={g10(10,10):.3f}，ρ=0 预测 {g10(0,10):.3f}，实测 0.105")
+        print(f"   F={F:5.0f}: observed {o:.3f} vs G10(B_eff)={g10(res.x, F):.3f}")
+    print(f"   controls: ρ=1 predicts da(10)={g10(10,10):.3f}, ρ=0 predicts {g10(0,10):.3f}, observed 0.105")
 
     print("""
-== 总结 ==
-竞争臂零移位精确命中（0.051=0.051 µM）：适应记账受体特异，无全局读数坐标。
-ser B=1 移位方向符合精确适应（总轴 Δ=0.069 dex），但 B=1 区分度有限。
-L-Asp 臂：10 µM L-Asp ≡ 235 µM meAsp 当量背景（ρ≈23，可文献核查）；
-低 F 端 G10 系统超估 2×——与主数据集缺口形状一致。
-主数据集断裂维持原判；P8 排除了全局读数伪影并在独立配体上复现适应型移位。
+== Summary ==
+Competition-arm zero shift hits exactly (0.051=0.051 µM): adaptation bookkeeping is receptor-specific, no global readout coordinate.
+ser B=1 shift direction matches precise adaptation (total-axis Δ=0.069 dex), but B=1 has limited discriminative power.
+L-Asp arm: 10 µM L-Asp ≡ 235 µM meAsp equivalent background (ρ≈23, literature-checkable);
+low-F end G10 systematically overestimates by 2× — consistent with the main-dataset gap shape.
+The main-dataset break verdict stands; P8 rules out global readout artifacts and replicates the adaptation-type shift on an independent ligand.
 """)
 
 if __name__ == "__main__":

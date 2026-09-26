@@ -1,42 +1,42 @@
 # -*- coding: utf-8 -*-
 """
-代码 6：NF-κB 负反馈振子审计（跨通路实例 1 —— 引理 1 预言的第三系统验证）
+Code 6: NF-κB negative feedback oscillator audit (cross-pathway instance 1 — third independent-system validation of the Lemma 1 prediction)
 ==========================================================================
-目的：验证拓扑选择定理引理 1 对纯负反馈（NF 族）振子的预言：
-  纯负反馈振子只能是模拟编码 —— 振幅随剂量增长、周期近似不变、无数字计数信道。
+Objective: validate the prediction of Lemma 1 of the topology-selection theorem for pure negative feedback (NF family) oscillators:
+  a pure negative feedback oscillator can only use analog encoding — amplitude grows with dose, period stays ~constant, no digital pulse-count channel capacity.
 
-【模型来源】
+[Model source]
 Krishna, Jensen & Sneppen 2006, PNAS 103:10840
 "Minimal model of spiky oscillations in NF-κB signaling"
-（方程与标准参数经文献检索确认，见预印本 arXiv:q-bio/0509017 = PNAS 正文 Fig.2）
-无量纲 3-ODE，变量：核内 NF-κB N_n、IκB mRNA I_m、胞质 IκB I：
+(Equations and standard parameters confirmed by literature search; see preprint arXiv:q-bio/0509017 = PNAS main text Fig.2)
+Dimensionless 3-ODE; variables: nuclear NF-κB N_n, IκB mRNA I_m, cytoplasmic IκB I:
   dN_n/dt = A(1−N_n)/(ε+I) − B·I·N_n/(δ+N_n)
   dI_m/dt = N_n² − I_m
   dI/dt   = I_m − C(1−N_n)I/(ε+I)
-剂量 = C（正比于 IKK 强度；TNF 等外部信号经 IKK 由此进入）。
-网络拓扑：N_n → I_m → I ⊣ N_n，单一负环、无任何正反馈 → 严格 NF 族。
+dose = C (proportional to IKK strength; external signals such as TNF enter here via IKK).
+Network topology: N_n → I_m → I ⊣ N_n, a single negative loop with no positive feedback → strictly NF family.
 
-【参数说明（重要）】
-原文标准（spiky 模式）参数：A=0.007, B=954.5, C=0.035, δ=0.029, ε=2×10⁻⁵。
-本审计早期探索曾疑似发现：该参数组在 C∈(0.011, 0.095) 存在极限环折叠与双稳。
-★ 勘误（v0.6，见代码9）：经 110 点双向绝热延拓（上/下扫逐点重合）与
-  8 组双初值探测（8/8 同一吸引子），上述"折叠/双稳"确认为刚性系统的
-  长瞬态伪影；spiky 模式实为单一连续分支，可做单支剂量审计，且三签名
-  与 soft 模式同区（NF 模拟区）。该参数组的完整审计见代码9。
-Krishna et al. 原文明确指出模型依参数可呈 spiky 或 soft 两类振荡；
-本审计取同一方程、同一负反馈拓扑的 soft 模式参数：
-  A=0.007（同原文）, B=3, δ=0.005, ε=2×10⁻⁵（同原文）。
-该 regime 失稳窗口单一（唯一 Hopf）、环支随剂量单调，可干净检验三条预言。
+[Parameter note (important)]
+Original standard (spiky mode) parameters: A=0.007, B=954.5, C=0.035, δ=0.029, ε=2×10⁻⁵.
+Early exploration of this audit tentatively suggested that this parameter set exhibits limit-cycle folding and bistability for C∈(0.011, 0.095).
+★ Erratum (v0.6, see 代码9): via 110-point bidirectional adiabatic continuation (up/down sweeps coincide point by point) and
+  8 pairs of dual-initial-value probes (8/8 converge to the same attractor), the above "folding/bistability" is confirmed to be a
+  long-transient artifact of the stiff system; the spiky mode is actually a single continuous branch, allowing a single-branch dose audit, and its three signatures
+  fall in the same region as the soft mode (NF analog region). The full audit of this parameter set is in 代码9.
+Krishna et al. explicitly state in the original paper that the model can show spiky or soft oscillation depending on parameters;
+this audit uses the soft-mode parameters of the same equations and the same negative feedback topology:
+  A=0.007 (as in the original), B=3, δ=0.005, ε=2×10⁻⁵ (as in the original).
+In this regime the destabilization window is single (unique Hopf) and the cycle branch is monotone in dose, allowing a clean test of the three predictions.
 
-【审计流程】
-1. 平衡支闭式 + 解析 Jacobian 特征值扫描 → 确认唯一失稳为 Hopf（复根对过零）
-2. 剂量扫描（C_H 上方，≥10 倍范围）测极限环振幅 A(C)：
-   (a) 近起始 A² ∝ (C−C_H)（报 R²）；(b) 宽程 α=∂lnA/∂lnC > 0.3；
-   (c) 振幅全范围变化 ≥1.5 倍
-3. 同一扫描测周期 T(C)：预言变化 < ±15%（NF-κB 文献签名）
-4. 无计数信道判定：三签名（起始连续性 √、迟滞=0、α>0.3）→ NF 模拟区
-5. 文献落点对照（Tay 2010 Nature；Nelson 2004 Science）
-运行：python3 代码6_NFκB负反馈振子审计.py（约 2–4 分钟，输出三联图 PNG）
+[Audit procedure]
+1. Closed-form equilibrium branch + analytic Jacobian eigenvalue scan → confirm the unique destabilization is a Hopf (complex pair crosses zero)
+2. Dose scan (above C_H, ≥10-fold range) measuring limit-cycle amplitude A(C):
+   (a) near-onset A² ∝ (C−C_H) (report R²); (b) wide-range α=∂lnA/∂lnC > 0.3;
+   (c) amplitude change over the full range ≥1.5-fold
+3. Same scan measuring period T(C): predicted change < ±15% (NF-κB literature signature)
+4. No pulse-count channel capacity adjudication: three signatures (onset continuity v, hysteresis=0, α>0.3) → NF analog region
+5. Literature consistency check (Tay 2010 Nature; Nelson 2004 Science)
+Run: python3 代码6_NFκBnegative feedback振子audit.py (approx 2–4 min, outputs a three-panel PNG)
 """
 import numpy as np
 from scipy.integrate import solve_ivp
@@ -46,7 +46,7 @@ import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 
-# 中文字体（按可用性回退）
+# CJK font (fallback by availability)
 for _f in ['Noto Sans CJK SC', 'WenQuanYi Zen Hei', 'SimHei', 'Microsoft YaHei']:
     try:
         from matplotlib.font_manager import findfont, FontProperties
@@ -58,9 +58,9 @@ for _f in ['Noto Sans CJK SC', 'WenQuanYi Zen Hei', 'SimHei', 'Microsoft YaHei']
 plt.rcParams['axes.unicode_minus'] = False
 
 # ============================================================
-# 模型参数与右端（Krishna et al. 2006，soft 模式参数组）
+# Model parameters and right-hand side (Krishna et al. 2006, soft-mode parameter set)
 # ============================================================
-A_, B_, d_, e_ = 0.007, 3.0, 0.005, 2e-5     # A, B, δ, ε；剂量 C 为扫描参数
+A_, B_, d_, e_ = 0.007, 3.0, 0.005, 2e-5     # A, B, δ, ε; dose C is the scan parameter
 
 def rhs(t, y, C):
     N, Im, I = y
@@ -69,9 +69,9 @@ def rhs(t, y, C):
             Im - C*(1-N)*I/(e_+I)]             # dI/dt
 
 def equilibrium(C):
-    """平衡支：由 dI_m=0 得 I_m*=N²；由 dI=0 得 I*=N²ε/(C(1−N)−N²)；
-    代回 dN_n=0 得一维方程，brentq 求根（稠密网格定括号，确定性）。"""
-    Nmax = (-C + np.sqrt(C*C + 4*C))/2        # 需 C(1−N) > N²
+    """Equilibrium branch: from dI_m=0, I_m*=N²; from dI=0, I*=N²ε/(C(1−N)−N²);
+    substituting back into dN_n=0 gives a 1-D equation, solved by brentq (dense grid brackets the root, deterministic)."""
+    Nmax = (-C + np.sqrt(C*C + 4*C))/2        # requires C(1−N) > N²
     Ns = np.linspace(1e-9, Nmax*(1-1e-9), 40000)
     Iv = Ns**2*e_/(C*(1-Ns) - Ns**2)
     f = A_*(1-Ns)/(e_+Iv) - B_*Iv*Ns/(d_+Ns)
@@ -82,23 +82,23 @@ def equilibrium(C):
     return N, N**2, N**2*e_/(C*(1-N)-N**2)    # (N*, I_m*, I*)
 
 def jac(N, Im, I, C):
-    """平衡点处 3×3 解析 Jacobian。"""
+    """3×3 analytic Jacobian at the equilibrium point."""
     return np.array([
         [-A_/(e_+I) - B_*I*d_/(d_+N)**2, 0.0, -A_*(1-N)/(e_+I)**2 - B_*N/(d_+N)],
         [2*N, -1.0, 0.0],
         [C*I/(e_+I), 1.0, -C*(1-N)*e_/(e_+I)**2]])
 
 # ============================================================
-# 第 1 部分：失稳方式确认 —— 沿平衡支扫 Jacobian 特征值
+# Part 1: destabilization-mode confirmation — scan Jacobian eigenvalues along the equilibrium branch
 # ============================================================
 print('='*72)
-print('第 1 部分：失稳方式确认（引理 1(i)(ii) 的第三系统验证）')
+print('Part 1: destabilization-mode confirmation (third independent-system validation of Lemma 1(i)(ii))')
 print('='*72)
 Cs_scan = np.logspace(np.log10(1e-4), np.log10(0.5), 300)
 stab = np.array([max(np.linalg.eigvals(jac(*equilibrium(C), C)).real)
                  for C in Cs_scan])
 cross = np.where(np.diff(np.sign(stab)) != 0)[0]
-assert len(cross) == 1, f'失稳点不唯一: {len(cross)} 个'
+assert len(cross) == 1, f'destabilization point not unique: {len(cross)} found'
 i0 = cross[0]
 C_H = brentq(lambda c: max(np.linalg.eigvals(jac(*equilibrium(c), c)).real),
              Cs_scan[i0], Cs_scan[i0+1], xtol=1e-14, rtol=1e-14)
@@ -107,18 +107,18 @@ ev = np.linalg.eigvals(jac(N_H, Im_H, I_H, C_H))
 pair = [l for l in ev if abs(l.imag) > 1e-9]
 rest = [l for l in ev if abs(l.imag) <= 1e-9]
 omega_H = abs(pair[0].imag)
-print(f'平衡支扫描 C ∈ [1e-4, 0.5]（300 点）：Re λ_max 唯一过零')
-print(f'  Hopf 点 C_H = {C_H:.6f}，平衡点 N*={N_H:.4f}, I_m*={Im_H:.5f}, I*={I_H:.5f}')
-print(f'  过零根对 λ = ±{omega_H:.4f}i（复根对，Re=0, Im≠0）→ Hopf')
-print(f'  第三特征值 λ3 = {rest[0].real:.4f} < 0（稳定方向）')
-print(f'  Hopf 角频率 ω_H = {omega_H:.4f} → 起始周期 T₀ = 2π/ω_H = {2*np.pi/omega_H:.3f}')
-print('  结论：唯一失稳为 Hopf（复根对过零），无鞍结/稳态失稳 → 引理 1(i)(ii) ✓\n')
+print(f'Equilibrium-branch scan C ∈ [1e-4, 0.5] (300 points): Re λ_max crosses zero exactly once')
+print(f'  Hopf point C_H = {C_H:.6f}, equilibrium N*={N_H:.4f}, I_m*={Im_H:.5f}, I*={I_H:.5f}')
+print(f'  Crossing pair λ = ±{omega_H:.4f}i (complex pair, Re=0, Im≠0) → Hopf')
+print(f'  Third eigenvalue λ3 = {rest[0].real:.4f} < 0 (stable direction)')
+print(f'  Hopf angular frequency ω_H = {omega_H:.4f} → onset period T₀ = 2π/ω_H = {2*np.pi/omega_H:.3f}')
+print('  Conclusion: the unique destabilization is a Hopf (complex pair crosses zero), no saddle-node/steady-state loss → Lemma 1(i)(ii) v\n')
 
 # ============================================================
-# 极限环测量器：绝热延拓 + 峰拾取（抛物线插值精化峰位）
+# Limit-cycle measurer: adiabatic continuation + peak picking (parabolic interpolation refines peak positions)
 # ============================================================
 def run_limit_cycle(C, y0, tmax):
-    """从 y0 积分，丢弃前 60% 暂态，返回 (振幅, 周期, Nmax, Nmin, 末态)。"""
+    """Integrate from y0, discard the first 60% transient, return (amplitude, period, Nmax, Nmin, final state)."""
     sol = solve_ivp(rhs, (0, tmax), y0, args=(C,), method='LSODA',
                     rtol=1e-10, atol=1e-13,
                     t_eval=np.linspace(0, tmax, 150001))
@@ -130,7 +130,7 @@ def run_limit_cycle(C, y0, tmax):
     if len(pk) >= 3:
         tp = []
         for p in pk:
-            if 0 < p < len(Ns)-1:                 # 抛物线插值精化峰位
+            if 0 < p < len(Ns)-1:                 # parabolic interpolation refines peak position
                 y0_, y1_, y2_ = Ns[p-1], Ns[p], Ns[p+1]
                 dt = 0.5*(y0_-y2_)/(y0_-2*y1_+y2_)
                 tp.append(tt[p] + dt*(tt[1]-tt[0]))
@@ -140,12 +140,12 @@ def run_limit_cycle(C, y0, tmax):
     return Amp, T, Ns.max(), Ns.min(), sol.y[:, -1]
 
 # ============================================================
-# 第 2 部分：模拟签名 —— 剂量扫描测振幅支（≥10 倍范围）
+# Part 2: analog signatures — dose scan measuring the amplitude branch (≥10-fold range)
 # ============================================================
 print('='*72)
-print('第 2 部分：模拟签名（核心验收）—— 振幅 A(C) 沿剂量扫描')
+print('Part 2: analog signatures (core acceptance) — amplitude A(C) along the dose scan')
 print('='*72)
-# —— 宽程扫描：C_H 上方 1.08× → 12×（绝热延拓，首点加长积分对抗临界慢化）——
+# —— Wide-range scan: 1.08× → 12× above C_H (adiabatic continuation, longer integration at the first point against critical slowing) ——
 CsW = C_H*np.logspace(np.log10(1.08), np.log10(12), 12)
 AW, TW, Nmx, Nmn = [], [], [], []
 y = np.array([N_H+1e-3, Im_H, I_H])
@@ -155,7 +155,7 @@ for k, C in enumerate(CsW):
     AW.append(a); TW.append(T); Nmx.append(xa); Nmn.append(xn)
 AW, TW, Nmx, Nmn = map(np.array, (AW, TW, Nmx, Nmn))
 
-# (a) 近起始 √ 标度：C_H 上方 1%–40% 细扫（每点从平衡+微扰独立长积分）
+# (a) Near-onset √ scaling: fine sweep at 1%–40% above C_H (each point independently integrated long from equilibrium + perturbation)
 CsF = C_H*np.array([1.01, 1.03, 1.06, 1.10, 1.15, 1.22, 1.30, 1.40])
 AF = []
 for C in CsF:
@@ -166,38 +166,38 @@ AF = np.array(AF)
 c_fit = np.polyfit(CsF-C_H, AF**2, 1)
 R2 = 1 - ((AF**2-np.polyval(c_fit, CsF-C_H))**2).sum()/((AF**2-(AF**2).mean())**2).sum()
 
-# (b) 宽程 α：对 C/C_H ≥ 2 的十倍程做 lnA–lnC 线性拟合
+# (b) Wide-range α: lnA–lnC linear fit over the decade C/C_H ≥ 2
 wide = CsW/C_H >= 2.0
 alpha = np.polyfit(np.log(CsW[wide]), np.log(AW[wide]), 1)[0]
-# (c) 振幅变幅
+# (c) amplitude fold-change
 fold = AW.max()/AW.min()
-print(f'  剂量范围：C/C_H ∈ [1.08, 12]（{CsW[-1]/CsW[0]:.1f} 倍，满足 ≥10×）')
-print(f'  (a) 近起始（C−C_H ∈ [0.01, 0.40]×C_H，8 点）：A²∝(C−C_H) 线性 R² = {R2:.5f}')
-print(f'  (b) 宽程 α = ∂lnA/∂lnC（C/C_H ∈ [2, 12]）= {alpha:.3f}  （预言 > 0.3；EXC 族 |α|≲0.15）')
-print(f'  (c) 振幅全范围变化 = {fold:.2f} 倍  （预言 ≥ 1.5 倍）')
-print(f'  逐点：C/C_H = {np.round(CsW/C_H,2)}')
+print(f'  Dose range: C/C_H ∈ [1.08, 12] ({CsW[-1]/CsW[0]:.1f}-fold, satisfies ≥10×)')
+print(f'  (a) Near onset (C−C_H ∈ [0.01, 0.40]×C_H, 8 points): A²∝(C−C_H) linear R² = {R2:.5f}')
+print(f'  (b) Wide-range α = ∂lnA/∂lnC (C/C_H ∈ [2, 12]) = {alpha:.3f}  (prediction > 0.3; EXC family |α|≲0.15)')
+print(f'  (c) Amplitude full-range change = {fold:.2f}-fold  (prediction ≥ 1.5-fold)')
+print(f'  Per point: C/C_H = {np.round(CsW/C_H,2)}')
 print(f'        A     = {np.round(AW,4)}\n')
 
 # ============================================================
-# 第 3 部分：周期不变性（NF-κB 文献签名）
+# Part 3: period invariance (NF-κB literature signature)
 # ============================================================
 print('='*72)
-print('第 3 部分：周期不变性 —— T(C) 沿同一扫描')
+print('Part 3: period invariance — T(C) along the same scan')
 print('='*72)
 Tvar = (TW.max()-TW.min())/TW.mean()*100
-print(f'  逐点周期 T = {np.round(TW,3)}')
-print(f'  周期变化 = (Tmax−Tmin)/Tmean = {Tvar:.2f}%  （预言 < ±15%）')
-print(f'  对照文献：Nelson et al. 2004（Science 306:704）NF-κB 振荡周期 ~100 min')
-print(f'  不随 TNF 剂量改变；本模型周期落在 {TW.mean():.1f}±{Tvar/2:.1f}% 个无量纲')
-print(f'  时间单位，剂量 12 倍内近似不变 → 周期鲁棒性签名复现 ✓\n')
+print(f'  Per-point period T = {np.round(TW,3)}')
+print(f'  Period variation = (Tmax−Tmin)/Tmean = {Tvar:.2f}%  (prediction < ±15%)')
+print(f'  Reference literature: Nelson et al. 2004 (Science 306:704) NF-κB oscillation period ~100 min')
+print(f'  unchanged with TNF dose; this model period stays within {TW.mean():.1f}±{Tvar/2:.1f}% in dimensionless')
+print(f'  time units, ~constant over a 12-fold dose range → period-robustness signature reproduced v\n')
 
 # ============================================================
-# 第 4 部分：无计数信道 —— 迟滞检验 + 三签名判定
+# Part 4: no pulse-count channel capacity — hysteresis test + three-signature adjudication
 # ============================================================
 print('='*72)
-print('第 4 部分：无计数信道 —— 三签名判别')
+print('Part 4: no pulse-count channel capacity — three-signature adjudication')
 print('='*72)
-# 迟滞：从高剂量末态反向绝热回扫，与上扫振幅对比
+# Hysteresis: reverse adiabatic sweep back from the high-dose final state, compared with up-sweep amplitudes
 Ne, Ime, Ie = equilibrium(CsW[-1])
 y = run_limit_cycle(CsW[-1], np.array([Ne+1e-3, Ime, Ie]), 400)[4]
 AD = []
@@ -207,110 +207,110 @@ for k, C in enumerate(CsW[::-1]):
     AD.append(a)
 AD = np.array(AD[::-1])
 hys = np.abs(AW-AD)/AW
-print(f'  上扫振幅 = {np.round(AW,4)}')
-print(f'  下扫振幅 = {np.round(AD,4)}')
-print(f'  迟滞宽度 = max|A_up−A_down|/A_up = {hys.max()*100:.3f}% ≈ 0（无双稳/无跳变）')
-print(f'  脉冲数检验：各剂量均为每周期 1 个 N_n 峰，脉冲数不随剂量增长；')
-print(f'  振幅（而非计数）是主编码轴 —— 不存在"固定振幅 + 计数增长"的数字模式。')
+print(f'  Up-sweep amplitude = {np.round(AW,4)}')
+print(f'  Down-sweep amplitude = {np.round(AD,4)}')
+print(f'  Hysteresis width = max|A_up−A_down|/A_up = {hys.max()*100:.3f}% ≈ 0 (no bistability/no jumps)')
+print(f'  Pulse-count test: at every dose there is 1 N_n peak per period; the pulse count does not grow with dose;')
+print(f'  amplitude (not count) is the main encoding axis — the digital pattern of "fixed amplitude + growing count" is absent.')
 verdict = (R2 > 0.99) and (hys.max() < 0.02) and (alpha > 0.3)
-print(f'  判别定理三签名：起始连续性 √（R²={R2:.4f}）、迟滞=0（{hys.max()*100:.3f}%）、'
+print(f'  Three signatures of the discrimination theorem: onset continuity v (R²={R2:.4f}), hysteresis=0 ({hys.max()*100:.3f}%),'
       f'α={alpha:.3f}>0.3')
-print(f'  → 判定：{"落 NF 模拟区 ✓（纯负反馈 → 模拟编码，引理 1 成立）" if verdict else "未通过，需检查"}')
+print(f'  → Verdict: {"falls in the NF analog region v (pure negative feedback → analog encoding, Lemma 1 holds)" if verdict else "did not pass, needs inspection"}')
 print()
 
 # ============================================================
-# 第 5 部分：文献落点对照
+# Part 5: literature consistency check
 # ============================================================
 print('='*72)
-print('第 5 部分：文献落点对照')
+print('Part 5: literature consistency check')
 print('='*72)
-print('  Tay et al. 2010 (Nature 466:267)：TNF 跨 4 个数量级刺激，单细胞响应为')
-print('    "数字式激活"（响应细胞比例随剂量上升）+ "模拟参数"（峰值强度、时延、')
-print('    振荡次数随剂量连续调制）。')
-print('  Nelson et al. 2004 (Science 306:704)：NF-κB 核-质振荡周期 ~100 min，')
-print('    在实验剂量范围内不随刺激强度改变。')
-print('  对照说明：群体水平的"数字激活"是激活阈值 + 细胞异质性现象；')
-print('    单细胞轨迹层面，响应细胞内部的峰值/时序参数仍是连续（模拟）调制。')
-print('    这与本框架"判别必须在单细胞轨迹上做"的方法学一致：')
-print('    本审计在确定性单细胞轨迹上测得振幅连续增长、周期近似不变、')
-print('    无计数信道 → 纯负反馈 NF-κB 振子为模拟编码。\n')
+print('  Tay et al. 2010 (Nature 466:267): across 4 orders of magnitude of TNF stimulus, the single-cell response is')
+print('    "digital activation" (the fraction of responding cells rises with dose) + "analog parameters" (peak strength, delay,')
+print('    number of oscillations are continuously modulated by dose).')
+print('  Nelson et al. 2004 (Science 306:704): NF-κB nucleocytoplasmic oscillation period ~100 min,')
+print('    unchanged over the experimental dose range regardless of stimulus strength.')
+print('  Consistency note: population-level "digital activation" is an activation-threshold + cell-heterogeneity phenomenon;')
+print('    at the single-cell trajectory level, peak/timing parameters inside responding cells are still continuously (analog) modulated.')
+print('    This matches the methodology of this framework that "discrimination must be done on single-cell trajectories":')
+print('    this audit measures continuously growing amplitude and ~constant period on deterministic single-cell trajectories,')
+print('    no pulse-count channel capacity → the pure negative feedback NF-κB oscillator uses analog encoding.\n')
 
 # ============================================================
-# 验收对照表
+# Acceptance checklist
 # ============================================================
 print('='*72)
-print('验收对照表（实际值 vs 预言）')
+print('Acceptance checklist (measured value vs prediction)')
 print('='*72)
 rows = [
-    ('失稳方式', '唯一 Hopf（复根对过零）', f'Re λ_max 唯一过零 @C_H={C_H:.5f}，λ=±{omega_H:.3f}i', True),
-    ('(a) 起始 √ 标度', 'A²∝(C−C_H)，R²>0.99', f'R² = {R2:.5f}', R2 > 0.99),
-    ('(b) 宽程 α', '> 0.3（NF 模拟区）', f'α = {alpha:.3f}', alpha > 0.3),
-    ('(c) 振幅变幅', '≥ 1.5 倍', f'{fold:.2f} 倍', fold >= 1.5),
-    ('周期不变性', '变化 < ±15%', f'{Tvar:.2f}%', Tvar < 15),
-    ('迟滞', '= 0', f'{hys.max()*100:.3f}%', hys.max() < 0.02),
-    ('计数信道', '无（振幅为主轴）', '每周期 1 峰，计数不随剂量变', True),
+    ('destabilization mode', 'unique Hopf (complex pair crosses zero)', f'Re λ_max crosses zero once @C_H={C_H:.5f}, λ=±{omega_H:.3f}i', True),
+    ('(a) onset √ scaling', 'A²∝(C−C_H), R²>0.99', f'R² = {R2:.5f}', R2 > 0.99),
+    ('(b) wide-range α', '> 0.3 (NF analog region)', f'α = {alpha:.3f}', alpha > 0.3),
+    ('(c) amplitude fold-change', '≥ 1.5-fold', f'{fold:.2f}-fold', fold >= 1.5),
+    ('period invariance', 'variation < ±15%', f'{Tvar:.2f}%', Tvar < 15),
+    ('hysteresis', '= 0', f'{hys.max()*100:.3f}%', hys.max() < 0.02),
+    ('pulse-count capacity', 'none (amplitude is the main axis)', '1 peak per period, count does not change with dose', True),
 ]
 for name, pred, meas, ok in rows:
-    print(f'  [{"PASS" if ok else "FAIL"}] {name:16s} 预言: {pred:28s} 实测: {meas}')
+    print(f'  [{"PASS" if ok else "FAIL"}] {name:16s} prediction: {pred:28s} measured: {meas}')
 print('='*72 + '\n')
 
 # ============================================================
-# 三联图
+# Three-panel figure
 # ============================================================
 fig, axes = plt.subplots(1, 3, figsize=(16, 4.8))
 
-# (a) 分岔图：平衡支 + 失稳段 + 极限环支 + √ 拟合
+# (a) Bifurcation diagram: equilibrium branch + unstable segment + limit-cycle branch + √ fit
 ax = axes[0]
 Cb = np.logspace(np.log10(8e-4), np.log10(0.05), 400)
 Nb = np.array([equilibrium(C)[0] for C in Cb])
 sb = np.array([max(np.linalg.eigvals(jac(*equilibrium(C), C)).real) for C in Cb])
-ax.plot(Cb[sb < 0], Nb[sb < 0], 'k-', lw=1.4, label='平衡支 $N^*(C)$（稳定）')
-ax.plot(Cb[sb >= 0], Nb[sb >= 0], 'k--', lw=1.4, label='平衡支（失稳段）')
-ax.plot(CsW, Nmx, 'bo', ms=5, label='极限环 max')
-ax.plot(CsW, Nmn, 'bo', ms=5, mfc='none', label='极限环 min')
+ax.plot(Cb[sb < 0], Nb[sb < 0], 'k-', lw=1.4, label='equilibrium branch $N^*(C)$ (stable)')
+ax.plot(Cb[sb >= 0], Nb[sb >= 0], 'k--', lw=1.4, label='equilibrium branch (unstable segment)')
+ax.plot(CsW, Nmx, 'bo', ms=5, label='limit cycle max')
+ax.plot(CsW, Nmn, 'bo', ms=5, mfc='none', label='limit cycle min')
 fit_C = np.linspace(C_H, CsF.max(), 60)
 N_Hc = equilibrium(C_H)[0]
 ax.plot(fit_C, N_Hc+np.sqrt(np.maximum(np.polyval(c_fit, fit_C-C_H), 0)), 'g--', lw=1.5,
-        label=f'$\\sqrt{{C-C_H}}$ 拟合 ($R^2$={R2:.3f})')
+        label=f'$\\sqrt{{C-C_H}}$ fit ($R^2$={R2:.3f})')
 ax.axvline(C_H, color='gray', ls=':')
 ax.annotate(f'Hopf\n$C_H$={C_H:.4f}', (C_H*1.15, 0.02), fontsize=8)
 ax.set_xscale('log')
 ax.set_xticks([1e-3, 2e-3, 5e-3, 1e-2, 2e-2, 5e-2])
 ax.set_xticklabels(['0.001', '0.002', '0.005', '0.01', '0.02', '0.05'])
 ax.minorticks_off()
-ax.set_xlabel('剂量 $C$（∝ IKK 强度）'); ax.set_ylabel('核内 NF-κB $N_n$')
+ax.set_xlabel('dose $C$ (∝ IKK strength)'); ax.set_ylabel('nuclear NF-κB $N_n$')
 ax.legend(fontsize=8, loc='upper left')
-ax.set_title('(a) NF-κB 负反馈振子：超临界 Hopf 起始')
+ax.set_title('(a) NF-κB negative feedback oscillator: supercritical Hopf onset')
 
-# (b) 振幅与周期 vs 剂量（双轴）
+# (b) amplitude and period vs dose (dual axis)
 ax = axes[1]
-ax.plot(CsW/C_H, AW, 'rs-', ms=5, label=f'振幅（α={alpha:.2f}）')
-ax.set_xscale('log'); ax.set_xlabel('剂量 $C/C_H$')
+ax.plot(CsW/C_H, AW, 'rs-', ms=5, label=f'amplitude (α={alpha:.2f})')
+ax.set_xscale('log'); ax.set_xlabel('dose $C/C_H$')
 ax.set_xticks([1, 2, 5, 10]); ax.set_xticklabels(['1', '2', '5', '10'])
 ax.minorticks_off()
-ax.set_ylabel('振幅 $A$', color='r'); ax.tick_params(axis='y', colors='r')
+ax.set_ylabel('amplitude $A$', color='r'); ax.tick_params(axis='y', colors='r')
 ax2 = ax.twinx()
-ax2.plot(CsW/C_H, TW/TW.mean(), 'b^-', ms=5, label='周期（归一化）')
+ax2.plot(CsW/C_H, TW/TW.mean(), 'b^-', ms=5, label='period (normalized)')
 ax2.axhline(1.15, color='b', ls=':', lw=0.8); ax2.axhline(0.85, color='b', ls=':', lw=0.8)
-ax2.set_ylabel('周期 $T/\\bar{T}$', color='b'); ax2.tick_params(axis='y', colors='b')
+ax2.set_ylabel('period $T/\\bar{T}$', color='b'); ax2.tick_params(axis='y', colors='b')
 ax2.set_ylim(0.7, 1.3)
-ax.set_title(f'(b) 模拟签名：α={alpha:.2f}>0.3，周期变化={Tvar:.1f}%<15%')
+ax.set_title(f'(b) analog signatures: α={alpha:.2f}>0.3, period variation={Tvar:.1f}%<15%')
 ln1, lb1 = ax.get_legend_handles_labels(); ln2, lb2 = ax2.get_legend_handles_labels()
 ax.legend(ln1+ln2, lb1+lb2, fontsize=9, loc='upper left')
 
-# (c) 两个剂量的代表轨迹
+# (c) representative trajectories at two doses
 ax = axes[2]
-for C, col, lab in [(CsW[1], 'teal', f'低剂量 $C={CsW[1]/C_H:.1f}C_H$（小振幅）'),
-                    (CsW[-1], 'darkred', f'高剂量 $C={CsW[-1]/C_H:.0f}C_H$（大振幅）')]:
+for C, col, lab in [(CsW[1], 'teal', f'low dose $C={CsW[1]/C_H:.1f}C_H$ (small amplitude)'),
+                    (CsW[-1], 'darkred', f'high dose $C={CsW[-1]/C_H:.0f}C_H$ (large amplitude)')]:
     Ne, Ime, Ie = equilibrium(C)
     sol = solve_ivp(rhs, (0, 200), [Ne+1e-3, Ime, Ie], args=(C,), method='LSODA',
                     rtol=1e-10, atol=1e-13, t_eval=np.linspace(0, 200, 100001))
     m = sol.t > 120
     ax.plot(sol.t[m]-sol.t[m][0], sol.y[0][m], color=col, lw=1.0, label=lab)
-ax.set_xlabel('时间（无量纲）'); ax.set_ylabel('核内 NF-κB $N_n$')
-ax.legend(fontsize=9); ax.set_title('(c) 代表轨迹：振幅编码剂量，周期近似不变')
+ax.set_xlabel('time (dimensionless)'); ax.set_ylabel('nuclear NF-κB $N_n$')
+ax.legend(fontsize=9); ax.set_title('(c) representative trajectories: amplitude encodes dose, period ~constant')
 
 plt.tight_layout()
-out_png = '/mnt/agents/output/NFκB审计图.png'
+out_png = '/mnt/agents/output/NFκBaudit图.png'
 plt.savefig(out_png, dpi=200)
-print(f'已保存 {out_png}')
+print(f'Saved {out_png}')

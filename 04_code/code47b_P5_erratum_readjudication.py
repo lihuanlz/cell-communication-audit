@@ -1,57 +1,57 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-代码47b_P5勘误重裁_GPCR钙瞬态.py
-版本 v1.0.0（2026-08-14）
+code47b_P5erratum重裁_GPCRcalciumtransient.py
+version v1.0.0（2026-08-14）
 
-【勘误缘起】用户复核要求触发的裁决后审计：以作者 SD3 峰值表为独立真值对拍，确认
-代码47 v0.2.0 的特征实现缺陷——窗峰参照实验前 μ₀，把论文明确记录的全程背景上漂
-（+0.25）与流路切换微痕（全细胞同步、0.01–0.03、压在 3σ₀≈0.011 上）计入"响应"：
-D1 响应率误报 87.5%（作者口径 ~6%）；参考道（μ₀≈0.98 平线）漏网且计为完美响应者。
-as-run 裁决（中间态）作废-by-勘误、双录入账；本脚本按预注册 v0.4 §11 冻结规格重裁：
-局部参照（窗前25~5s中位）+ 响应阈 max(kσ₀, 0.04) + 实验内 μ₀ 稳健离群剔除（>3×MAD）。
-判定表/单元/AUC 方向/统计线/计时管线（v0.3 §6）一字未动。
+[origin of the erratum] a post-ruling audit triggered by the user's recheck request: using the authors' SD3 peak table as an independent ground-truth cross-check, a feature-implementation defect of
+code 47 v0.2.0 was confirmed - the window peak referenced the pre-experiment mu_0, counting the paper-documented full-trace background drift
+(+0.25) and flow-switch micro-traces (synchronous across all cells, 0.01-0.03, sitting on 3*sigma_0~0.011) as "responses":
+D1 response rate falsely reported at 87.5% (authors' convention ~6%); the reference channel (mu_0~0.98 flat line) slipped through and was counted as a perfect responder.
+The as-run ruling (intermediate) is void-by-erratum and recorded in the ledger; this script re-adjudicates per the pre-registration v0.4 section 11 frozen spec:
+local reference (median of 25-5 s before the window) + response threshold max(k*sigma_0, 0.04) + within-experiment mu_0 robust outlier removal (>3xMAD).
+The verdict table / units / AUC directions / statistic criteria / timing pipeline (v0.3 section 6) are untouched.
 
-【版本史】v0.1.0 首版 → v0.1.1：脉冲定时修订（预注册升 v0.2，零统计量窗口）——
-原"中位轨迹直接检 35 峰"不可行（背景上漂淹没低剂量峰、低剂量档中位轨迹本无峰，
-首次运行 guardrail 中止=空跑①）；改为去漂移残差检高剂量峰 + 锚定 120 s 均匀网格外推。
-→ v0.2.0：预注册升 v0.3（空跑②"检出峰未全部落格"触发深诊）——均匀网格假设被证伪
-（换档边界 85–240 s 不规则间隔、低剂量块群体不可见、末端 ionomycin 附加峰）；
-§6 全替换为"逐细胞峰时刻聚类 → 35 位链组装"两级管线，含逐实验计时排除（纯元数据判据，
-排除原因入日志；收录 <8 实验或有效细胞 <150 空跑中止；[150,200) 挂功效缩减限定语）。
-判定线/单元/特征/条款/方向仍一字未动。
+[version history] v0.1.0 first version -> v0.1.1: pulse-timing revision (pre-registration bumped to v0.2, zero-statistic window) -
+the original "detect 35 peaks directly on the median trace" was infeasible (background drift drowned low-dose peaks; the low-dose median trace has no peaks at all;
+the first run guardrail aborted = empty run #1); changed to de-drift residual peak detection on high doses + anchored 120 s uniform-grid extrapolation.
+-> v0.2.0: pre-registration bumped to v0.3 (empty run #2 "detected peaks not all on grid" triggered deep diagnosis) - the uniform-grid hypothesis was falsified
+(dose-switch boundaries at irregular 85-240 s intervals, low-dose blocks invisible at population level, terminal ionomycin extra peak);
+section 6 fully replaced by a two-stage pipeline "per-cell peak-time clustering -> 35-position chain assembly", including per-experiment timing exclusions (pure metadata criteria,
+exclusion reasons logged; <8 experiments admitted or <150 valid cells aborts to an empty run; [150,200) carries a power-reduction qualifier).
+Criteria / units / features / clauses / directions remain untouched.
 
-【案件】P5：边界预测器首次盲测——Keshelava 2018（Nat Commun 9:876）M3R-GPCR→Ca²⁺
-瞬态尖峰，7 档 ACh 升序 × 每档 5 脉冲，within-cell 设计，27 实验 / 433 细胞（论文口径）。
+[case] P5: first blind test of the boundary predictor - Keshelava 2018 (Nat Commun 9:876) M3R-GPCR -> Ca2+
+transient spikes, 7 ascending ACh doses x 5 pulses each, within-cell design, 27 experiments / 433 cells (paper convention).
 
-【冻结依据】预注册_P5_边界预测器首测_GPCR钙瞬态_v01.md（注册·八十九，2026-08-14 冻结）。
-本脚本所有判定线、单元定义、特征定义、guardrail 与该预注册逐字对应；任何修订只能发生在
-零统计量窗口（guardrail 中止=空跑）并全文留痕（代码46 三次空跑先例）。
+[frozen basis] 预注册_P5_边界预测器首测_GPCR钙瞬态_v01.md (entry 89, frozen 2026-08-14).
+All criteria, unit definitions, feature definitions and guardrails of this script correspond verbatim to that pre-registration; any revision can only happen within
+a zero-statistic window (guardrail abort = empty run) with full trace left (code-46 three-empty-run precedent).
 
-【执行地点】用户 2026-08-14 明示指令由我方沙箱执行（原"用户机执行"约束经用户变更，已入档）。
+[execution site] the user explicitly instructed on 2026-08-14 that our sandbox executes (the original "user machine executes" constraint was changed by the user and is on file).
 
-【冻结参数块 D1–D8】
-D1 数据：27 个 experiment_XX.dot（行=时间帧 1 帧/s，列=trace1..N，无表头，ASCII 制表符）
-D2 剂量映射：脉冲 1-5=D1(100nM) … 31-35=D7(10µM)；7 档升序；每档 5 脉冲
-D3 脉冲定时（预注册 v0.3 §6）：逐细胞峰时刻(σ_diff口径,prominence≥4σ_diff,distance≥90)
-   → 5s 分箱群体聚类(阈 max(3,⌈0.08N⌉),<60s 分裂簇加权合并) → T̂=规则间隔中位数∈[115,125]
-   → 锚=升序首个过(尾窗/瞬态回落/前驱/ionomycin鉴别)的簇 → 回走 34 步(严格层[85,170]→中点净空
-   →放宽层(170,250]，计分 2·count−0.1·|gap−T̂|) → 链校验(第36/37位±30s 无簇、D7块无空洞、
-   空洞≤12 且连续≤3、基线 p1−8≥35s、匹配≥23)；onset=峰位−8s；计时排除逐实验登记
-D4 特征（k=3；v0.4 勘误口径）：基线=首 onset 前全部帧；μ₀/σ₀=基线均值/标准差；脉冲窗=[onset,onset+30s]；
-   base_p=窗前25~5s中位；peak_p=窗内max−base_p；responded_p=(peak_p≥max(kσ₀,0.04))；
-   τ_p=窗内首穿 base_p+max(kσ₀,0.04) 时刻−onset（无穿越=inf）；实验内 μ₀ 离群(>3×MAD)剔细胞；
-   每(细胞,剂量)：count=responded 数(0-5)；peak=5 脉冲 peak_p 中位数；τ=responded 脉冲 τ_p 中位数（全无=inf）
-D5 单元：低区 (D1,D2)(D2,D3) + 高区 (D5,D6)(D6,D7) = 4 裁决单元；中区 (D3,D4)(D4,D5) 描述臂
-D6 AUC 方向：τ-AUC=P(τ低>τ高)+½平；count/peak-AUC=P(高>低)+½平；MW 平均秩，inf 删失按平
-D7 判定线：P5-1 命中=4/4 单元 τ-AUC∈[0.40,0.60)，证伪=≥2 单元出 [0.40,0.60]；
-   P5-2 命中=4/4 count-AUC≥0.60，证伪=4/4<0.60；P5-3 校准=≥3/4 peak-AUC≥0.60（对照臂不进总裁决）；
-   总裁决：获支持=P5-1命中∧P5-2命中；证伪=任一侧证伪；其余=中间态
-D8 统计：种子 20260815；逐细胞配对 percentile bootstrap×2000；N_MIN=30；引擎交付前 scipy 逐位单测
+[frozen parameter block D1-D8]
+D1 data: 27 experiment_XX.dot (rows = time frames at 1 frame/s, columns = trace1..N, no header, ASCII tab-separated)
+D2 dose mapping: pulses 1-5=D1(100nM) ... 31-35=D7(10uM); 7 ascending doses; 5 pulses per dose
+D3 pulse timing (pre-registration v0.3 section 6): per-cell peak times (sigma_diff convention, prominence>=4*sigma_diff, distance>=90)
+   -> 5 s binned population clustering (threshold max(3, ceil(0.08N)), split clusters <60 s merged weighted) -> T_hat = median of regular intervals in [115,125]
+   -> anchor = the first ascending cluster passing (tail-window / transient fallback / precursor / ionomycin discrimination) -> walk back 34 steps (strict layer [85,170] -> midpoint vacancy check
+   -> relaxed layer (170,250], score 2*count - 0.1*|gap - T_hat|) -> chain validation (no cluster at positions 36/37 +/-30 s, no empty holes in the D7 block,
+   holes <=12 and <=3 consecutive, baseline p1-8 >=35 s, matches >=23); onset = peak position - 8 s; timing exclusions registered per experiment
+D4 features (k=3; v0.4 erratum convention): baseline = all frames before the first onset; mu_0/sigma_0 = baseline mean/std; pulse window = [onset, onset+30 s];
+   base_p = median of 25-5 s before the window; peak_p = window max - base_p; responded_p = (peak_p >= max(k*sigma_0, 0.04));
+   tau_p = time of first crossing of base_p + max(k*sigma_0, 0.04) within the window minus onset (no crossing = inf); within-experiment mu_0 outliers (>3xMAD) removed;
+   per (cell, dose): count = number responded (0-5); peak = median of the 5 pulse peak_p; tau = median of responded pulse tau_p (all-none = inf)
+D5 units: low zone (D1,D2)(D2,D3) + high zone (D5,D6)(D6,D7) = 4 ruling units; mid zone (D3,D4)(D4,D5) descriptive arm
+D6 AUC directions: tau-AUC = P(tau_low > tau_high) + 0.5 ties; count/peak-AUC = P(high > low) + 0.5 ties; MW average ranks, inf censoring as ties
+D7 criteria: P5-1 hit = 4/4 units tau-AUC in [0.40,0.60), falsified = >=2 units outside [0.40,0.60];
+   P5-2 hit = 4/4 count-AUC >= 0.60, falsified = 4/4 < 0.60; P5-3 calibration = >=3/4 peak-AUC >= 0.60 (control arm, not in the overall ruling);
+   overall: supported = P5-1 hit AND P5-2 hit; falsified = either side falsified; otherwise intermediate
+D8 statistics: seed 20260815; per-cell paired percentile bootstrap x2000; N_MIN=30; engine unit-tested bit-for-bit against scipy before delivery
 
-【细胞有效性（独立于作者 config，冻结）】σ₀>0；基线帧≥30；全程有限；覆盖脉冲 35 窗。
-【稳健臂】k=2 / k=4；脱敏校正（按块内脉冲位序扣全局中位漂移）；最大实验纯净臂。
-【输出（主产物先于描述臂）】单元表.csv / 稳健臂.csv / 裁决.json / 判定日志.txt / 描述臂.csv
+[cell validity (independent of the authors' config, frozen)] sigma_0 > 0; baseline frames >= 30; all values finite; covering all 35 pulse windows.
+[robust arms] k=2 / k=4; desensitization correction (subtracting the global median drift by pulse position within block); largest-experiment purity arm.
+[output (main products before the descriptive arm)] 单元table.csv / robust臂.csv / ruling.json / 判定日志.txt / 描述臂.csv
 """
 
 import os
@@ -60,7 +60,7 @@ import json
 import numpy as np
 
 ROOT = "/mnt/agents/output/01_细胞线/公开数据/Keshelava2018/SD1/source_data_1"
-OUTDIR = "/mnt/agents/output/01_细胞线/结果/Keshelava2018_P5_47b勘误重裁"
+OUTDIR = "/mnt/agents/output/01_细胞线/结果/Keshelava2018_P5_47berratum重裁"
 os.makedirs(OUTDIR, exist_ok=True)
 LOG_PATH = os.path.join(OUTDIR, "代码47b_判定日志.txt")
 _log = open(LOG_PATH, "w", encoding="utf-8")
@@ -73,7 +73,7 @@ def say(msg):
 
 
 def fail(msg):
-    say("【中止】" + msg)
+    say("[ABORT] " + msg)
     _log.close()
     sys.exit(2)
 
@@ -92,19 +92,19 @@ N_PULSE = 35
 PERIOD = 120.0          # s
 WIN = 30                # s response window from onset
 PEAK_LAG = 8            # onset = detected peak position − 8 s
-MIN_BASELINE = 35       # 实验级：首 onset 前基线(s)，低于则计时排除（预注册 v0.3 §6-F）
-MIN_EXP = 8             # 收录实验下限（预注册 v0.3 §7⑥）
-MIN_CELLS = 150         # 有效细胞下限；[150,200) 挂功效缩减限定语
-UNITS = [(0, 1), (1, 2), (4, 5), (5, 6)]      # 0-based；低区 (D1,D2)(D2,D3)，高区 (D5,D6)(D6,D7)
-MID_UNITS = [(2, 3), (3, 4)]                   # 描述臂
+MIN_BASELINE = 35       # experiment level: baseline before the first onset (s); below -> timing exclusion (pre-registration v0.3 section 6-F)
+MIN_EXP = 8             # admitted-experiment lower bound (pre-registration v0.3 section 7 item 6)
+MIN_CELLS = 150         # valid-cell lower bound; [150,200) carries the power-reduction qualifier
+UNITS = [(0, 1), (1, 2), (4, 5), (5, 6)]      # 0-based; low zone (D1,D2)(D2,D3), high zone (D5,D6)(D6,D7)
+MID_UNITS = [(2, 3), (3, 4)]                   # descriptive arm
 
-say("代码47 v0.2.0 —— P5 盲裁决（边界预测器首测，Keshelava 2018 GPCR→Ca²⁺；预注册 v0.3）")
-say(f"冻结参数：SEED={SEED} N_BOOT={N_BOOT} k={K_MAIN} 充分性线={M_AUC} 死区带=[{BAND_LO},{BAND_HI})")
+say("code 47 v0.2.0 - P5 blind ruling (boundary predictor first test, Keshelava 2018 GPCR->Ca2+; pre-registration v0.3)")
+say(f"frozen parameters: SEED={SEED} N_BOOT={N_BOOT} k={K_MAIN} sufficiency line={M_AUC} dead band=[{BAND_LO},{BAND_HI})")
 
 
-# ============ AUC 引擎（代码44–46 同源实现：MW 平均秩，inf 删失按平局） ============
+# ============ AUC engine (same implementation as codes 44-46: MW average ranks, inf censoring as ties) ============
 def auc_mw(x, y):
-    """P(X>Y)+½P(X=Y)，平均秩。x=方向正向组。"""
+    """P(X>Y)+0.5 P(X=Y), average ranks. x = the direction-positive group."""
     x = np.asarray(x, dtype=float)
     y = np.asarray(y, dtype=float)
     v = np.concatenate([x, y])
@@ -123,7 +123,7 @@ def auc_mw(x, y):
 
 
 def engine_selftest():
-    """guardrail⑦：对 scipy 逐位核对 + inf 删失方向 + 全删失平局"""
+    """guardrail 7: bit-for-bit check against scipy + inf-censoring direction + all-censored tie"""
     from scipy.stats import mannwhitneyu
     rng = np.random.default_rng(0)
     for _ in range(5):
@@ -132,51 +132,51 @@ def engine_selftest():
         u, _ = mannwhitneyu(a, b, alternative="two-sided")
         ref = u / (len(a) * len(b))
         if abs(auc_mw(a, b) - ref) > 1e-12:
-            fail("AUC 引擎与 scipy 不一致（无删失）")
+            fail("AUC engine inconsistent with scipy (no censoring)")
     a = [1.0, 2.0, np.inf, np.inf]
     b = [0.5, 1.5, 3.0, np.inf]
-    # 手工：P(a>b)=4/16（a3,a4>b1,b2），平局 a1? 逐对： (1,.5)W (1,1.5)L (1,3)L (1,inf)L
+    # by hand: P(a>b)=4/16 (a3,a4 > b1,b2), tie a1? pair by pair: (1,.5)W (1,1.5)L (1,3)L (1,inf)L
     # (2,.5)W (2,1.5)W (2,3)L (2,inf)L (inf,.5)W (inf,1.5)W (inf,3)W (inf,inf)T ×2
-    # W=5? 重数：a3=inf>b1,b2,b3=3W +T; a4=inf 同 3W+T → W=1+2+3+3=9? a1:1>.5=1W 余3L；a2:2>.5,1.5=2W，2<3，2<inf
+    # W=5? recount: a3=inf > b1,b2,b3 = 3W +T; a4=inf same 3W+T -> W=1+2+3+3=9? a1: 1>.5=1W, other 3L; a2: 2>.5,1.5=2W, 2<3, 2<inf
     # → W=1+2+3+3=9，T=2，AUC=(9+1)/16=0.625
     if abs(auc_mw(a, b) - 0.625) > 1e-12:
-        fail(f"AUC 引擎 inf 删失方向错误（得 {auc_mw(a, b)}）")
+        fail(f"AUC engine inf-censoring direction error (got {auc_mw(a, b)})")
     if abs(auc_mw([np.inf, np.inf], [np.inf, np.inf]) - 0.5) > 1e-12:
-        fail("AUC 引擎全删失平局错误")
-    say("guardrail⑦ AUC 引擎 scipy 逐位单测通过（无删失 5/5 + inf 删失方向 + 全删失平局）")
+        fail("AUC engine all-censored tie error")
+    say("guardrail 7 AUC engine scipy bit-for-bit unit test passed (no-censoring 5/5 + inf-censoring direction + all-censored tie)")
 
 
-# ============ 数据装载 + guardrail 链 ============
+# ============ data loading + guardrail chain ============
 def load_all():
     files = sorted(f for f in os.listdir(ROOT) if f.endswith(".dot"))
     if len(files) != 27:
-        fail(f"实验文件数 {len(files)} ≠ 27")
+        fail(f"experiment file count {len(files)} != 27")
     exps = []
     tot_cols = 0
     for f in files:
         arr = np.loadtxt(os.path.join(ROOT, f), delimiter="\t")
         if arr.ndim != 2:
-            fail(f"{f} 不是二维矩阵")
+            fail(f"{f} is not a 2D matrix")
         t, c = arr.shape
         if not (4100 <= t <= 4800):
-            fail(f"{f} 行数 {t} 出界 [4100,4800]")
+            fail(f"{f} row count {t} out of bounds [4100,4800]")
         if not (5 <= c <= 40):
-            fail(f"{f} 列数 {c} 出界 [5,40]")
+            fail(f"{f} column count {c} out of bounds [5,40]")
         tot_cols += c
         exps.append((f, arr))
     if not (430 <= tot_cols <= 560):
-        fail(f"总轨迹列 {tot_cols} 出界 [430,560]")
-    say(f"guardrail①②③ 通过：27 实验，总轨迹列 {tot_cols}")
+        fail(f"total trace columns {tot_cols} out of bounds [430,560]")
+    say(f"guardrails 1/2/3 passed: 27 experiments, total trace columns {tot_cols}")
     return exps
 
 
 def pulse_timeline(name, arr):
-    """D3（v0.2.0，预注册 v0.3 §6）：两级管线——逐细胞峰时刻聚类 → 35 位链组装。
-    纯定时元数据（峰时刻+群体聚合轨迹），不产出任何逐细胞×剂量读出统计量。
-    返回 (onsets, info)；计时排除返回 (None, 原因)——排除为纯元数据判据，逐条入日志。"""
+    """D3 (v0.2.0, pre-registration v0.3 section 6): two-stage pipeline - per-cell peak-time clustering -> 35-position chain assembly.
+    Pure timing metadata (peak times + population aggregate trace); produces no per-cell x dose readout statistic.
+    Returns (onsets, info); timing exclusion returns (None, reason) - exclusions are pure metadata criteria, logged item by item."""
     from scipy.signal import find_peaks, medfilt
     nrows = arr.shape[0]
-    # A. 逐细胞峰检测（仅取时刻）
+    # A. per-cell peak detection (times only)
     allp, ncell = [], 0
     for c in range(arr.shape[1]):
         tr = arr[:, c]
@@ -187,8 +187,8 @@ def pulse_timeline(name, arr):
         pk, _ = find_peaks(tr, prominence=4 * sd, distance=90)
         allp.extend(pk.tolist())
     if not allp:
-        return None, "无可用峰"
-    # B. 群体聚类（5s 分箱 → 强箱 → ≤10s 并簇 → <60s 分裂簇计数加权合并）
+        return None, "none可用峰"
+    # B. population clustering (5 s bins -> strong bins -> merge clusters <=10 s -> split clusters <60 s merged count-weighted)
     allp = np.sort(allp)
     edges = np.arange(0, nrows + 5, 5)
     h, _ = np.histogram(allp, bins=edges)
@@ -224,7 +224,7 @@ def pulse_timeline(name, arr):
         after = res[A + 40:A + 100].mean()
         return after < 0.5 * max(during, 1e-9) or (during < 0.02 and after < 0.02)
 
-    # C. 周期估计
+    # C. period estimation
     d2 = np.diff(cs)
     reg = d2[(d2 >= 100) & (d2 <= 130)]
     if len(reg) < 5:
@@ -233,7 +233,7 @@ def pulse_timeline(name, arr):
     if not (115.0 <= That <= 125.0):
         return None, f"T̂={That:.1f}越界"
 
-    # E. 回走（严格层 [85,170] → 中点净空检查 → 放宽层 (170,250]）
+    # E. walk-back (strict layer [85,170] -> midpoint vacancy check -> relaxed layer (170,250])
     def walkback(ai):
         p = [0] * N_PULSE
         hole = [False] * N_PULSE
@@ -256,7 +256,7 @@ def pulse_timeline(name, arr):
                 p[i - 1] = int(cs[best])
         return p, hole
 
-    # D. 锚定位（升序首个全过者）+ F. 链校验
+    # D. anchor position (first ascending full pass) + F. chain validation
     for ai in np.argsort(cs):
         A = cs[ai]
         if A + 105 > nrows:
@@ -293,21 +293,21 @@ def pulse_timeline(name, arr):
         onsets = [int(pi) - PEAK_LAG for pi in p]
         info = {"That": That, "holes": nh, "p1": p[0], "p35": p[34]}
         return onsets, info
-    return None, "无有效锚/链"
+    return None, "noneyes效anchor/链"
 
 
-# ============ 特征化（v0.4 §11 勘误版：局部参照 + 伪迹下限 + 参考道拦截） ============
-H_FLOOR = 0.04   # 响应阈绝对下限（Fura-2 比率单位，冻结值：伪迹簇上限0.03 与真反应簇下限0.05 之间）
+# ============ featurization (v0.4 section 11 erratum version: local reference + artifact floor + reference-channel interception) ============
+H_FLOOR = 0.04   # absolute floor of the response threshold (Fura-2 ratio units, frozen value: between the artifact-cluster ceiling 0.03 and the true-response-cluster floor 0.05)
 
 
 def featurize(arr, onsets, k):
-    """返回每细胞特征表：list[dict(count=[], peak=[], tau=[])]，按剂量索引。
-    v0.4：peak_p = 窗内max − 窗前25~5s中位（局部参照，去背景上漂）；
-    responded = peak_p ≥ max(kσ₀, H_FLOOR)；τ = 窗内首穿 base_p+thr − onset；
-    有效性追加实验内 μ₀ 稳健离群剔除（>3×MAD，拦截参考道）。"""
+    """Returns the per-cell feature table: list[dict(count=[], peak=[], tau=[])], indexed by dose.
+    v0.4: peak_p = window max - median of 25-5 s before the window (local reference, removes background drift);
+    responded = peak_p >= max(k*sigma_0, H_FLOOR); tau = first crossing of base_p+thr within the window minus onset;
+    validity adds within-experiment mu_0 robust outlier removal (>3xMAD, intercepting reference channels)."""
     t_end = onsets[-1] + WIN
     base_end = onsets[0]
-    # 实验内 μ₀ 离群预筛（参考道拦截）
+    # within-experiment mu_0 outlier pre-screen (reference-channel interception)
     mu_list = []
     for c in range(arr.shape[1]):
         v = arr[:, c]
@@ -362,17 +362,17 @@ def featurize(arr, onsets, k):
     return cells, n_excl + n_outlier
 
 
-# ============ 单元 AUC + bootstrap ============
+# ============ unit AUC + bootstrap ============
 def unit_auc(cells, pair, stat, rng=None, boot=False):
     ia, ib = pair
     if stat == "ta":
         xa = np.array([c["ta"][ia] for c in cells])
         xb = np.array([c["ta"][ib] for c in cells])
-        # 方向：P(τ低>τ高) → x=低档
+        # direction: P(tau_low > tau_high) -> x = low-dose group
         x, y = xa, xb
     else:
         key = "cnt" if stat == "cnt" else "pk"
-        x = np.array([c[key][ib] for c in cells])   # 高档为正向
+        x = np.array([c[key][ib] for c in cells])   # high-dose group is the positive direction
         y = np.array([c[key][ia] for c in cells])
     n = len(x)
     out = {"auc": auc_mw(x, y), "n": n}
@@ -398,26 +398,26 @@ def run_units(cells, pairs, rng, boot):
     return res
 
 
-# ============ 主流程 ============
+# ============ main pipeline ============
 def main():
     engine_selftest()
     exps = load_all()
 
     rng = np.random.default_rng(SEED)
-    # ---- 脉冲时刻表（纯定时元数据阶段；计时排除逐条登记） ----
+    # ---- pulse time tables (pure timing-metadata stage; timing exclusions registered item by item) ----
     timelines = {}
     timing_excl = []
     for name, arr in exps:
         onsets, info = pulse_timeline(name, arr)
         if onsets is None:
             timing_excl.append({"experiment": name, "reason": info})
-            say(f"计时排除：{name} —— {info}")
+            say(f"timingexcluded：{name} —— {info}")
             continue
         timelines[name] = onsets
-        say(f"计时收录：{name}（T̂={info['That']:.1f} 空洞{info['holes']} p1={info['p1']} p35={info['p35']}）")
-    say(f"guardrail④⑤ 完成：收录 {len(timelines)}/27，计时排除 {len(timing_excl)}")
+        say(f"timing admitted: {name} (T_hat={info['That']:.1f} holes {info['holes']} p1={info['p1']} p35={info['p35']})")
+    say(f"guardrails 4/5 done: admitted {len(timelines)}/27, timing-excluded {len(timing_excl)}")
     if len(timelines) < MIN_EXP:
-        fail(f"收录实验 {len(timelines)} < {MIN_EXP}")
+        fail(f"admitted experiments {len(timelines)} < {MIN_EXP}")
 
     all_cells = []
     per_exp_cells = []
@@ -431,26 +431,26 @@ def main():
         all_cells.extend(cells)
     power_note = ""
     if len(all_cells) < MIN_CELLS:
-        fail(f"有效细胞 {len(all_cells)} < {MIN_CELLS}")
+        fail(f"valid cells {len(all_cells)} < {MIN_CELLS}")
     if len(all_cells) < 200:
-        power_note = f"功效缩减限定：有效细胞 {len(all_cells)} ∈ [150,200)"
-        say("【限定语】" + power_note)
-    say(f"装载完成：有效细胞 {len(all_cells)}（无效排除 {tot_excl}；计时排除 {len(timing_excl)} 实验；论文口径 433，独立有效性规则出入如实报告）")
+        power_note = f"power-reduction qualifier: valid cells {len(all_cells)} in [150,200)"
+        say("[QUALIFIER] " + power_note)
+    say(f"loading done: valid cells {len(all_cells)} (invalid excluded {tot_excl}; timing-excluded {len(timing_excl)} experiments; paper convention 433, discrepancies from the independent validity rules reported as-is)")
 
-    # ---- 主分析（4 裁决单元 × 3 统计量，带 CI） ----
+    # ---- main analysis (4 ruling units x 3 statistics, with CI) ----
     main_res = run_units(all_cells, UNITS, rng, boot=True)
 
-    say("\n===== 主分析：4 裁决单元（低区 D1↔D2、D2↔D3；高区 D5↔D6、D6↔D7） =====")
-    header = f"{'统计量':<8}{'单元':<10}{'AUC':>8}{'CI95':>22}{'n':>6}"
+    say("\n===== main analysis: 4 ruling units (low zone D1<->D2, D2<->D3; high zone D5<->D6, D6<->D7) =====")
+    header = f"{'stat':<8}{'unit':<10}{'AUC':>8}{'CI95':>22}{'n':>6}"
     say(header)
     rows = []
-    for stat, label in (("ta", "τ事件时"), ("cnt", "计数"), ("pk", "峰值(付费)")):
+    for stat, label in (("ta", "tau event-time"), ("cnt", "count"), ("pk", "peak (paid)")):
         for r in main_res[stat]:
             say(f"{label:<8}{r['pair']:<10}{r['auc']:>8.4f}   [{r['lo']:.4f},{r['hi']:.4f}]{r['n']:>6}")
             rows.append({"stat": stat, "pair": r["pair"], "auc": r["auc"],
                          "lo": r["lo"], "hi": r["hi"], "n": r["n"]})
 
-    # ---- D7 判定（冻结表逐字执行） ----
+    # ---- D7 verdicts (frozen table executed verbatim) ----
     ta_aucs = [r["auc"] for r in main_res["ta"]]
     cnt_aucs = [r["auc"] for r in main_res["cnt"]]
     pk_aucs = [r["auc"] for r in main_res["pk"]]
@@ -458,7 +458,7 @@ def main():
     n_in = sum(1 for a in ta_aucs if BAND_LO <= a < BAND_HI)
     n_out = 4 - n_in
     if n_in == 4:
-        v51 = "命中（死区确认：4/4 单元 τ-AUC∈[0.40,0.60)）"
+        v51 = "hit（死区确认：4/4 单元 τ-AUC∈[0.40,0.60)）"
     elif n_out >= 2:
         v51 = f"证伪（{n_out}/4 单元出 [0.40,0.60] 带）"
     else:
@@ -466,35 +466,35 @@ def main():
 
     n_pass = sum(1 for a in cnt_aucs if a >= M_AUC)
     if n_pass == 4:
-        v52 = "命中（活区确认：4/4 单元 count-AUC≥0.60）"
+        v52 = "hit（活区确认：4/4 单元 count-AUC≥0.60）"
     elif n_pass == 0:
         v52 = "证伪（4/4 单元 count-AUC<0.60）"
     else:
         v52 = f"中间态（{n_pass}/4 单元达线）"
 
     n_cal = sum(1 for a in pk_aucs if a >= M_AUC)
-    v53 = f"校准通过（{n_cal}/4 单元 peak-AUC≥0.60）" if n_cal >= 3 else f"数据集级弱解码限定（仅 {n_cal}/4 单元 peak-AUC≥0.60）"
+    v53 = f"校准pass（{n_cal}/4 单元 peak-AUC≥0.60）" if n_cal >= 3 else f"数据集级弱decoding限定（仅 {n_cal}/4 单元 peak-AUC≥0.60）"
 
     hit51 = n_in == 4
     fal51 = n_out >= 2
     hit52 = n_pass == 4
     fal52 = n_pass == 0
     if hit51 and hit52:
-        overall = "P5 获支持（边界预测器：死区复核命中 ∧ 活区首测命中）"
+        overall = "P5 获support（boundaryprediction器：死区recheckhit ∧ 活区首测hit）"
     elif fal51 or fal52:
-        overall = "P5 证伪（边界预测器在本形态上死亡，死亡侧见分款）"
+        overall = "P5 证伪（boundaryprediction器在this形态上死亡，死亡侧见分款）"
     else:
         overall = "P5 中间态"
 
-    say("\n===== 判定（冻结表 D7 逐字执行） =====")
-    say(f"P5-1（R1 死区复核，τ）：{v51}　单元值 {['%.4f' % a for a in ta_aucs]}")
-    say(f"P5-2（R2 活区首测，计数）：{v52}　单元值 {['%.4f' % a for a in cnt_aucs]}")
-    say(f"P5-3（R3 校准，付费峰值，对照臂）：{v53}　单元值 {['%.4f' % a for a in pk_aucs]}")
-    say(f"【总裁决】{overall}")
+    say("\n===== verdicts (frozen table D7 executed verbatim) =====")
+    say(f"P5-1 (R1 dead-zone recheck, tau): {v51}  unit values {['%.4f' % a for a in ta_aucs]}")
+    say(f"P5-2 (R2 live-zone first test, count): {v52}  unit values {['%.4f' % a for a in cnt_aucs]}")
+    say(f"P5-3 (R3 calibration, paid peak, control arm): {v53}  unit values {['%.4f' % a for a in pk_aucs]}")
+    say(f"[overall ruling] {overall}")
 
-    # ---- 主产物落盘（先于描述臂/稳健臂结论性内容） ----
+    # ---- main products saved (before descriptive/robust-arm conclusive content) ----
     import csv
-    with open(os.path.join(OUTDIR, "代码47b_单元表.csv"), "w", newline="", encoding="utf-8-sig") as f:
+    with open(os.path.join(OUTDIR, "代码47b_单元table.csv"), "w", newline="", encoding="utf-8-sig") as f:
         w = csv.DictWriter(f, fieldnames=["stat", "pair", "auc", "lo", "hi", "n"])
         w.writeheader()
         w.writerows(rows)
@@ -507,13 +507,13 @@ def main():
         "units": rows,
         "verdicts": {"P5-1": v51, "P5-2": v52, "P5-3": v53, "overall": overall},
     }
-    with open(os.path.join(OUTDIR, "代码47b_裁决.json"), "w", encoding="utf-8") as f:
+    with open(os.path.join(OUTDIR, "代码47b_ruling.json"), "w", encoding="utf-8") as f:
         json.dump(verdict, f, ensure_ascii=False, indent=2,
                   default=lambda o: int(o) if isinstance(o, np.integer) else float(o) if isinstance(o, np.floating) else str(o))
-    say("主产物落盘：单元表.csv / 裁决.json / 判定日志.txt")
+    say("main products saved: 单元table.csv / ruling.json / 判定日志.txt")
 
-    # ---- 稳健臂 ----
-    say("\n===== 稳健臂 =====")
+    # ---- robust arms ----
+    say("\n===== robust arms =====")
     rob_rows = []
     for kk in K_ROB:
         cells_k = []
@@ -527,12 +527,12 @@ def main():
             for r in res_k[stat]:
                 rob_rows.append({"arm": f"k={kk}", "stat": stat, "pair": r["pair"], "auc": r["auc"], "n": r["n"]})
                 say(f"k={kk} {stat} {r['pair']} AUC={r['auc']:.4f}")
-    # 脱敏校正臂：按块内位序扣全局中位 peak 漂移（论文同款），重算 cnt/pk
-    # 收集所有 (cell, dose, j) peak
-    say("脱敏校正臂：按块内脉冲位序 j∈{1..5} 扣群体中位漂移后重算")
-    # 重新特征化时保留每脉冲 peak —— 简化：此处仅对 pk/cnt 近似校正（τ 不受幅度漂移影响）
-    # 全局位序中位数
-    # （严格实现：featurize 不返回逐脉冲值；此臂用 k=3 重特征化并在脉冲层校正）
+    # desensitization-correction arm: subtract the global median peak drift by pulse position within block (same as the paper), recompute cnt/pk
+    # collect all (cell, dose, j) peaks
+    say("desensitization-correction arm: recompute after subtracting the population median drift by pulse position j in {1..5}")
+    # when re-featurizing keep per-pulse peaks - simplified: here only pk/cnt are approximately corrected (tau is unaffected by amplitude drift)
+    # global position median
+    # (strict implementation: featurize does not return per-pulse values; this arm re-featurizes with k=3 and corrects at the pulse level)
     cells_dc = []
     for name, arr in exps:
         if name not in timelines:
@@ -540,13 +540,13 @@ def main():
         onsets = timelines[name]
         t_end = onsets[-1] + WIN
         base_end = onsets[0]
-        # 实验内 μ₀ 离群预筛（与 featurize 同口径）
+        # within-experiment mu_0 outlier pre-screen (same convention as featurize)
         mu_arr = np.array([v[:base_end].mean() if np.all(np.isfinite(arr[:t_end, ci])) else np.nan
                            for ci, v in enumerate(arr.T)])
         mu_med = np.nanmedian(mu_arr)
         mu_mad = np.nanmedian(np.abs(mu_arr - mu_med)) * 1.4826
         outlier = np.abs(mu_arr - mu_med) > 3 * max(mu_mad, 1e-9)
-        # 第一遍：收集全部脉冲 peak 以估计位序漂移（局部参照）
+        # first pass: collect all pulse peaks to estimate the position drift (local reference)
         peaks_j = [[] for _ in range(PPD)]
         valid_cols = []
         for c in range(arr.shape[1]):
@@ -592,48 +592,48 @@ def main():
     for stat in ("ta", "cnt"):
         for r in res_dc[stat]:
             rob_rows.append({"arm": "脱敏校正", "stat": stat, "pair": r["pair"], "auc": r["auc"], "n": r["n"]})
-            say(f"脱敏校正 {stat} {r['pair']} AUC={r['auc']:.4f}")
-    # 最大实验纯净臂
+            say(f"desensitization-corrected {stat} {r['pair']} AUC={r['auc']:.4f}")
+    # largest-experiment purity arm
     big = max(per_exp_cells, key=lambda x: len(x[1]))
     res_big = run_units(big[1], UNITS, rng, boot=False)
     for stat in ("ta", "cnt"):
         for r in res_big[stat]:
             rob_rows.append({"arm": f"单实验({big[0]},n={len(big[1])})", "stat": stat, "pair": r["pair"], "auc": r["auc"], "n": r["n"]})
-            say(f"单实验纯净臂 {stat} {r['pair']} AUC={r['auc']:.4f}")
-    with open(os.path.join(OUTDIR, "代码47b_稳健臂.csv"), "w", newline="", encoding="utf-8-sig") as f:
+            say(f"single-experiment purity arm {stat} {r['pair']} AUC={r['auc']:.4f}")
+    with open(os.path.join(OUTDIR, "代码47b_robust臂.csv"), "w", newline="", encoding="utf-8-sig") as f:
         w = csv.DictWriter(f, fieldnames=["arm", "stat", "pair", "auc", "n"])
         w.writeheader()
         w.writerows(rob_rows)
-    say("稳健臂落盘：稳健臂.csv")
+    say("robust arms saved: robust臂.csv")
 
-    # ---- 描述臂（不进判定） ----
-    say("\n===== 描述臂（不进判定） =====")
+    # ---- descriptive arm (not adjudicated) ----
+    say("\n===== descriptive arm (not adjudicated) =====")
     desc_rows = []
     mid_res = run_units(all_cells, MID_UNITS, rng, boot=True)
     for stat in ("ta", "cnt", "pk"):
         for r in mid_res[stat]:
             desc_rows.append({"section": "中区对", "stat": stat, "key": r["pair"],
                               "auc": r["auc"], "lo": r["lo"], "hi": r["hi"], "n": r["n"]})
-            say(f"中区对 {stat} {r['pair']} AUC={r['auc']:.4f} [{r['lo']:.4f},{r['hi']:.4f}]")
-    # 逐剂量响应率（count≥1 的细胞比例）与平均计数
+            say(f"mid-zone pair {stat} {r['pair']} AUC={r['auc']:.4f} [{r['lo']:.4f},{r['hi']:.4f}]")
+    # per-dose response rate (fraction of cells with count>=1) and mean count
     for d in range(N_DOSE):
         rr = np.mean([1.0 if c["cnt"][d] >= 1 else 0.0 for c in all_cells])
         mc = np.mean([c["cnt"][d] for c in all_cells])
         desc_rows.append({"section": "响应率", "stat": "cnt", "key": f"D{d+1}({DOSES_NM[d]}nM)",
                           "auc": rr, "lo": mc, "hi": np.nan, "n": len(all_cells)})
-        say(f"D{d+1}({DOSES_NM[d]:.0f}nM) 响应率={rr:.3f} 平均计数={mc:.2f}")
+        say(f"D{d+1}({DOSES_NM[d]:.0f}nM) response rate={rr:.3f} mean count={mc:.2f}")
     with open(os.path.join(OUTDIR, "代码47b_描述臂.csv"), "w", newline="", encoding="utf-8-sig") as f:
         w = csv.DictWriter(f, fieldnames=["section", "stat", "key", "auc", "lo", "hi", "n"])
         w.writeheader()
         w.writerows(desc_rows)
-    say("描述臂落盘：描述臂.csv")
+    say("descriptive arm saved: 描述臂.csv")
 
-    say("\n===== 终稿判定复述（冻结表逐字） =====")
+    say("\n===== final verdict restatement (frozen table verbatim) =====")
     say(f"P5-1：{v51}")
     say(f"P5-2：{v52}")
     say(f"P5-3：{v53}")
-    say(f"【总裁决】{overall}")
-    say("（死活双录：本日志与裁决.json 同步入总账，冻结裁决事后永不挪动）")
+    say(f"[overall ruling] {overall}")
+    say("(recorded either way: this log and ruling.json enter the ledger in sync; the frozen ruling is never moved afterwards)")
     _log.close()
 
 

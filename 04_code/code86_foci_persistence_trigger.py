@@ -1,27 +1,27 @@
 # -*- coding: utf-8 -*-
 """
-代码86_焦点持续触发.py  (种子确定性)
+代码86_焦点持续触发.py  (seed-deterministic)
 ================================================
-任务：路线对账的最终章。代码85 已证伪"ATM 增益异质性补弥散比"路线；
-本件换机制口径——触发信号不是活 DSB 数 A(t)（快相 t½≈2h，代码84 口径），
-而是 γH2AX 焦点数 F(t)（实测单相衰减 t½≈11h：dSTORM 2Gy 50 foci@30min ->
-12 foci@24h，2^(-24/11)=0.22 ≈ 12/50=0.24）。
+Task: the final chapter of route reconciliation. Code 85 has falsified the "ATM gain heterogeneity patches the dispersion ratio" route;
+this script switches the mechanistic framing — the trigger signal is not the live DSB count A(t) (fast phase t½≈2h, code 84 framing),
+but the γH2AX foci count F(t) (measured single-phase decay t½≈11h: dSTORM 2Gy 50 foci@30min ->
+12 foci@24h, 2^(-24/11)=0.22 ≈ 12/50=0.24).
 
-生物学依据：ATM 在焦点处被激活，焦点在 DSB 重接合后仍长期存在
-（K5 形成 30 min；Foray 学派核穿梭模型同向）。
+Biological basis: ATM is activated at foci, and foci persist long after DSB rejoining
+(K5 forms within 30 min; the Foray-school nuclear-shuttling model points the same way).
 
-由此产生一个零拟合恒等式预言：
-  若触发是（近似）无记忆 Poisson 过程，则 CV(t1)≈1，
-  弥散比 = SD(t1)/SD(IPI) ≈ mean(t1)/SD(IPI) ≈ 2.3h/0.4h ≈ 5.8，
-  即文献"弥散比 5.8"不是独立常数，而是无记忆触发 + 精确振荡器的折叠签名。
-  同时预言 弥散比(D) ∝ 1/D（低剂量更散），供实验证伪。
+This yields a zero-fit identity prediction:
+  if the trigger is an (approximately) memoryless Poisson process, then CV(t1)≈1,
+  dispersion ratio = SD(t1)/SD(IPI) ≈ mean(t1)/SD(IPI) ≈ 2.3h/0.4h ≈ 5.8,
+  i.e. the literature "dispersion ratio 5.8" is not an independent constant but the folded signature of a memoryless trigger + a precise oscillator.
+  It also predicts dispersion ratio(D) ∝ 1/D (more dispersed at low doses), open to experimental falsification.
 
-常数表：全部同代码84/85；唯一校准常数 LAM0'（/focus/h）只对齐
-t1@10Gy ≈ 2.2h 文献锚（MCF7 首峰 2-3h），弥散比不参与校准。
+Constants table: all identical to code 84/85; the only calibrated constant LAM0' (/focus/h) is aligned solely to
+the literature anchor t1@10Gy ≈ 2.2h (MCF7 first peak 2-3h); the dispersion ratio plays no part in calibration.
 
-用法：
-  python 代码86_焦点持续触发.py calib    # LAM0' 三点校准，N=1000
-  python 代码86_焦点持续触发.py final    # 定稿，N=4000，σ∈{0, 0.2}
+Usage:
+  python 代码86_焦点持续触发.py calib    # LAM0' three-point calibration, N=1000
+  python 代码86_焦点持续触发.py final    # final version, N=4000, σ∈{0, 0.2}
 """
 import json
 import sys
@@ -47,7 +47,7 @@ R_FAST = 0.35
 FRAC_SLOW = 0.10
 T_HALF_SLOW = 20.0
 R_SLOW = np.log(2) / T_HALF_SLOW
-T_HALF_FOCI = 11.0            # h，γH2AX 焦点衰减（dSTORM 文献锚，见头注）
+T_HALF_FOCI = 11.0            # h, γH2AX foci decay (dSTORM literature anchor, see header note)
 R_FOCI = np.log(2) / T_HALF_FOCI
 T_PERIOD = 5.5
 JIT_IPI = 0.085
@@ -56,10 +56,10 @@ N_MAX = 12
 Q21, TAU21 = 100.0, 10.0
 QPU, TAUPU, PUMA_NTHR = 100.0, 4.0, 3
 TH_PUMA, R0_FATE, TH_P21 = 800.0, 0.15, 1500.0
-A_MIN = 10.0                  # 终止阈值仍用活 DSB 数（代码84 封卷口径）
-T1_ANCHOR = 2.2               # h，t1@10Gy 校准锚（MCF7 首峰 2-3h 中带）
+A_MIN = 10.0                  # termination threshold still uses the live DSB count (code 84 SEALED framing)
+T1_ANCHOR = 2.2               # h, t1@10Gy calibration anchor (midpoint of the MCF7 first-peak 2-3h band)
 LIT_DISPERSION = 5.8
-IPI_SD_REF = 0.4              # h，文献 IPI 精度量级
+IPI_SD_REF = 0.4              # h, literature IPI precision order of magnitude
 
 
 def mi_discrete(x, y):
@@ -95,7 +95,7 @@ def first_pulse_time(taus, lam0, rng):
 
 
 def simulate_dose(D, n, rng, lam0_foci, sigma_ln):
-    """触发走焦点 F(t)（单相 t½=11h），终止走活 DSB A(t)（双相，代码84 口径）。"""
+    """Trigger follows foci F(t) (single phase t½=11h); termination follows live DSB A(t) (biphasic, code 84 framing)."""
     n_dsb = rng.poisson(K0_DSB * D, n)
     if sigma_ln > 0:
         g = np.exp(sigma_ln * rng.standard_normal(n) - 0.5 * sigma_ln ** 2)
@@ -115,7 +115,7 @@ def simulate_dose(D, n, rng, lam0_foci, sigma_ln):
     times = np.full((n, N_MAX), np.nan)
     A_at = lambda taus, t: int(np.sum(taus > t))
     for i in range(n):
-        tp = first_pulse_time(taus_foci[i], lam_cell[i], rng)  # 触发：焦点
+        tp = first_pulse_time(taus_foci[i], lam_cell[i], rng)  # trigger: foci
         if tp is None:
             continue
         t1[i] = tp
@@ -126,7 +126,7 @@ def simulate_dose(D, n, rng, lam0_foci, sigma_ln):
             tp = times[i, j - 1] + interval
             if tp > W:
                 break
-            if A_at(taus_dsb[i], tp) < A_MIN:                  # 终止：活 DSB
+            if A_at(taus_dsb[i], tp) < A_MIN:                  # termination: live DSB
                 break
             times[i, j] = tp
     active = ~np.isnan(times)
@@ -187,7 +187,7 @@ def main():
     log = lambda *a: print(*a, flush=True)
 
     if mode == "calib":
-        log(f"[代码86] calib：LAM0' 三点扫描，N=1000，种子 {SEED}")
+        log(f"[code 86] calib: LAM0' three-point scan, N=1000, seed {SEED}")
         grid = {}
         for lam in [0.0008, 0.0013, 0.0020]:
             r = run_ensemble(lam, 0.0, 1000, SEED + int(lam * 1e7))
@@ -196,7 +196,7 @@ def main():
                                   dispersion_10Gy=r["dispersion"].get("10.0Gy", {}))
             log(f"  LAM0'={lam}: t1@10={r['t1_10Gy_mean']:.2f}h, "
                 f"<N>10={r['count_10Gy']:.2f}, "
-                f"弥散比@10={r['dispersion'].get('10.0Gy', {}).get('dispersion_ratio', float('nan')):.2f}")
+                f"dispersion ratio@10={r['dispersion'].get('10.0Gy', {}).get('dispersion_ratio', float('nan')):.2f}")
         payload = {}
         if OUT_JSON.exists():
             payload = json.loads(OUT_JSON.read_text(encoding="utf-8"))
@@ -205,13 +205,13 @@ def main():
                                         t_half_foci_h=T_HALF_FOCI,
                                         anchor="LAM0' 只对齐 t1@10Gy~2.2h"))
         OUT_JSON.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
-        log("JSON 已写出:", OUT_JSON)
+        log("JSON written:", OUT_JSON)
         return
 
     # final
     lam_star = float(sys.argv[2]) if len(sys.argv) > 2 else 0.0013
     N = 4000
-    log(f"[代码86] final：LAM0'={lam_star}，N={N}，σ ∈ {{0, 0.2}}")
+    log(f"[code 86] final: LAM0'={lam_star}, N={N}, σ ∈ {{0, 0.2}}")
     finals = {}
     for s in [0.0, 0.2]:
         r = run_ensemble(lam_star, s, N, SEED + 555 + int(s * 1000))
@@ -221,7 +221,7 @@ def main():
         log(f"  σ={s}: <N>10={r['count_10Gy']:.2f}, t1@10={r['t1_10Gy_mean']:.2f}±"
             f"{r['t1_10Gy_sd']:.2f}h (CV={r['cv_t1_10Gy']:.2f}), "
             f"I(D;fate)={r['I_D_fate']:.3f}")
-        log(f"    弥散比={dr}")
+        log(f"    dispersion ratio={dr}")
         log(f"    CV(t1)={cv}")
     payload = {}
     if OUT_JSON.exists():
@@ -232,15 +232,15 @@ def main():
                            anchors="LAM0' 只对齐 t1@10Gy~2.2h；t½(foci)=11h 为文献锚",
                            identity_prediction="CV(t1)~1 时 弥散比~mean(t1)/SD(IPI)")
     OUT_JSON.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
-    log("JSON 已更新:", OUT_JSON)
+    log("JSON updated:", OUT_JSON)
     make_figure(finals, lam_star)
-    log("[代码86] 完成。")
+    log("[code 86] done.")
 
 
 def make_figure(finals, lam_star):
     fig, axes = plt.subplots(2, 2, figsize=(13.5, 9.2))
     r0 = finals["0.0"]
-    # (a) 弥散比 vs 剂量（两条路线对比）
+    # (a) dispersion ratio vs dose (two-route comparison)
     ax = axes[0, 0]
     common = [k for k in r0["dispersion"].keys() if k in finals["0.2"]["dispersion"]]
     doses_d = [float(k.replace("Gy", "")) for k in common]
@@ -256,7 +256,7 @@ def make_figure(finals, lam_star):
     ax.set_xlabel("dose (Gy)"); ax.set_ylabel("dispersion ratio")
     ax.legend(fontsize=8, loc="upper right")
     ax.set_title("(a) Dispersion ratio vs dose: zero-fit landing", fontsize=10.5)
-    # (b) CV(t1) 恒等式验证
+    # (b) CV(t1) identity verification
     ax = axes[0, 1]
     cvs = [r0["dispersion"][k]["cv_t1"] for k in common]
     idc = [r0["dispersion"][k]["identity_check"] for k in common]
@@ -277,7 +277,7 @@ def make_figure(finals, lam_star):
     h1, l1 = ax.get_legend_handles_labels(); h2, l2 = ax2.get_legend_handles_labels()
     ax.legend(h1 + h2, l1 + l2, fontsize=8, loc="upper right")
     ax.set_title("(b) Identity test: dispersion = mean($t_1$)/SD(IPI) when CV=1", fontsize=10.5)
-    # (c) 锚定量摘要
+    # (c) anchored-quantity summary
     ax = axes[1, 0]
     ax.axis("off")
     ax.text(0.5, 0.55, f"t1 at 10 Gy: {r0['t1_10Gy_mean']:.2f} ± {r0['t1_10Gy_sd']:.2f} h\n"
@@ -288,7 +288,7 @@ def make_figure(finals, lam_star):
             transform=ax.transAxes, ha="center", va="center", fontsize=10,
             bbox=dict(fc="#f4f6fa", ec="#33527a", lw=0.8))
     ax.set_title("(c) Anchors at LAM0' = " + f"{lam_star}", fontsize=10.5)
-    # (d) 路线对账总表
+    # (d) route reconciliation master table
     ax = axes[1, 1]
     ax.axis("off")
     lines = [
@@ -316,7 +316,7 @@ def make_figure(finals, lam_star):
                         hspace=0.34, wspace=0.42)
     fig.savefig(OUT_PNG, dpi=200, bbox_inches="tight")
     fig.savefig(OUT_SVG, bbox_inches="tight")
-    print("图已写出:", OUT_PNG, flush=True)
+    print("Figure written:", OUT_PNG, flush=True)
 
 
 if __name__ == "__main__":

@@ -1,49 +1,49 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-代码59 残差瀑布 + 刺激窗内时间结构 + ρ(F) 复核 v1.0.0
+Code 59 residual waterfall + within-stimulus-window temporal structure + ρ(F) recheck v1.0.0
 ================================================
-对应"零成本冲刺"三条路线的可执行修正版（协议事实：10 s 刺激窗、
-30 s 间隔不成像、无 B=3/30 档、测量在适应前——无"60 秒残差"可言）。
+Executable corrected version of the three "zero-cost sprint" routes (protocol facts: 10 s stimulus window,
+30 s gaps not imaged, no B=3/30 levels, measurement before adaptation — no "60 s residual" to speak of).
 
-§1 幅值残差瀑布（单元表 + 逐细胞两口径，M2c λ=1 与标准幅值最优两模型）
-  结果：两口径下残差都很小且各档居中（逐细胞中位 −0.03…+0.01），
-  无 B=10 悬崖、无机制切换阈值。唯一系统结构：每行最高 F 端模型
-  轻微超估（+0.04…+0.065，B=0 行 F>2 档逐细胞中位 −0.097），
-  即实测比模型更早饱和。逐细胞离散（IQR≈0.15–0.2）远大于模型误差，
-  且 |>0.15| 占比在 B=10 档反而最低（16.5%）——离散来自细胞异质性，
-  不是模型失效。
-  ⚠️ 双录：本代码开发期曾把总浓度 sv 当前景 F 喂给模型（同配体文件
-  s 字段含背景），导致 B≥10 假性大残差；用单文件单水平直接核查
-  （220302_FOV1，F=2：实测中位 0.311 vs 表 0.299）定位后修正为
-  F=sv−B。教训： pooled 流水线结果必须抽查单点。
+§1 amplitude residual waterfall (unit table + per-cell, two conventions, M2c λ=1 and standard amplitude-optimal models)
+  Results: residuals small and centered at every level under both conventions (per-cell median −0.03…+0.01),
+  no B=10 cliff, no mechanism-switch threshold. Only systematic structure: at the highest-F end of each row the model
+  slightly overestimates (+0.04…+0.065; B=0 row F>2 bin per-cell median −0.097),
+  i.e. data saturate earlier than the model. Per-cell spread (IQR≈0.15–0.2) far exceeds model error,
+  and the |>0.15| fraction is actually lowest at B=10 (16.5%) — spread comes from cell heterogeneity,
+  not model failure.
+  ⚠️ dual-record: during development this code once fed total concentration sv to the model as foreground F (same-ligand
+  files' s field includes background), causing spurious large residuals at B≥10; direct single-file single-level check
+  (220302_FOV1, F=2: measured median 0.311 vs table 0.299) located it, then fixed to
+  F=sv−B. Lesson: pooled pipeline results must be spot-checked at single points.
 
-§2 K1/2 瀑布（断裂的真正位置）
-  模型−实测（dex，M2c λ=1）：B=0:+0.295, 0.01:+0.142, 0.1:+0.271,
-  0.3:+0.201, 1:+0.094, 10:−0.268, 100:+0.002。
-  S 形错位：低 B 平台模型 ~4.0 vs 实测 2.0–2.9（超估），B=10 模型
-  7.5 vs 实测 13.9（低估），B=100 精确。断裂完全位于 K1/2 统计量的
-  过渡区形状（B∈[1,10]），幅值表本身无病。
+§2 K1/2 waterfall (the fracture's true location)
+  model−data (dex, M2c λ=1): B=0:+0.295, 0.01:+0.142, 0.1:+0.271,
+  0.3:+0.201, 1:+0.094, 10:−0.268, 100:+0.002.
+  S-shaped mismatch: low-B plateau model ~4.0 vs measured 2.0–2.9 (overestimate), B=10 model
+  7.5 vs measured 13.9 (underestimate), B=100 exact. The fracture lies entirely in the
+  transition-zone shape of the K1/2 statistic (B∈[1,10]); the amplitude table itself is sound.
 
-§3 刺激窗内时间结构（"适应时滞失效"检验的诚实版）
-  逐 (B,F) 计算刺激末 6 列（3 s）a 的线性斜率：
-  低 F 斜率小正（+0.01/列，响应尚未到平台），随 F 增大衰减到 ~0；
-  B=0/10/100 三档结构一致，无高背景特异的持续回升。
-  → 10 s 窗内无适应侵入的 B 依赖信号，"适应时滞失效"假说不支持。
+§3 within-stimulus-window temporal structure (honest version of the "adaptation-lag failure" test)
+  per (B,F), linear slope of a over the last 6 stimulus columns (3 s):
+  small positive slope at low F (+0.01/column, response not yet at plateau), decaying to ~0 as F grows;
+  structure identical at B=0/10/100, no high-background-specific sustained rebound.
+  → no B-dependent signal of adaptation intrusion within the 10 s window; "adaptation-lag failure" hypothesis not supported.
 
-§4 ρ(F) 复核（路线二前提检验）
-  G10 标尺逐点反演：ρ(F)=59(F=10)→16(F=80)，看似随 F 递减。
-  但用纯竞争 MWC（有效配体=F+ρ·L，L=10 µM L-Asp）直接拟合：
-  常数 ρ 即够——ρ≈24（M2c 锚）/22（幅值最优锚）/9（Emonet 锚），
-  残差 [−0.045,+0.006,+0.014,0,−0.002]，仅 F=5 点差 −0.045。
-  → "2 倍超估"是 G10 唯象核反演的标尺伪影，不是变构证据；
-    常数 ρ 纯竞争已拟合，无需 ρ(F) 修正项。
-    （结论性含义：L-Asp 对 Tar 的每 µM 效力 ≈ 22–24× meAsp，
-     Ki_LAsp≈Ki_MeAsp/23——可文献核查。）
+§4 ρ(F) recheck (premise test for route two)
+  G10-scale pointwise inversion: ρ(F)=59(F=10)→16(F=80), seemingly decreasing with F.
+  But direct fit with pure-competition MWC (effective ligand=F+ρ·L, L=10 µM L-Asp):
+  constant ρ suffices — ρ≈24 (M2c anchor)/22 (amplitude-optimal anchor)/9 (Emonet anchor),
+  residuals [−0.045,+0.006,+0.014,0,−0.002], only the F=5 point off by −0.045.
+  → the "2× overestimate" is a scale artifact of G10 phenomenological-kernel inversion, not allosteric evidence;
+    constant-ρ pure competition already fits; no ρ(F) correction term needed.
+    (Conclusive implication: per-µM potency of L-Asp on Tar ≈ 22–24× meAsp,
+     Ki_LAsp≈Ki_MeAsp/23 — literature-checkable.)
 
-数据：Moore 2024 Dryad doi:10.5061/dryad.nvx0k6dzz（CC0）
-运行：python3 代码59_残差瀑布_窗内时间结构_与rhoF复核.py
-依赖：numpy, scipy, pandas；同目录代码54（FILES/提取逻辑复用）
+Data: Moore 2024 Dryad doi:10.5061/dryad.nvx0k6dzz (CC0)
+run: python3 代码59_残差瀑布_窗内时间结构_与rhoF复核.py
+dependencies: numpy, scipy, pandas; 代码54 in same directory (FILES/extraction logic reused)
 """
 
 import importlib.util
@@ -60,7 +60,7 @@ warnings.filterwarnings("ignore")
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 spec = importlib.util.spec_from_file_location(
-    "c54", os.path.join(HERE, "代码54_K12联合拟合_断裂度定量.py"))
+    "c54", os.path.join(HERE, "code54_K12_joint_fit_rupture_quantification.py"))
 c54 = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(c54)
 
@@ -111,7 +111,7 @@ def cell_curves(bg_targets):
             pre = np.arange(0, stim[0]) if len(stim) else None
             if pre is None or len(pre) < 4 or len(stim) < 6:
                 continue
-            F = sv - B                       # 关键：s 含背景，前景 F=sv−B
+            F = sv - B                       # key: s includes background, foreground F=sv−B
             if F <= 0:
                 continue
             lev[round(F, 4)].append(float(np.median(a[row, pre[-4:]]))
@@ -142,43 +142,43 @@ def main():
     F_E = df["F_uM"].to_numpy(float)
     R_E = df["R_a"].to_numpy(float)
 
-    print("== §1a 单元表幅值残差（模型−实测）==")
+    print("== §1a unit-table amplitude residuals (model−data) ==")
     for B in sorted(set(B_E)):
         m = B_E == B
         r2 = np.median(np.abs(m2c(B_E[m], F_E[m]) - R_E[m]))
         rs = np.median(np.abs(std(B_E[m], F_E[m]) - R_E[m]))
-        print(f"  B={B:7.2f}: |M2c残差|中位={r2:.3f}, |标准残差|中位={rs:.3f}")
+        print(f"  B={B:7.2f}: |M2c residual| median={r2:.3f}, |standard residual| median={rs:.3f}")
 
-    print("\n== §1b 逐细胞幅值残差（实测−M2c）==")
+    print("\n== §1b per-cell amplitude residuals (data−M2c) ==")
     cur = cell_curves(set(B_E))
     for B in sorted(cur):
         pts = np.array(cur[B])
         res = pts[:, 1] - m2c(B, pts[:, 0])
-        print(f"  B={B:7.2f}: n={len(res):4d}, 中位={np.median(res):+.3f}, "
+        print(f"  B={B:7.2f}: n={len(res):4d}, median={np.median(res):+.3f}, "
               f"IQR=[{np.percentile(res, 25):+.3f},{np.percentile(res, 75):+.3f}], "
               f"|>0.15|={np.mean(np.abs(res) > 0.15):.1%}")
         for Flo, Fhi in [(0, 0.5), (0.5, 2), (2, 10), (10, 50)]:
             m = (pts[:, 0] > Flo) & (pts[:, 0] <= Fhi)
             if m.sum() > 5:
-                print(f"      F∈({Flo},{Fhi}]: 中位={np.median(res[m]):+.3f} (n={m.sum()})")
+                print(f"      F∈({Flo},{Fhi}]: median={np.median(res[m]):+.3f} (n={m.sum()})")
 
-    print("\n== §2 K1/2 瀑布（模型−实测，dex）==")
+    print("\n== §2 K1/2 waterfall (model−data, dex) ==")
     k12, cens, tot = c54.extract_K12()
     pred = {0.0: 4.01, 0.01: 4.02, 0.1: 4.05, 0.3: 4.11, 1.0: 4.34, 10.0: 7.51, 100.0: 120.16}
     for B in sorted(k12):
         if len(k12[B]) < 10:
             continue
         d = np.log10(pred[B] / np.array(k12[B]))
-        print(f"  B={B:7.2f}: n={len(d):3d}（删失{cens.get(B, 0)}）, 中位Δ={np.median(d):+.3f} dex")
+        print(f"  B={B:7.2f}: n={len(d):3d} (censored {cens.get(B, 0)}), median Δ={np.median(d):+.3f} dex")
 
-    print("\n== §3 刺激窗内斜率（a/0.5s）==")
+    print("\n== §3 within-stimulus-window slope (a/0.5s) ==")
     sl = stim_slopes({0.0, 10.0, 100.0})
     for (B, F) in sorted(sl):
         v = np.array(sl[(B, F)])
-        print(f"  B={B:6.1f} F={F:5.1f}: n={len(v):4d}, 斜率中位={np.median(v):+.4f}, "
+        print(f"  B={B:6.1f} F={F:5.1f}: n={len(v):4d}, slope median={np.median(v):+.4f}, "
               f"IQR=[{np.percentile(v, 25):+.4f},{np.percentile(v, 75):+.4f}]")
 
-    print("\n== §4 ρ(F) 复核：纯竞争 MWC（Lasp 臂，F=5–80 五点）==")
+    print("\n== §4 ρ(F) recheck: pure-competition MWC (L-Asp arm, five points F=5–80) ==")
     ROOTD = "/mnt/agents/output/03_细胞线3/公开数据/Moore2024_Chemotaxis_FRET"
     lev_all = defaultdict(list)
     for name in ["210721_FOV1", "210721_FOV2", "210818_FOV1", "210818_FOV2",
@@ -195,7 +195,7 @@ def main():
             lev = defaultdict(list)
             for row in range(35):
                 sr = s[row]
-                sv = float(sr.max())          # 跨配体文件 s 只记前景（meAsp）
+                sv = float(sr.max())          # cross-ligand files: s records foreground only (meAsp)
                 stim = np.where(sr >= sv - 1e-9)[0]
                 pre = np.arange(0, stim[0]) if len(stim) else None
                 if pre is None or len(pre) < 4 or len(stim) < 6:
@@ -211,8 +211,8 @@ def main():
     def da_comp(F, L, rho, Ki, Ka, N, amax):
         return amax * (ASTAR - 1 / (1 + np.exp(LAM + N * (gL(F + rho * L, Ki, Ka) - gL(rho * L, Ki, Ka)))))
 
-    for Ki_a, Ka_a, N_a, tag in [(14.53, 1e6, 11.8, "M2c锚"), (0.81, 200, 6, "Emonet锚"),
-                                 (30.7, 133, 39.0, "幅值最优锚")]:
+    for Ki_a, Ka_a, N_a, tag in [(14.53, 1e6, 11.8, "M2c anchor"), (0.81, 200, 6, "Emonet anchor"),
+                                 (30.7, 133, 39.0, "amplitude-optimal anchor")]:
         def rc(t):
             rho, amax = np.exp(t)
             return da_comp(Fs5, 10, rho, Ki_a, Ka_a, N_a, amax) - obs5
@@ -229,13 +229,13 @@ def main():
                 pass
         rho, amax = np.exp(best[1])
         pred = da_comp(Fs5, 10, rho, Ki_a, Ka_a, N_a, amax)
-        print(f"  {tag}: ρ={rho:.1f}, amax={amax:.2f}, 残差={np.round(pred - obs5, 3)}")
+        print(f"  {tag}: ρ={rho:.1f}, amax={amax:.2f}, residuals={np.round(pred - obs5, 3)}")
 
     print("""
-== 总结 ==
-幅值无病（无 B=10 悬崖）；断裂完全位于 K1/2 过渡区 S 形错位（§2）。
-窗内时间结构无 B 依赖 → 适应时滞失效假说不支持。
-Lasp 臂：常数 ρ 纯竞争即拟合（ρ≈22–24）；"2 倍超估"是 G10 标尺伪影。
+== Summary ==
+Amplitude sound (no B=10 cliff); fracture lies entirely in the K1/2 transition-zone S-shaped mismatch (§2).
+Within-window temporal structure shows no B dependence → adaptation-lag failure hypothesis not supported.
+L-Asp arm: constant-ρ pure competition already fits (ρ≈22–24); the "2× overestimate" is a G10 scale artifact.
 """)
 
 if __name__ == "__main__":

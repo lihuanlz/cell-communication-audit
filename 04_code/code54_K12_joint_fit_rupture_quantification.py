@@ -1,33 +1,33 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-代码54 K1/2 联合拟合：标准 MWC 模型自洽性断裂的定量 v1.0.0
+code54 K1/2 joint fit: quantifying the self-consistency rupture of the standard MWC model v1.0.0
 ================================================
-任务：定量回答"标准 MWC+精确适应模型能否用单组物理参数同时自洽
-Moore 论文的两个统计量——幅值表 R(B,F) 与 K1/2(B) 分布"。
+Task: quantitatively answer "can the standard MWC + exact-adaptation model, with a single set of physical
+parameters, self-consistently reproduce both Moore-paper statistics — the amplitude table R(B,F) and the K1/2(B) distribution".
 
-§1 从原始 .mat 提取逐细胞 K1/2：字段 a（饱和刺激校准 0/1 归一）下，
-   响应 da 按总配体 T=B+F 排序，在 da=0.5 处 log-T 轴线性插值。
-   da 最大值 <0.5 的细胞记为右删失（不敏感细胞，不计入中位数）。
-   K1/2 与幅值表取自同一批原始数据，内部一致性最高。
-§2 联合拟合：参数 (Ki, Ka, N, amax)（log 空间），残差 =
-   幅值残差/std(R) + sqrt(λ)·log10(K1/2预测/实测)/0.5 dex；
-   λ 扫描给出 Pareto 前沿。least_squares 四起点取最优。
+§1 per-cell K1/2 extraction from the raw .mat files: under field a (saturating-stimulus calibrated, 0/1 normalized),
+   responses da are sorted by total ligand T=B+F and linearly interpolated on the log-T axis at da=0.5.
+   Cells whose maximum da < 0.5 are recorded as right-censored (insensitive cells, excluded from the median).
+   K1/2 and the amplitude table come from the same batch of raw data, maximizing internal consistency.
+§2 joint fit: parameters (Ki, Ka, N, amax) (log space); residual =
+   amplitude residual/std(R) + sqrt(lambda)*log10(K1/2 predicted/observed)/0.5 dex;
+   a lambda sweep gives the Pareto front. least_squares with four starts, best kept.
 
-结果（v1.0.0 实跑）：
-  K1/2 中位数：B=0→2.03, 0.01→2.90, 0.1→2.17, 0.3→2.58,
-               1→3.49, 10→13.92, 100→119.56 µM
-  （平段 ~2–3.5 µM（B≤1），之后 ≈K0+1.17·B；B=0 组删失 67% 偏低估）
-  Pareto 前沿：
-    λ=0    幅值R²=0.980, K1/2 误差 0.62 dex（Ki=31, N=39）
-    λ=1    幅值R²=0.831, K1/2 误差 0.22 dex
-    λ=30   幅值R²=0.511, K1/2 误差 0.07 dex（Ki=4.3, N=2.0）
-  前沿陡峭、无可接受折中点（R²>0.9 且 |Δlog10|<0.1 不存在）
-  → 断裂定量坐实。amax 拟合值 1.4–2.7（物理上应≈1）是应变的另一迹象。
+Results (v1.0.0 live run):
+  K1/2 medians: B=0->2.03, 0.01->2.90, 0.1->2.17, 0.3->2.58,
+               1->3.49, 10->13.92, 100->119.56 uM
+  (plateau ~2-3.5 uM (B<=1), then ~K0+1.17*B; the B=0 group is 67% censored, biased low)
+  Pareto front:
+    lambda=0    amplitude R^2=0.980, K1/2 error 0.62 dex (Ki=31, N=39)
+    lambda=1    amplitude R^2=0.831, K1/2 error 0.22 dex
+    lambda=30   amplitude R^2=0.511, K1/2 error 0.07 dex (Ki=4.3, N=2.0)
+  the front is steep with no acceptable compromise point (no point with R^2>0.9 and |dlog10|<0.1)
+  -> the rupture is quantitatively established. Fitted amax 1.4-2.7 (physically should be ~1) is another sign of strain.
 
-数据：Moore 2024 Dryad doi:10.5061/dryad.nvx0k6dzz（CC0）
-运行：python3 代码54_K12联合拟合_断裂度定量.py
-依赖：numpy, scipy, pandas
+Data: Moore 2024 Dryad doi:10.5061/dryad.nvx0k6dzz (CC0)
+Run: python3 code54_K12_joint_fit_rupture_quantification.py
+Dependencies: numpy, scipy, pandas
 """
 
 import os
@@ -55,7 +55,7 @@ FILES = {
 }
 
 # ---------------------------------------------------------------
-# §1 逐细胞 K1/2 提取
+# §1 per-cell K1/2 extraction
 # ---------------------------------------------------------------
 def extract_K12():
     k12 = defaultdict(list)
@@ -98,9 +98,9 @@ def extract_K12():
             D = np.array([good[k] for k in ks])
             if D.max() < 0.5:
                 cens[B] += 1
-                continue            # 右删失：最大刺激未达半幅
+                continue            # right-censored: max stimulus did not reach half amplitude
             if D.min() >= 0.5:
-                continue            # 左删失（罕见）
+                continue            # left-censored (rare)
             i = int(np.argmax(D >= 0.5))
             x0, x1 = np.log10(T[i - 1]), np.log10(T[i])
             y0, y1 = D[i - 1], D[i]
@@ -108,11 +108,11 @@ def extract_K12():
     return k12, cens, tot
 
 # ---------------------------------------------------------------
-# §2 联合拟合
+# §2 joint fit
 # ---------------------------------------------------------------
 ASTAR = 1.0 / 3.0
 LAM = np.log(1.0 / ASTAR - 1.0)
-TGT = np.log(1.0 / (ASTAR / 2) - 1) - LAM   # 活性减半所需 N·Δg
+TGT = np.log(1.0 / (ASTAR / 2) - 1) - LAM   # N*delta-g needed to halve the activity
 
 def gL(L, Ki, Ka):
     return np.log((1 + L / Ki) / (1 + L / Ka))
@@ -129,8 +129,8 @@ def K12_model(B, Ki, Ka, N):
 
 def main():
     k12, cens, tot = extract_K12()
-    print("== §1 逐细胞 K1/2 分布（总配体轴，µM）==")
-    print(f"{'B':>8} {'n估出':>5} {'n删失':>5} {'K1/2中位':>9} {'IQR':>18}")
+    print("== §1 per-cell K1/2 distribution (total-ligand axis, uM) ==")
+    print(f"{'B':>8} {'n_est':>5} {'n_cens':>5} {'K1/2 med':>9} {'IQR':>18}")
     K12_B, K12_obs = [], []
     for B in sorted(set(list(k12) + list(cens))):
         v = np.log10(np.array(k12.get(B, [np.nan])))
@@ -140,7 +140,7 @@ def main():
         print(f"{B:8.2f} {len(k12.get(B, [])):5d} {cens.get(B, 0):5d} "
               f"{med:9.2f}   [{10**q[0]:7.2f},{10**q[1]:7.2f}]")
     K12_B = np.array(K12_B); K12_obs = np.array(K12_obs)
-    print("注：B=0 组删失率高，中位为低估；平段（B≤1）与 ∝B 段（B≥10）结构稳健。")
+    print("note: the B=0 group is heavily censored, so its median is biased low; the plateau (B<=1) and the linear-in-B segment (B>=10) are structurally robust.")
 
     df = pd.read_csv(CSV)
     B_E = df["B_uM"].to_numpy(float); F_E = df["F_uM"].to_numpy(float)
@@ -156,8 +156,8 @@ def main():
         return np.concatenate([ra, np.sqrt(lam) * np.array(rk) / 0.5])
 
     x0 = np.log([2.0, 200.0, 6.0, 1.0])
-    print("\n== §2 联合拟合 Pareto 前沿 ==")
-    print(f"{'λ':>6} {'幅值R²':>7} {'K1/2中位|Δlog10|':>15}  参数")
+    print("\n== §2 joint-fit Pareto front ==")
+    print(f"{'lambda':>6} {'amp R^2':>7} {'K1/2 med|dlog10|':>15}  parameters")
     for lam in [0.0, 0.1, 0.3, 1.0, 3.0, 10.0, 30.0]:
         best = None
         for seed in range(4):
@@ -182,11 +182,11 @@ def main():
               f"Ki={Ki:.1f} Ka={Ka:.0f} N={N:.1f} amax={amax:.2f}")
 
     print("""
-== 结论 ==
-不存在 R²>0.9 且 K1/2 误差 <0.1 dex 的参数点：前沿陡峭，
-顾此失彼 → 标准 MWC 单组参数无法自洽 Moore 的两个统计量，
-断裂定量坐实。amax 拟合值 1.4–2.7（物理上应≈1）为应变迹象。
-下一步：多物种/局部适应模型能否在同一参数下同时自洽两者。
+== Conclusion ==
+No parameter point achieves R^2>0.9 with K1/2 error <0.1 dex: the front is steep,
+so gains on one statistic cost the other -> a single parameter set of standard MWC
+cannot self-consistently reproduce Moore's two statistics; rupture quantitatively established. Fitted amax 1.4-2.7 (should be ~1) is a sign of strain.
+Next step: can a multi-species / local-adaptation model fit both under one parameter set.
 """)
 
 

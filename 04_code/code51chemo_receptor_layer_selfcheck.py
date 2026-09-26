@@ -1,24 +1,24 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-代码51 趋化受体层 框架自检仿真 v1.2.0
+Code 51 chemotaxis receptor layer framework self-check simulation v1.2.0
 ================================================
-v1.0.0：朴素占据核证伪 + 经验核校准 + 分析者归一简并自检。
-v1.1.0：外部审计1（Bug 8：分析者归一=平凡除法）——norm 降级为平凡代数
-  对照；新增 MWC 活性态+甲基化精确适应机制核、细胞自主读数检验、
-  bootstrap CI。核心发现：机制核倍数原生型，与经验增量结构冲突。
-v1.2.0：外部审计2 裁决——
-  接受 警告9（"任何形式"过度推断 → 改为"标准双态自由能差及常见变体"，
-    新增 G4 幂律差、G5 对数比）；
-  接受 问题2/3（适应理想化 → 引入 a* 跨细胞波动 σ_a 与逐测量反馈噪声 σ_m）；
-  驳回 问题4（CI 数值 v1.1.0 已输出，本版补宽度列）；
-  驳回 问题5（R²fit 与坐标 R² v1.1.0 已分列）。
-  另修正对方修订代码的新 bug：a* 跨细胞波动必须每细胞抽一次
-  （跨 5 个前景水平固定），σ_m 才是逐测量噪声；对方的实现把 σ_a
-  也逐测量抽取，破坏了细胞身份。
+v1.0.0: naive occupancy kernel falsification + empirical kernel calibration + analyst-normalization degeneracy self-check.
+v1.1.0: external audit 1 (Bug 8: analyst normalization = trivial division) — norm downgraded to a trivial-algebra
+  control; added MWC active-state + methylation exact-adaptation mechanism kernel, cell-autonomous readout test,
+  bootstrap CI. Core finding: the mechanism kernel is fold-native, conflicting with the empirical increment structure.
+v1.2.0: external audit 2 ruling —
+  accepted warning 9 (over-generalization of "any form" → changed to "standard two-state free-energy difference and common variants",
+    added G4 power-law difference, G5 log ratio);
+  accepted issues 2/3 (adaptation idealization → introduced a* cross-cell fluctuation σ_a and per-measurement feedback noise σ_m);
+  rejected issue 4 (CI values already output in v1.1.0; this version adds a width column);
+  rejected issue 5 (R²fit and coordinate R² were already split into separate columns in v1.1.0).
+  Also fixed a new bug in the reviewer's revision code: the a* cross-cell fluctuation must be drawn once per cell
+  (fixed across the 5 foreground levels), while σ_m is the per-measurement noise; their implementation drew σ_a
+  per measurement as well, destroying cell identity.
 
-运行：python3 代码51_趋化受体层_框架自检仿真.py
-依赖：numpy, scipy, pandas
+Run: python3 代码51_趋化receptor层_框架自检仿真.py
+Dependencies: numpy, scipy, pandas
 """
 
 import numpy as np
@@ -29,18 +29,18 @@ from scipy.stats import linregress
 rng = np.random.default_rng(20260815)
 
 # ---------------------------------------------------------------
-# 第 0 部分：经验校准目标（P7 勘误重裁单元表，30 单元，真实文件）
+# Part 0: empirical calibration target (P7 erratum re-adjudicated unit table, 30 units, real file)
 # ---------------------------------------------------------------
-CSV = "/mnt/agents/output/03_细胞线3/结果/P7_Moore2024_FCD-Weber/代码49b_单元表.csv"
+CSV = "/mnt/agents/output/03_细胞线3/结果/P7_Moore2024_FCD-Weber/代码49b_单元table.csv"
 _df = pd.read_csv(CSV)
 B_E = _df["B_uM"].to_numpy(float)
 F_E = _df["F_uM"].to_numpy(float)
 R_E = _df["R_a"].to_numpy(float)
-assert len(_df) == 30, "单元表应为 30 行"
+assert len(_df) == 30, "unit table should have 30 rows"
 
 
 def r2(x, y):
-    """一维线性回归 R²；退化返回 nan。"""
+    """1-D linear regression R²; returns nan on degenerate input."""
     m = np.isfinite(x) & np.isfinite(y)
     if m.sum() < 3 or np.std(x[m]) == 0 or np.std(y[m]) == 0:
         return float("nan")
@@ -48,9 +48,9 @@ def r2(x, y):
 
 
 # ---------------------------------------------------------------
-# 第 1 部分：朴素 MWC 占据增量核 —— 诚实失败
+# Part 1: naive MWC occupancy increment kernel — honest failure
 # ---------------------------------------------------------------
-KD = 1.0  # µM，假设值
+KD = 1.0  # µM, hypothesized value
 
 def theta(L):
     return L / (KD + L)
@@ -59,15 +59,15 @@ def kernel_naive(B, F):
     return theta(B + F) - theta(B)
 
 pred_naive = kernel_naive(B_E, F_E)
-print("== 朴素 MWC 占据增量核 ==")
-print(f"R²(logF)  = {r2(np.log10(F_E), pred_naive):.3f}   (经验 0.652)")
-print(f"R²(logr)  = {r2(np.log10(F_E / B_E), pred_naive):.3f}   (经验 0.082)")
-print(f"R²(logT)  = {r2(np.log10(B_E + F_E), pred_naive):.3f}   (经验 0.172)")
-print(f"高背景截断检验：B=100,F=40 预测 {kernel_naive(100, 40):.4f} vs 经验 0.424"
-      f"（占据饱和截断过度 → 朴素核被证伪）")
+print("== Naive MWC occupancy increment kernel ==")
+print(f"R²(logF)  = {r2(np.log10(F_E), pred_naive):.3f}   (empirical 0.652)")
+print(f"R²(logr)  = {r2(np.log10(F_E / B_E), pred_naive):.3f}   (empirical 0.082)")
+print(f"R²(logT)  = {r2(np.log10(B_E + F_E), pred_naive):.3f}   (empirical 0.172)")
+print(f"High-background truncation test: B=100,F=40 prediction {kernel_naive(100, 40):.4f} vs empirical 0.424"
+      f" (occupancy saturation over-truncates → naive kernel falsified)")
 
 # ---------------------------------------------------------------
-# 第 2 部分：校准经验核 + bootstrap CI
+# Part 2: calibrated empirical kernel + bootstrap CI
 # ---------------------------------------------------------------
 def kernel_cal(X, A, Fc, Bs, p):
     B, F = X
@@ -81,11 +81,11 @@ A, Fc, Bs, p = popt
 pred_cal = kernel_cal((B_E, F_E), *popt)
 ss_res = np.sum((R_E - pred_cal) ** 2)
 ss_tot = np.sum((R_E - R_E.mean()) ** 2)
-print("\n== 校准经验核 ==")
+print("\n== Calibrated empirical kernel ==")
 print(f"R = {A:.3f} * log10(F/{Fc:.3f} µM) / (1 + (B/{Bs:.1f})^({p:.2f}))")
-print(f"对 30 单元 R² = {1 - ss_res / ss_tot:.3f}")
+print(f"R² over 30 units = {1 - ss_res / ss_tot:.3f}")
 
-print("\n== 经验核参数 bootstrap 95% CI（500 次重采样）==")
+print("\n== Empirical kernel parameter bootstrap 95% CI (500 resamples) ==")
 boots = []
 for _ in range(500):
     idx = rng.integers(0, 30, 30)
@@ -99,11 +99,11 @@ for _ in range(500):
 boots = np.array(boots)
 for nm, i in zip(["A", "Fc", "Bs", "p"], range(4)):
     lo, hi = np.percentile(boots[:, i], [2.5, 97.5])
-    print(f"{nm}: 点估计 {popt[i]:.3f}  95%CI [{lo:.3f}, {hi:.3f}]  宽度 {hi - lo:.3f}")
-print("解读：Fc CI 窄（II 类锚点稳定）；Bs/p CI 宽（30 单元不足以精确约束衰减）。")
+    print(f"{nm}: point estimate {popt[i]:.3f}  95%CI [{lo:.3f}, {hi:.3f}]  width {hi - lo:.3f}")
+print("Interpretation: Fc CI is narrow (stable class-II anchor point); Bs/p CIs are wide (30 units insufficient to precisely bound the decay).")
 
 # ---------------------------------------------------------------
-# 第 3 部分：简并自检 v1 —— 分析者归一（平凡代数对照，非机制证据）
+# Part 3: degeneracy self-check v1 — analyst normalization (trivial-algebra control, not mechanistic evidence)
 # ---------------------------------------------------------------
 BGS = {0.01: [0.2, 0.5, 1.09, 2.09, 4.09],
        0.1:  [0.2, 0.5, 1, 2, 4],
@@ -123,7 +123,7 @@ def run_sweep_analyst(sigma_k, n_cell=300):
             for F in fs:
                 r_true = kernel_cal((B, F), *popt)
                 amps.append(k * r_true + B_OFF + rng.normal(0, 0.01))
-                amps_n.append(k * r_true + rng.normal(0, 0.01))  # 注：同时去掉了 b
+                amps_n.append(k * r_true + rng.normal(0, 0.01))  # note: b is removed here as well
             mx = max(amps_n)
             for F, a, an in zip(fs, amps, amps_n):
                 rows.append((B, F, a, an / mx))
@@ -138,8 +138,8 @@ def run_sweep_analyst(sigma_k, n_cell=300):
     return out
 
 
-print("\n== 简并自检 v1：分析者归一（平凡代数对照，非机制证据）==")
-print(f"{'sigma_k':>8} | {'raw 原始幅值':^28} | {'norm 分析者归一':^28}")
+print("\n== Degeneracy self-check v1: analyst normalization (trivial-algebra control, not mechanistic evidence) ==")
+print(f"{'sigma_k':>8} | {'raw raw amplitude':^28} | {'norm analyst-normalized':^28}")
 for sk in (0.0, 0.3, 0.6):
     res = run_sweep_analyst(sk)
     print(f"{sk:8.1f} | "
@@ -147,9 +147,9 @@ for sk in (0.0, 0.3, 0.6):
           f"{res['norm_analyst'][0]:.3f}, {res['norm_analyst'][1]:.3f}, {res['norm_analyst'][2]:.3f}")
 
 # ---------------------------------------------------------------
-# 第 4 部分：MWC 活性态 + 甲基化精确适应机制核（形状检验，无噪声）
+# Part 4: MWC active-state + methylation exact-adaptation mechanism kernel (shape test, no noise)
 # ---------------------------------------------------------------
-ASTAR = 1.0 / 3.0   # 假设：kR/(kR+kB)
+ASTAR = 1.0 / 3.0   # hypothesis: kR/(kR+kB)
 LAM = np.log(1.0 / ASTAR - 1.0)
 
 def g_std(L, Ki, Ka):
@@ -158,7 +158,7 @@ def g_std(L, Ki, Ka):
 def da_mech(B, F, N, Ki, Ka):
     return ASTAR - 1.0 / (1.0 + np.exp(LAM + N * (g_std(B + F, Ki, Ka) - g_std(B, Ki, Ka))))
 
-print("\n== MWC+BL 机制核：参数扫描（形状能否长出经验核？无噪声）==")
+print("\n== MWC+BL mechanism kernel: parameter scan (can the shape grow the empirical kernel? no noise) ==")
 best = None
 for Ki in [0.05, 0.1, 0.2, 0.5, 1.0, 2.0]:
     for Ka in [5, 20, 50, 200]:
@@ -174,31 +174,31 @@ for Ki in [0.05, 0.1, 0.2, 0.5, 1.0, 2.0]:
                 best = (ss, Ki, Ka, N,
                         r2(np.log10(F_E), pv), r2(np.log10(F_E / B_E), pv),
                         r2(np.log10(B_E + F_E), pv))
-print(f"最优：R²fit={best[0]:.3f}, Ki={best[1]}, Ka={best[2]}, N={best[3]}")
-print(f"坐标可分性 logF/logr/logT = {best[4]:.3f}/{best[5]:.3f}/{best[6]:.3f}"
-      f"（经验 0.652/0.082/0.172）→ 倍数原生型，被经验表证伪")
+print(f"Best: R²fit={best[0]:.3f}, Ki={best[1]}, Ka={best[2]}, N={best[3]}")
+print(f"Coordinate separability logF/logr/logT = {best[4]:.3f}/{best[5]:.3f}/{best[6]:.3f}"
+      f" (empirical 0.652/0.082/0.172) → fold-native, falsified by the empirical table")
 
-print("\n== 标准双态自由能差形式及常见变体（警告9修正：不再称'任何'）==")
+print("\n== Standard two-state free-energy difference forms and common variants (warning-9 fix: no longer claiming 'any') ==")
 def test_form(name, dg):
     sc = (dg * R_E).sum() / (dg * dg).sum()
     ss = 1 - ((sc * dg - R_E) ** 2).sum() / ((R_E - R_E.mean()) ** 2).sum()
     print(f"{name}: R²fit={ss:7.3f}  logF={r2(np.log10(F_E), dg):.3f} "
           f"logr={r2(np.log10(F_E / B_E), dg):.3f} logT={r2(np.log10(B_E + F_E), dg):.3f}")
 
-test_form("G1 双态差(Ki=2,Ka=200)    ", g_std(B_E + F_E, 2, 200) - g_std(B_E, 2, 200))
-test_form("G2 移位增量 ln(1+F/(0.17+B))", np.log(1 + F_E / (0.17 + B_E)))
-test_form("G2 移位增量 ln(1+F/(1+B))  ", np.log(1 + F_E / (1 + B_E)))
-test_form("G3 纯增量 ln(F/0.168)      ", np.log(F_E / 0.168))
-test_form("G4 幂律差 (B+F)^0.5-B^0.5   ", (B_E + F_E) ** 0.5 - B_E ** 0.5)
-test_form("G5 对数比 log10((B+F)/B)    ", np.log10((B_E + F_E) / B_E))
+test_form("G1 two-state diff (Ki=2,Ka=200)", g_std(B_E + F_E, 2, 200) - g_std(B_E, 2, 200))
+test_form("G2 shifted increment ln(1+F/(0.17+B))", np.log(1 + F_E / (0.17 + B_E)))
+test_form("G2 shifted increment ln(1+F/(1+B))  ", np.log(1 + F_E / (1 + B_E)))
+test_form("G3 pure increment ln(F/0.168)      ", np.log(F_E / 0.168))
+test_form("G4 power-law diff (B+F)^0.5-B^0.5  ", (B_E + F_E) ** 0.5 - B_E ** 0.5)
+test_form("G5 log ratio log10((B+F)/B)   ", np.log10((B_E + F_E) / B_E))
 
 # ---------------------------------------------------------------
-# 第 5 部分：细胞自主读数 Δa 幸存检验（含适应噪声，v1.2.0 修正版）
-#   σ_N：受体簇大小跨细胞简并（每细胞一次）
-#   σ_a：a* 跨细胞波动（每细胞一次，跨 5 水平固定 —— 细胞身份）
-#   σ_m：甲基化反馈/基线估计噪声（逐测量）
-#   读数 Δa = a_base - a_inst：基线为细胞适应后稳态活性（含噪），
-#   细胞可获得性假设：细胞只能从自身适应后活性读基线，无分析者归一。
+# Part 5: cell-autonomous readout Δa survival test (with adaptation noise, v1.2.0 fixed version)
+#   σ_N: receptor-cluster magnitude cross-cell degeneracy (drawn once per cell)
+#   σ_a: a* cross-cell fluctuation (drawn once per cell, fixed across the 5 levels — cell identity)
+#   σ_m: methylation feedback/baseline estimation noise (per measurement)
+#   readout Δa = a_base - a_inst: the baseline is the cell's steady-state activity after adaptation (noisy),
+#   cell-availability hypothesis: a cell can only read the baseline from its own post-adaptation activity; no analyst normalization.
 # ---------------------------------------------------------------
 KI_M, KA_M = 2.0, 200.0
 
@@ -206,39 +206,39 @@ def sweep_autonomous(sN, sa, sm, n_cell=300):
     rows = []
     for B, fs in BGS.items():
         for _ in range(n_cell):
-            N = 6 * np.exp(rng.normal(0, sN))                 # 细胞属性
-            a_star_cell = ASTAR * np.exp(rng.normal(0, sa))   # 细胞属性：每细胞一次
+            N = 6 * np.exp(rng.normal(0, sN))                 # cell attribute
+            a_star_cell = ASTAR * np.exp(rng.normal(0, sa))   # cell attribute: drawn once per cell
             lam_cell = np.log(1.0 / a_star_cell - 1.0)
             for F in fs:
                 a_inst = 1.0 / (1.0 + np.exp(
                     lam_cell + N * (g_std(B + F, KI_M, KA_M) - g_std(B, KI_M, KA_M))))
-                a_base = a_star_cell + rng.normal(0, sm)       # 逐测量噪声
+                a_base = a_star_cell + rng.normal(0, sm)       # per-measurement noise
                 rows.append((B, F, a_base - a_inst + rng.normal(0, 0.005)))
     A3 = np.array(rows)
     Bv, Fv, y = A3[:, 0], A3[:, 1], A3[:, 2]
     return (r2(np.log10(Fv), y), r2(np.log10(Fv / Bv), y),
             r2(np.log10(Bv + Fv), y))
 
-print("\n== 简并自检 v2.1：细胞自主读数 Δa（a* 每细胞固定，σ_m 逐测量）==")
+print("\n== Degeneracy self-check v2.1: cell-autonomous readout Δa (a* fixed per cell, σ_m per measurement) ==")
 print(f"{'σ_N':>4} {'σ_a':>4} {'σ_m':>4} | logF   logr   logT")
 for sN in (0.0, 0.3, 0.6):
     for sa, sm in [(0.0, 0.0), (0.05, 0.05), (0.15, 0.05)]:
         t = sweep_autonomous(sN, sa, sm)
         print(f"{sN:4.1f} {sa:4.2f} {sm:4.2f} | {t[0]:.3f}  {t[1]:.3f}  {t[2]:.3f}")
-print("读法：反馈钉住基线（适应噪声温和降低幸存），幸存坐标为倍数（logr），")
-print("与经验增量结构（logF 0.652）冲突的定位结论不变。")
+print("Reading: feedback pins the baseline (adaptation noise mildly reduces survival), the surviving coordinate is the fold (logr),")
+print("and the conclusion that it conflicts with the empirical increment structure (logF 0.652) is unchanged.")
 
 print("""
-== v1.2.0 总结 ==
-1. 朴素占据核证伪。
-2. 经验核 R²=0.94；Fc CI 窄（稳定 II 类锚点），Bs/p CI 宽。
-3. 分析者归一 = 平凡代数对照（Bug 8 降级维持）。
-4. 标准双态自由能差及常见变体（G1/G2/G4/G5）均为倍数原生或混合型，
-   未能复现经验增量结构；最接近的 G3 是纯绝对增量、非"差"形式。
-   （措辞收敛：不再声称"任何"形式。）
-5. 甲基化反馈钉住基线：细胞自主读数在 N 简并 + 适应噪声下幸存性
-   温和下降（logr 0.575→0.36），幸存坐标仍为倍数——"付费钉住"
-   机制成立，保全对象是该层 native 统计量。
-6. 经验增量结构来源待定位：下游层生成 / P7 regime / 协议因素；
-   与 Lazova 2011（趋化 FCD）的张力需正视。
+== v1.2.0 summary ==
+1. Naive occupancy kernel falsified.
+2. Empirical kernel R²=0.94; Fc CI narrow (stable class-II anchor point), Bs/p CI wide.
+3. Analyst normalization = trivial-algebra control (Bug 8 downgrade maintained).
+4. Standard two-state free-energy differences and common variants (G1/G2/G4/G5) are all fold-native or mixed,
+   failing to reproduce the empirical increment structure; the closest, G3, is a pure absolute increment, not a "difference" form.
+   (Wording converged: no longer claiming "any" form.)
+5. Methylation feedback pins the baseline: the cell-autonomous readout survives under N degeneracy + adaptation noise
+   with mild decay (logr 0.575→0.36); the surviving coordinate is still the fold — the "paid pinning"
+   mechanism holds, and what is preserved is this layer's native statistic.
+6. The source of the empirical increment structure remains to be localized: downstream-layer generation / P7 regime / protocol factors;
+   the tension with Lazova 2011 (chemotaxis FCD) must be faced.
 """)

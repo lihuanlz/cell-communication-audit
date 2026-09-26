@@ -1,15 +1,15 @@
 # -*- coding: utf-8 -*-
 """
-代码89：p53 通路分子层常数分解检验
-问题：涌现常数（K1 周期 5.5h / K3 MDM2 滞后 2h / K4 Wip1 延迟 1.25h）
-      能否分解为分子层常数（转录延迟、各级寿命、环路相位和）？
-方法：
-  T1 K3 分解：滞后 = 转录延迟 + arctan 相位滞后(mdm2 mRNA) + arctan 相位滞后(Mdm2 蛋白)
-  T2 K4 分解：同上，wip1 支路
-  T3 K1 分解：Mönke 2025 六方程在 S=0.499 定点数值 Jacobian，主不稳定对 omega -> T_pred，
-              相位和条件 sum arctan(omega/|J_ii|) vs pi，逐物种相位份额
-  T4 Fisher 交叉：代码82 最 stiff 方向（Wip1 产生轴）对照本卡分子闭合状态
-纪律：确定性（无随机数），种子标记 20260925；JSON + PNG/SVG + 判词卡。
+Code 89: p53-pathway molecular-level constant decomposition test
+Question: can the emergent constants (K1 period 5.5h / K3 MDM2 lag 2h / K4 Wip1 delay 1.25h)
+      be decomposed into molecular-level constants (transcription delay, stage lifetimes, loop phase sum)?
+Method:
+  T1 K3 decomposition: lag = transcription delay + arctan phase lag (mdm2 mRNA) + arctan phase lag (Mdm2 protein)
+  T2 K4 decomposition: same, wip1 branch
+  T3 K1 decomposition: numerical Jacobian of the Mönke 2025 six equations at the S=0.499 fixed point, leading
+              unstable pair omega -> T_pred; phase-sum condition sum arctan(omega/|J_ii|) vs pi, per-species phase shares
+  T4 Fisher cross: code82's stiffest direction (Wip1 production axis) against this card's molecular closure status
+Discipline: deterministic (no random numbers), seed tag 20260925; JSON + PNG/SVG + verdict card.
 """
 import json
 import numpy as np
@@ -30,12 +30,12 @@ plt.rcParams.update({
     "axes.spines.right": False,
 })
 
-# ---------------- 分子层常数（本轮文献检索，出处见登记表 v02） ----------------
-TAU_TRANSCR = 0.5          # h, Mdm2 转录延迟：延伸 20 nt/s ~25 min + 剪接 5 min (Wang 2019 综述表)
-TAU_TRANSL = 0.17          # h, 翻译 4 aa/s ~2 min + 核进出各 ~4 min (Wang 2019)
-OMEGA = 2 * np.pi / 5.5    # rad/h, 以归档周期 5.5 h 评估相位滞后
+# ---------------- Molecular-level constants (this round's literature search; sources in registry v02) ----------------
+TAU_TRANSCR = 0.5          # h, Mdm2 transcription delay: elongation 20 nt/s ~25 min + splicing 5 min (Wang 2019 review table)
+TAU_TRANSL = 0.17          # h, translation 4 aa/s ~2 min + nuclear import/export ~4 min each (Wang 2019)
+OMEGA = 2 * np.pi / 5.5    # rad/h, phase lags evaluated at the archived 5.5 h period
 
-# Mönke 2025 参数（勘误版，机制模型方程与参数表_2026-09-23.md）
+# Mönke 2025 parameters (errata version, 机制模型方程与参数表_2026-09-23.md)
 PAR = dict(A=30.5, P=22.0, C=1.4, g=2.5, dAM=20.0,
            Tm=1.2, TM=4.0, Tw=1.2, TW=1.0,
            dA=0.16, dP=0.1, dm=1.0, dM=2.0, dw=1.3, dW=2.3,
@@ -69,13 +69,13 @@ def jacobian(x, S, h=1e-7):
 
 
 def phase_lag(rate):
-    """一阶环节在角频率 OMEGA 下的等效时间滞后 arctan(omega/rate)/omega。"""
+    """Equivalent time lag arctan(omega/rate)/omega of a first-order stage at angular frequency OMEGA."""
     return np.arctan(OMEGA / rate) / OMEGA
 
 
 res = {"seed": SEED_TAG, "omega_rad_per_h": OMEGA}
 
-# ---------------- T1：K3 分解（p53 -> MDM2 蛋白滞后，实测 2 +/- 0.5 h） ----------------
+# ---------------- T1: K3 decomposition (p53 -> MDM2 protein lag, measured 2 +/- 0.5 h) ----------------
 lag_mdm2_mrna = phase_lag(PAR["dm"])
 lag_mdm2_prot = phase_lag(PAR["dM"])
 K3_pred = TAU_TRANSCR + lag_mdm2_mrna + lag_mdm2_prot
@@ -89,10 +89,10 @@ res["T1_K3_mdm2_lag"] = dict(
     predicted_naive_sum_of_lifetimes_h=float(K3_pred_naive),
     closes=bool(abs(K3_pred - 2.0) <= 0.5))
 
-# ---------------- T2：K4 分解（p53 -> Wip1 诱导延迟，模型值 1.25 h） ----------------
+# ---------------- T2: K4 decomposition (p53 -> Wip1 induction delay, model value 1.25 h) ----------------
 lag_wip1_mrna = phase_lag(PAR["dw"])
 lag_wip1_prot = phase_lag(PAR["dW"])
-K4_pred = TAU_TRANSCR + lag_wip1_mrna  # Batchelor τi 定义到 wip1 诱导，蛋白翻译短
+K4_pred = TAU_TRANSCR + lag_wip1_mrna  # Batchelor τi defined up to wip1 induction; protein translation is short
 K4_pred_naive = TAU_TRANSCR + 1 / PAR["dw"]
 res["T2_K4_wip1_delay"] = dict(
     target_h=1.25,
@@ -101,7 +101,7 @@ res["T2_K4_wip1_delay"] = dict(
     predicted_naive_h=float(K4_pred_naive),
     closes=bool(abs(K4_pred - 1.25) <= 0.25))
 
-# ---------------- T3：K1 分解（周期 5.5 h，环路 Jacobian 相位和） ----------------
+# ---------------- T3: K1 decomposition (period 5.5 h, loop Jacobian phase sum) ----------------
 DSB = 100.0
 S = PAR["Smax"] * np.log(DSB / PAR["gam"] + 1)
 x0 = np.array([0.5, 1.0, 0.5, 0.5, 0.5, 0.5])
@@ -127,7 +127,7 @@ res["T3_K1_period"] = dict(
     per_species_phase={SPECIES[i]: float(phases[i]) for i in range(6)},
     per_species_phase_share={SPECIES[i]: float(phases[i] / phase_sum) for i in range(6)})
 
-# ---------------- T4：Fisher 刚性轴 x 分子闭合交叉 ----------------
+# ---------------- T4: Fisher stiff axis x molecular closure cross-check ----------------
 res["T4_fisher_cross"] = dict(
     code82_stiffest_axis="Wip1 production axis (Tw 0.27 + TW 0.26 + P 0.11 + dW 0.10)",
     molecular_closure=dict(
@@ -138,7 +138,7 @@ res["T4_fisher_cross"] = dict(
     reading="数据钉得最死的方向，恰恰一半是分子常数（TW/dW 可测），一半是缺口（Tw/P）；"
             "代码82 预言2 的实验优先级在分子层得到独立支持。")
 
-# ---------------- 图：四面体 ----------------
+# ---------------- Figure: four-panel ----------------
 fig, axes = plt.subplots(2, 2, figsize=(10, 7.2))
 
 ax = axes[0, 0]

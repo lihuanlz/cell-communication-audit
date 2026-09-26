@@ -1,43 +1,43 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-代码60 异质群体 + 删失统计：断裂是否为统计结构？v1.0.0
+code60 heterogeneous population + censoring statistics: is the rupture a statistical artifact? v1.0.0
 ================================================
-动机（§20）：断裂锐化为"K1/2 要 N≈2–4、幅值要 N≈12–39"的协同数冲突。
-但两个统计量采样不同亚群：K1/2 中位只由最敏感细胞贡献（各档 45–68%
-右删失），幅值表是全体中位。若 Ki/N/a* 有细胞间散差，单一物理参数集
-或许能同时长出两条统计曲线——断裂可能只是异质性+删失的统计结构。
+Motivation (sec.20): the rupture sharpens into a cooperativity conflict — "K1/2 wants N~2-4, amplitude wants N~12-39".
+But the two statistics sample different subpopulations: the K1/2 median comes only from the most sensitive
+cells (45-68% right-censored per level), while the amplitude table is the all-cell median. If Ki/N/a* carry
+cell-to-cell dispersion, one parameter set might grow both curves — the rupture may be pure statistics.
 
-方法：标准 MWC+精确适应，逐细胞对数正态散差（Ki、N、a*），模拟
-Moore 协议（7 背景档 × 各档前景水平 × 实测相近细胞数），用与实测
-**完全相同**的提取流程（全体中位 → 幅值表；逐细胞 log 轴插值 + 删失
-规则 → K1/2），Nelder-Mead 联合优化 (Ki,Ka,N,amax,σK,σN[,σa*])。
+Method: standard MWC + exact adaptation, per-cell lognormal dispersion (Ki, N, a*), simulating the
+Moore protocol (7 background levels x per-level foreground doses x near-observed cell counts), using the
+**identical** extraction pipeline as the measurements (all-cell median -> amplitude table; per-cell log-axis
+interpolation + censoring rules -> K1/2), with Nelder-Mead joint optimization of (Ki,Ka,N,amax,sK,sN[,sa*]).
 
-实跑结果（v1.0.0 独立运行确认；目标函数含模拟噪声，
-Ki/Ka/N 数值在不同种子间有 ~20% 晃动，结论不变）：
-  变体1（σK,σN，无 a* 散差）：幅值 R²=0.946，K1/2 err=0.179 dex。
-    与 M2c（0.953/0.182）持平，未进接受区；B=100 模拟 34 vs 实测 120。
-  变体2（加 σa*）：R²=0.870，err=0.262 dex，**σa*→0.11**
-    （优化器主动把 a* 异质性调小——方向与假设相反）。
-  文献参数基线（Ki=0.81,N=6）：幅值 R²≈−1，任何散差组合都救不回。
+Live-run results (confirmed by an independent v1.0.0 run; the objective carries simulation noise,
+so Ki/Ka/N values wobble ~20% across seeds; conclusions unchanged):
+  variant 1 (sK,sN, no a* dispersion): amplitude R^2=0.946, K1/2 err=0.179 dex.
+    On par with M2c (0.953/0.182), not in the acceptance zone; B=100 simulated 34 vs observed 120.
+  variant 2 (adding sa*): R^2=0.870, err=0.262 dex, **sa* -> 0.11**
+    (the optimizer actively shrinks the a* heterogeneity — opposite to the hypothesized direction).
+  literature-parameter baseline (Ki=0.81,N=6): amplitude R^2 ~ -1; no dispersion combination rescues it.
 
-判定：
-1. 异质性+删失**不能闭合断裂**（在相当大的搜索范围内无接受区信号；
-   优化器甚至倾向于调小异质性——方向相反）。
-2. 但暴露一个对**实测统计量本身**的重要警告：B=0 与 B=100 档的
-   实测 K1/2 来自"勉强跨过 0.5"的细胞尾部（单元表中位最大 da 仅
-   0.44–0.48），其 Weber 线 c≈1.17 的完美程度部分反映尾部选择。
-   → K1/2 统计量是尾部统计量，与全体中位的幅值表本来就不对称；
-     任何后续联合建模都必须显式建模两个统计量的采样总体。
-3. 断裂维持：同一物理参数集无法同时自洽两个统计量；现在连
-   "两个统计量采了不同亚群"这条统计路径也试过了（未闭合）。
+Verdict:
+1. Heterogeneity + censoring **cannot close the rupture** (no acceptance-zone signal over a sizable
+   search range; the optimizer even prefers shrinking heterogeneity — opposite direction).
+2. But it exposes an important warning about the **measured statistics themselves**: the measured
+   K1/2 at B=0 and B=100 comes from the tail of cells "barely crossing 0.5" (in the unit table the
+   maximum median da is only 0.44-0.48), so the perfection of its Weber line c~1.17 partly reflects tail selection.
+   -> The K1/2 statistic is a tail statistic, inherently asymmetric to the all-cell-median amplitude
+     table; any future joint modeling must explicitly model the sampling populations of both statistics.
+3. Rupture upheld: one physical parameter set cannot self-consistently reproduce both statistics; and now
+   even the path "the two statistics sample different subpopulations" has been tried (not closed).
 
-注：仿真为解析式（无 ODE），目标函数含模拟噪声，优化深度有限；
-此处报告的是多轮（12 起点 × 150 评估）搜索的稳定结论。
+Note: the simulation is analytic (no ODE), the objective carries simulation noise, and optimization
+depth is limited; reported here are the stable conclusions of a multi-round search (12 starts x 150 evaluations).
 
-数据：Moore 2024 Dryad doi:10.5061/dryad.nvx0k6dzz（CC0）
-运行：python3 代码60_异质群体删失统计检验.py（约数分钟）
-依赖：numpy, scipy, pandas；同目录代码54
+Data: Moore 2024 Dryad doi:10.5061/dryad.nvx0k6dzz (CC0)
+Run: python3 code60_heterogeneous_population_censoring_test.py (a few minutes)
+Dependencies: numpy, scipy, pandas; code54 in the same directory
 """
 
 import importlib.util
@@ -52,7 +52,7 @@ warnings.filterwarnings("ignore")
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 spec = importlib.util.spec_from_file_location(
-    "c54", os.path.join(HERE, "代码54_K12联合拟合_断裂度定量.py"))
+    "c54", os.path.join(HERE, "code54_K12_joint_fit_rupture_quantification.py"))
 c54 = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(c54)
 
@@ -130,7 +130,7 @@ def main():
                       for B in obs_k12 if B in k12s]) / 0.25
         return ra + lam * rk
 
-    for with_sA, tag in [(False, "变体1（σK,σN）"), (True, "变体2（+σa*）")]:
+    for with_sA, tag in [(False, "variant 1 (sK,sN)"), (True, "variant 2 (+sa*)")]:
         best = None
         for i in range(4):
             x0 = np.log([15, 500, 12, 1.6, 0.7, 0.3] + ([0.4] if with_sA else [])) \
@@ -153,17 +153,17 @@ def main():
         errs = [abs(np.log10(k12s[B] / obs_k12[B])) for B in obs_k12 if B in k12s]
         print(f"== {tag}: Ki={Ki:.2f}, Ka={Ka:.0f}, N={N:.1f}, amax={amax:.2f}, "
               f"σK={sK:.2f}, σN={sN:.2f}, σa*={sA:.2f}")
-        print(f"   幅值R²={r2:.3f}, K1/2 err={np.mean(errs):.3f} dex")
+        print(f"   amplitude R^2={r2:.3f}, K1/2 err={np.mean(errs):.3f} dex")
         for B in sorted(obs_k12):
-            print(f"   B={B:7.2f}: 模拟 {k12s.get(B, float('nan')):8.2f} vs 实测 {obs_k12[B]:8.2f}")
+            print(f"   B={B:7.2f}: simulated {k12s.get(B, float('nan')):8.2f} vs observed {obs_k12[B]:8.2f}")
 
     print("""
-== 总结 ==
-异质性+删失两变体均不能闭合断裂（最优 0.946/0.170，与 M2c 持平；
-优化器主动调小 σa*）。断裂维持。
-附带警告：B=0/B=100 的实测 K1/2 是尾部统计量（单元表最大 da 仅
-0.44–0.48，可估细胞来自噪声与上尾辅助），其 Weber 完美度部分反映
-选择效应；后续联合建模必须显式区分两个统计量的采样总体。
+== Summary ==
+Neither heterogeneity+censoring variant closes the rupture (best 0.946/0.170, on par with M2c;
+the optimizer actively shrinks sa*). Rupture upheld.
+Additional warning: the measured K1/2 at B=0/B=100 is a tail statistic (unit-table maximum da only
+0.44-0.48; estimable cells come from noise and upper-tail assistance), so its Weber perfection partly
+reflects selection effects; future joint modeling must explicitly separate the two sampling populations.
 """)
 
 if __name__ == "__main__":

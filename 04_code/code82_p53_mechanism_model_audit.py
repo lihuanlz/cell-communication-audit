@@ -1,37 +1,37 @@
 # -*- coding: utf-8 -*-
 """
-代码82：Mönke 2017 p53 机制模型审计（23 参数 Fisher / 简并群 / 时间-幅度通道 / 7 靶标开庭）
+Code 82: Mönke 2017 p53 mechanism-model audit (23-parameter Fisher / sloppy spectrum / time-amplitude channels / 7 validation targets)
 ===================================================================================
-日期：2026-09-23 ｜ 种子固定：20260923 ｜ 运行预算：数分钟
+Date: 2026-09-23 | seed fixed: 20260923 | run budget: a few minutes
 
-权威输入：
-  - 03_细胞线3/文献参数/机制模型方程与参数表_2026-09-23.md（23 参数表，2025 改版 Tm=Tw=1.2）
-  - 03_细胞线3/文献参数/monke2017_supp/srep46571-s1.pdf（方程排版核对，第 5 页 Eq.3）
+Authoritative inputs:
+  - 03_细胞线3/文献参数/机制模型方程与参数表_2026-09-23.md (23-parameter table, 2025 revision Tm=Tw=1.2)
+  - 03_细胞线3/文献参数/monke2017_supp/srep46571-s1.pdf (equation typesetting check, page 5 Eq.3)
 
-!!! 方程勘误（相对存档 md，已对照补充材料 PDF 第 5 页渲染图逐字核对） !!!
-  E1: ATM 自激活 Hill 项分母为 (1 + ATM*^2/k_A)，不是 (1 + ATM*^2/k_A^2)。
-      PDF 高倍渲染图：分母印的是 k_A（无平方）。
-  E2: p53 的 ATM* 保护因子为 (1 + R/(1+ATM*))，不是 1/(1+R*ATM*)。
-      即 ATM*=0 时 Mdm2 降解效力 (1+R)g，ATM* 高时降到 g。
-  两处勘误的动态后果：勘误前模型在任何恒定 S 下都不振荡（稳定螺旋），
-  与原文 Fig 3/S5 及 2025 论文 EV6C 矛盾；勘误后恒定 S>S_c≈0.07 进入持续振荡，
-  S≈1.1 处振荡熄灭（上 Hopf），与两篇文献全部定性行为一致。
+!!! Equation errata (relative to the archived md; verified character by character against the rendered figure on page 5 of the supplementary PDF) !!!
+  E1: the denominator of the ATM auto-activation Hill term is (1 + ATM*^2/k_A), not (1 + ATM*^2/k_A^2).
+      High-magnification PDF rendering: the printed denominator is k_A (no square).
+  E2: the ATM* protection factor of p53 is (1 + R/(1+ATM*)), not 1/(1+R*ATM*).
+      I.e. at ATM*=0 the Mdm2 degradation efficacy is (1+R)g, dropping to g at high ATM*.
+  Dynamic consequences of the two errata: before the correction the model never oscillates at any constant S (stable spiral),
+  contradicting Fig 3/S5 of the original paper and EV6C of the 2025 paper; after the correction, constant S>S_c≈0.07 gives sustained oscillation,
+  and oscillations extinguish near S≈1.1 (upper Hopf), consistent with all qualitative behavior in both papers.
 
-模型（6 ODE，时间 h，浓度 AU）：
+Model (6 ODEs, time in h, concentrations in AU):
   dATM*/dt = A·[ATM*²/(1+ATM*²/kA)]·[1/(1+Wip1/kWA)] − dA·ATM* − P·ATM*·Wip1 + S(DSB)
   dP53/dt  = C − dP·P53 − g·Mdm2·P53/(kMP+P53)·(1 + R/(1+ATM*))
   dmdm2/dt = Tm·P53/(kPm+P53) − dm·mdm2
   dMdm2/dt = TM·mdm2 − dM·Mdm2 − dAM·ATM*·Mdm2
   dwip1/dt = Tw·P53/(kPw+P53) − dw·wip1
   dWip1/dt = TW·wip1 − dW·Wip1
-  S(DSB)   = Smax·DSB/(γ+DSB)（饱和型，2017 原版）或 Smax·log(DSB/γ+1)（log 型，2025 版）
+  S(DSB)   = Smax·DSB/(γ+DSB) (saturable form, 2017 original) or Smax·log(DSB/γ+1) (log form, 2025 version)
 
-DSB 输入：
-  确定性 NCS：b(t)=b_s（首小时）后 b_b=2.3，r=0.315，dDSB/dt=b−r·DSB，DSB(0)=b_b/r。
-  随机生灭：双池 Gillespie。出生 b(t)，90% iDSB（r_i=0.35/h），10% cDSB（r_c=ln2/20/h）。
-             基础 b=0.7 DSB/h；NCS 时首小时 b=b_s。
+DSB input:
+  Deterministic NCS: b(t)=b_s (first hour), then b_b=2.3; r=0.315; dDSB/dt=b−r·DSB; DSB(0)=b_b/r.
+  Stochastic birth-death: two-pool Gillespie. Birth b(t); 90% iDSB (r_i=0.35/h), 10% cDSB (r_c=ln2/20/h).
+             Basal b=0.7 DSB/h; under NCS, b=b_s during the first hour.
 
-输出：
+Outputs:
   03_细胞线3/结果/代码82_机制审计_结果.json
   03_细胞线3/结果/代码82_基线复现_四面体.{png,svg}
   03_细胞线3/结果/代码82_Fisher审计_四面体.{png,svg}
@@ -61,7 +61,7 @@ SEED = 20260923
 ROOT = Path(__file__).resolve().parent.parent
 OUT = ROOT / "结果"
 
-# ---------------- 参数表（2025 改版；2017 原值仅 Tm/Tw 不同） ----------------
+# ---------------- Parameter table (2025 revision; 2017 original differs only in Tm/Tw) ----------------
 PARAM_ORDER = ["A", "P", "C", "g", "dAM", "Tm", "TM", "Tw", "TW",
                "dA", "dP", "dm", "dM", "dw", "dW",
                "kA", "kWA", "kMP", "kPm", "kPw", "R", "Smax", "gamma"]
@@ -69,26 +69,26 @@ P2025 = dict(A=30.5, P=22, C=1.4, g=2.5, dAM=20, Tm=1.2, TM=4, Tw=1.2, TW=1,
              dA=0.16, dP=0.1, dm=1, dM=2, dw=1.3, dW=2.3,
              kA=0.5, kWA=0.14, kMP=0.15, kPm=1, kPw=1, R=2, Smax=0.2, gamma=9)
 P2017 = dict(P2025, Tm=1.0, Tw=1.0)
-TIME_PARAMS = ["Tm", "Tw", "dA", "dP", "dm", "dM", "dw", "dW"]   # 时间尺度类（任务口径）
-AMP_PARAMS = ["C", "g", "Smax"]                                  # 幅度类
+TIME_PARAMS = ["Tm", "Tw", "dA", "dP", "dm", "dM", "dw", "dW"]   # timescale class (task convention)
+AMP_PARAMS = ["C", "g", "Smax"]                                  # amplitude class
 OTHER_PARAMS = [p for p in PARAM_ORDER if p not in TIME_PARAMS + AMP_PARAMS]
 
-# DSB 过程常数
-R_NCS, B_BASAL_NCS = 0.315, 2.3      # NCS 确定性：修复率与基础出生率
-B_BASAL, R_I, F_C = 0.7, 0.35, 0.1   # 随机：基础出生率、iDSB 修复率、cDSB 比例
-R_C = np.log(2) / 20.0               # cDSB 修复率（半衰期 20 h）
-GY_PER_BSH = 1.0 / 35.0              # 剂量换算锚：35 DSB/Gy（代码81 同口径）
+# DSB process constants
+R_NCS, B_BASAL_NCS = 0.315, 2.3      # NCS deterministic: repair rate and basal birth rate
+B_BASAL, R_I, F_C = 0.7, 0.35, 0.1   # stochastic: basal birth rate, iDSB repair rate, cDSB fraction
+R_C = np.log(2) / 20.0               # cDSB repair rate (half-life 20 h)
+GY_PER_BSH = 1.0 / 35.0              # dose conversion anchor: 35 DSB/Gy (same convention as code 81)
 
-# ---------------- 模型核心 ----------------
+# ---------------- Model core ----------------
 
 def rhs(t, y, par, S_of_t):
     ATM, P53, mdm2, Mdm2, wip1, Wip1 = np.maximum(y, 0.0)
     S = S_of_t(t)
-    hill = ATM * ATM / (1.0 + ATM * ATM / par["kA"])          # 勘误 E1：/kA
+    hill = ATM * ATM / (1.0 + ATM * ATM / par["kA"])          # erratum E1: /kA
     dATM = par["A"] * hill / (1.0 + Wip1 / par["kWA"]) \
         - par["dA"] * ATM - par["P"] * ATM * Wip1 + S
     dP53 = par["C"] - par["dP"] * P53 \
-        - par["g"] * Mdm2 * P53 / (par["kMP"] + P53) * (1.0 + par["R"] / (1.0 + ATM))  # 勘误 E2
+        - par["g"] * Mdm2 * P53 / (par["kMP"] + P53) * (1.0 + par["R"] / (1.0 + ATM))  # erratum E2
     dmdm2 = par["Tm"] * P53 / (par["kPm"] + P53) - par["dm"] * mdm2
     dMdm2 = par["TM"] * mdm2 - par["dM"] * Mdm2 - par["dAM"] * ATM * Mdm2
     dwip1 = par["Tw"] * P53 / (par["kPw"] + P53) - par["dw"] * wip1
@@ -118,7 +118,7 @@ def S_of_dsb(par, dsb_of_t, s_type):
 
 
 def dsb_det_ncs(b_s, b_b=B_BASAL_NCS, r=R_NCS, t_switch=1.0):
-    """确定性 NCS：dDSB/dt=b−r·DSB，b 在 t_switch 处阶跃。解析解。"""
+    """Deterministic NCS: dDSB/dt=b−r·DSB, with b stepping at t_switch. Analytic solution."""
     d0 = b_b / r
     d1 = b_s / r + (d0 - b_s / r) * np.exp(-r * t_switch)
     def f(t):
@@ -130,9 +130,9 @@ def dsb_det_ncs(b_s, b_b=B_BASAL_NCS, r=R_NCS, t_switch=1.0):
 
 def dsb_stoch_grid(rng, t_grid, b_s=0.0, b_basal=B_BASAL, t_switch=1.0,
                    r_i=R_I, r_c=R_C, f_c=F_C):
-    """双池生灭 Gillespie，输出按 t_grid 阶梯保持的 DSB 总数轨迹。"""
+    """Two-pool birth-death Gillespie; outputs the total-DSB trajectory held piecewise-constant on t_grid."""
     out = np.zeros_like(t_grid)
-    n_i = rng.poisson(b_basal * (1 - f_c) / r_i)   # 稳态泊松初始化
+    n_i = rng.poisson(b_basal * (1 - f_c) / r_i)   # steady-state Poisson initialization
     n_c = rng.poisson(b_basal * f_c / r_c)
     t, gi, T_end = 0.0, 0, t_grid[-1]
     while t < T_end:
@@ -143,7 +143,7 @@ def dsb_stoch_grid(rng, t_grid, b_s=0.0, b_basal=B_BASAL, t_switch=1.0,
             t_next = t + rng.exponential(1.0 / a0)
         else:
             t_next = np.inf
-        if t_next < boundary:                      # 事件发生在边界前
+        if t_next < boundary:                      # event occurs before the boundary
             while gi < len(t_grid) and t_grid[gi] < t_next:
                 out[gi] = n_i + n_c; gi += 1
             u = rng.random() * a0
@@ -157,7 +157,7 @@ def dsb_stoch_grid(rng, t_grid, b_s=0.0, b_basal=B_BASAL, t_switch=1.0,
             else:
                 n_c -= 1
             t = t_next
-        else:                                      # 越过出生率阶跃边界或终点
+        else:                                      # crossed the birth-rate step boundary or the end
             while gi < len(t_grid) and t_grid[gi] < boundary:
                 out[gi] = n_i + n_c; gi += 1
             t = boundary
@@ -176,15 +176,15 @@ def grid_func(t_grid, vals):
 
 
 def ground_state(par, dsb_bg=0.0, s_type="sat"):
-    """恒定背景 DSB 下积分 300 h 得基态。"""
+    """Integrate 300 h under constant background DSB to obtain the ground state."""
     S = S_of_dsb(par, lambda t: dsb_bg, s_type)
     t, y = simulate(par, S, 300.0, [0.0] * 6, dt=1.0)
     return y[:, -1]
 
 
 def detect_pulses(t, p53, prom=0.3, height=0.8, dist_h=2.0):
-    """脉冲检测：prominence>=0.3 AU，height>=0.8 AU，最小间隔 2 h。
-    阈值依据：基态 P53≈0.17 AU，典型脉冲幅度≈2.7 AU（探路实验标定）。"""
+    """Pulse detection: prominence>=0.3 AU, height>=0.8 AU, minimum spacing 2 h.
+    Threshold basis: ground-state P53≈0.17 AU, typical pulse amplitude≈2.7 AU (calibrated in pilot experiments)."""
     dt = t[1] - t[0]
     pk, props = find_peaks(p53, prominence=prom, height=height,
                            distance=int(dist_h / dt))
@@ -193,22 +193,22 @@ def detect_pulses(t, p53, prom=0.3, height=0.8, dist_h=2.0):
     w = peak_widths(p53, pk, rel_height=0.5)[0] * dt
     return dict(times=t[pk], amps=p53[pk], widths=w)
 
-# ---------------- 主流程 ----------------
+# ---------------- Main flow ----------------
 
 def main():
     log = lambda *a: print(*a, flush=True)
     res = dict(meta=dict(script="代码82_p53机制模型审计.py", seed=SEED, date="2026-09-23",
-                         errata=["E1: Hill 分母 1+ATM^2/kA（非 kA^2）",
-                                 "E2: p53 保护因子 1+R/(1+ATM*)（非 1/(1+R·ATM*)）"],
+                         errata=["E1: Hill denominator 1+ATM^2/kA (not kA^2)",
+                                 "E2: p53 protection factor 1+R/(1+ATM*) (not 1/(1+R·ATM*))"],
                          params2025=P2025, params2017=P2017))
     y0_sat = ground_state(P2025, dsb_bg=2.0)
     y0 = y0_sat
-    log("[0] 基态(2025, sat, DSB=2):", np.round(y0, 4))
+    log("[0] ground state (2025, sat, DSB=2):", np.round(y0, 4))
     res["ground_state"] = dict(zip(["ATM", "P53", "mdm2", "Mdm2", "wip1", "Wip1"],
                                    [float(v) for v in y0]))
 
-    # ============ 基线复现 R1-R4 ============
-    log("[R1] 恒定高 DSB 持续振荡")
+    # ============ Baseline reproduction R1-R4 ============
+    log("[R1] sustained oscillation under constant high DSB")
     r1 = {}
     for tag, pp in [("2025", P2025), ("2017", P2017)]:
         for s_type, D in [("log", 100.0), ("sat", 1000.0)]:
@@ -223,11 +223,11 @@ def main():
             log(f"  {tag} {s_type} DSB={D}: S={S(0):.3f} n={len(pu['times'])} "
                 f"T={T_per:.2f} h amp={r1[f'{tag}_{s_type}']['amp']:.2f}")
     res["R1"] = r1
-    # 供图用轨迹
+    # trajectories for the figure
     t_r1, y_r125 = simulate(P2025, S_of_dsb(P2025, lambda t: 100.0, "log"), 48.0, y0)
     _, y_r117 = simulate(P2017, S_of_dsb(P2017, lambda t: 100.0, "log"), 48.0, y0)
 
-    log("[R2] 基态可兴奋性（随机基础 DSB, 300 细胞）")
+    log("[R2] ground-state excitability (stochastic basal DSB, 300 cells)")
     rng = np.random.default_rng(SEED + 20)
     t_grid = np.arange(0, 48.0001, 0.05)
     n2 = 200
@@ -246,10 +246,10 @@ def main():
                      count_hist=np.bincount(r2_counts).tolist(),
                      amp_mean=float(np.mean(r2_amps)) if r2_amps else np.nan,
                      amp_cv=float(np.std(r2_amps) / np.mean(r2_amps)) if r2_amps else np.nan)
-    log(f"  脉冲细胞比例={res['R2']['frac_ge1']:.3f} 平均脉冲数={res['R2']['mean_pulses']:.2f} "
-        f"幅度={res['R2']['amp_mean']:.2f} CV={res['R2']['amp_cv']:.3f}")
+    log(f"  pulsing-cell fraction={res['R2']['frac_ge1']:.3f} mean pulses={res['R2']['mean_pulses']:.2f} "
+        f"amplitude={res['R2']['amp_mean']:.2f} CV={res['R2']['amp_cv']:.3f}")
 
-    log("[R3] 脉冲幅度/宽度对输入强度不敏感")
+    log("[R3] pulse amplitude/width insensitivity to input strength")
     r3 = {}
     base = None
     for b_s in [50, 200, 600]:
@@ -264,10 +264,10 @@ def main():
         pu = detect_pulses(t, y[1])
         r3[f"Smax={sm}"] = dict(amp1=float(pu["amps"][0]), width1=float(pu["widths"][0]))
     for k, v in r3.items():
-        log(f"  {k}: 首脉冲幅度={v['amp1']:.3f} 宽度={v['width1']:.2f} h")
+        log(f"  {k}: first-pulse amplitude={v['amp1']:.3f} width={v['width1']:.2f} h")
     res["R3"] = r3
 
-    log("[R4] 高剂量振荡->持续转变（log 型应有，饱和型不应有）")
+    log("[R4] high-dose oscillation->sustained transition (expected for log form, not for saturable form)")
     dsb_levels = np.logspace(0, np.log10(4000), 15)
     r4 = {}
     for s_type in ["sat", "log"]:
@@ -286,12 +286,12 @@ def main():
     for s_type in ["sat", "log"]:
         below = [r["DSB"] for r in r4[s_type] if r["DSB"] > 5 and r["rel_osc"] < 0.1]
         res.setdefault("R4_transition", {})[s_type] = float(min(below)) if below else None
-    log(f"  转变点(rel_osc<0.1): sat={res['R4_transition']['sat']} "
+    log(f"  transition point (rel_osc<0.1): sat={res['R4_transition']['sat']} "
         f"log={res['R4_transition']['log']}")
     res["R4"] = r4
 
-    # ============ Fisher 普查 ============
-    log("[F1] 名义轨迹 Jacobian + FIM（确定性 NCS b_s=200, sat, 48h）")
+    # ============ Fisher survey ============
+    log("[F1] nominal-trajectory Jacobian + FIM (deterministic NCS b_s=200, sat, 48h)")
     W_F, DT_F = 48.0, 0.05
     tF = np.arange(0, W_F + 0.5 * DT_F, DT_F)
     S_nom = S_of_dsb(P2025, dsb_det_ncs(200.0), "sat")
@@ -309,7 +309,7 @@ def main():
                 J[:, j] = yp[1]
             else:
                 J[:, j] = (J[:, j] - yp[1]) / (2 * DLOG)
-    sigma_obs = 0.1 * p53_nom + 0.05          # 比例噪声 10% + 0.05 AU 基底
+    sigma_obs = 0.1 * p53_nom + 0.05          # proportional noise 10% + 0.05 AU floor
     Wgt = 1.0 / sigma_obs**2
     FIM = (J * Wgt[:, None]).T @ J
     eigval, eigvec = np.linalg.eigh(FIM)
@@ -319,8 +319,8 @@ def main():
     decades = float(np.log10(eigval[0] / max(eigval[eigval > 0][-1], 1e-300)))
     n_nearzero_6 = int(np.sum(eigval / eigval[0] < 1e-6))
     n_nearzero_8 = int(np.sum(eigval / eigval[0] < 1e-8))
-    log(f"  特征值跨度 {decades:.1f} 个数量级, 条件数 {cond:.2e}, "
-        f"近零方向(<1e-6) {n_nearzero_6} 个, (<1e-8) {n_nearzero_8} 个")
+    log(f"  eigenvalue span {decades:.1f} decades, condition number {cond:.2e}, "
+        f"near-zero directions (<1e-6) {n_nearzero_6}, (<1e-8) {n_nearzero_8}")
 
     def eigvec_composition(k, top=6):
         v = np.abs(eigvec[:, k])**2
@@ -336,7 +336,7 @@ def main():
         log(f"  floppy#{i+1} (lam={eigval[k]:.2e}): " +
             ", ".join(f"{n}={w:.2f}" for n, w in floppy_dirs[i][:4]))
 
-    # 类别归属：每个特征方向在 时间/幅度/其他 三类参数上的权重
+    # class membership: weight of each eigen-direction on the time/amplitude/other parameter classes
     def class_weights(k):
         v = np.abs(eigvec[:, k])**2
         return dict(time=float(sum(v[PARAM_ORDER.index(p)] for p in TIME_PARAMS)),
@@ -350,14 +350,14 @@ def main():
                      eig_class=eig_class, param_order=PARAM_ORDER,
                      noise_model="sigma=0.1*P53+0.05 AU", dlog=DLOG)
 
-    # ============ 时间 vs 幅度通道分解 ============
-    log("[F2] 时间 vs 幅度通道 Fisher 分解")
+    # ============ Time vs amplitude channel decomposition ============
+    log("[F2] time vs amplitude channel Fisher decomposition")
     pu_nom = detect_pulses(t, p53_nom)
     n_pulse_nom = len(pu_nom["times"])
     IPI_nom = float(np.mean(np.diff(pu_nom["times"])))
-    SIG_T = 0.30 * IPI_nom            # 归档细胞间 IPI CV≈0.30
-    SIG_A_FRAC = 0.125                # 幅度 CV 10-15% 中点
-    log(f"  名义脉冲 {n_pulse_nom} 个, IPI={IPI_nom:.2f} h, sigma_t={SIG_T:.2f} h")
+    SIG_T = 0.30 * IPI_nom            # archived cell-to-cell IPI CV≈0.30
+    SIG_A_FRAC = 0.125                # midpoint of amplitude CV 10-15%
+    log(f"  nominal pulses {n_pulse_nom}, IPI={IPI_nom:.2f} h, sigma_t={SIG_T:.2f} h")
 
     def channel_fisher(sig_t, sig_a_frac):
         F_t = np.zeros(len(PARAM_ORDER))
@@ -391,16 +391,16 @@ def main():
 
     F_t, F_a, count_changed = channel_fisher(SIG_T, SIG_A_FRAC)
     share_t = float(F_t.sum() / (F_t.sum() + F_a.sum()))
-    log(f"  时间通道份额={share_t*100:.1f}% 幅度={(1-share_t)*100:.1f}% "
-        f"(归档 94.2%/5.5%) 计数改变参数: {count_changed}")
-    # 噪声口径网格：sigma_t 取归档细胞内 IPI 抖动 0.085 或细胞间 0.30，
-    # sigma_A 取内生钉死值 0.002 或细胞间观测 0.125。检验通道分解对噪声标定的依赖。
+    log(f"  time-channel share={share_t*100:.1f}% amplitude={(1-share_t)*100:.1f}% "
+        f"(archived 94.2%/5.5%) count-changing parameters: {count_changed}")
+    # noise-convention grid: sigma_t takes the archived within-cell IPI jitter 0.085 or the cell-to-cell 0.30;
+    # sigma_A takes the endogenous pinned value 0.002 or the cell-to-cell observed 0.125. Tests the dependence of the channel decomposition on noise calibration.
     noise_grid = {}
     for st_cv in [0.085, 0.30]:
         for sa in [0.002, 0.125]:
             Ft2, Fa2, _ = channel_fisher(st_cv * IPI_nom, sa)
             noise_grid[f"sigT={st_cv}xIPI,sigA={sa}xA"] = float(Ft2.sum() / (Ft2.sum() + Fa2.sum()))
-    log(f"  噪声口径网格(时间份额): { {k: round(v,3) for k,v in noise_grid.items()} }")
+    log(f"  noise-convention grid (time share): { {k: round(v,3) for k,v in noise_grid.items()} }")
     per_param = []
     for j, pname in enumerate(PARAM_ORDER):
         tot = F_t[j] + F_a[j]
@@ -411,15 +411,15 @@ def main():
                      count_changed=count_changed, per_param=per_param,
                      archived=dict(time=0.942, amp=0.055))
 
-    # ============ 结构常数执照（±10x 扫描） ============
-    log("[F3] 结构常数扫描（恒定 DSB=100, log 型, S=0.498）")
+    # ============ Structural-constant license (±10x scan) ============
+    log("[F3] structural-constant scan (constant DSB=100, log form, S=0.498)")
     folds = [0.1, 0.2, 0.5, 1.0, 2.0, 5.0, 10.0]
     S_scan = S_of_dsb(P2025, lambda t: 100.0, "log")
     t_s, y_s = simulate(P2025, S_scan, 144.0, y0)
     pu0 = detect_pulses(t_s[t_s > 48], y_s[1][t_s > 48])
     T0 = float(np.mean(np.diff(pu0["times"])))
     A0 = float(np.mean(pu0["amps"]))
-    log(f"  名义 T0={T0:.2f} h, A0={A0:.2f} AU")
+    log(f"  nominal T0={T0:.2f} h, A0={A0:.2f} AU")
     scan = []
     for pname in PARAM_ORDER:
         Ts, As = [], []
@@ -449,8 +449,8 @@ def main():
     res["F3"] = dict(T0=T0, A0=A0, folds=folds, scan=scan,
                      amp_class_max_dT=amp_T, time_class_max_dT=time_T)
 
-    # ============ 验证靶标 ============
-    log("[V1] 计数律 N(D)：随机 NCS 系综，b_s 扫描")
+    # ============ Validation targets ============
+    log("[V1] counting law N(D): stochastic NCS ensemble, b_s sweep")
     BS_LIST = [0, 25, 50, 100, 150, 200, 300, 400, 600]
     N_CELLS_D = 120
     rng = np.random.default_rng(SEED + 30)
@@ -467,7 +467,7 @@ def main():
             counts.append(len(pu["times"]))
             store.append(pu)
         counts = np.array(counts)
-        dose_gy = b_s * 1.0 * GY_PER_BSH     # 首小时累积 DSB 数 / 35 DSB/Gy
+        dose_gy = b_s * 1.0 * GY_PER_BSH     # accumulated DSB count in the first hour / 35 DSB/Gy
         dose_rows.append(dict(b_s=b_s, dose_gy=float(dose_gy),
                               mean_N=float(counts.mean()), sem=float(counts.std() / np.sqrt(len(counts))),
                               median_N=float(np.median(counts))))
@@ -481,7 +481,7 @@ def main():
         return Nmax * D / (Dc + D)
     def hyperb3(D, N0, Nmax, Dc):
         return N0 + Nmax * D / (Dc + D)
-    # 主拟合：诱导脉冲数 N(D)-N(0)，过原点双曲（与归档口径可比）
+    # main fit: induced pulse count N(D)-N(0), hyperbola through the origin (comparable to the archived convention)
     Nind = Nm - Nm[0]
     try:
         popt, _ = curve_fit(hyperb, Dg, Nind, p0=[4.0, 0.3], maxfev=20000)
@@ -489,7 +489,7 @@ def main():
         r2_hyp = 1 - np.sum((Nind - pred) ** 2) / np.sum((Nind - Nind.mean()) ** 2)
     except Exception:
         popt, r2_hyp = [np.nan, np.nan], np.nan
-    # 备选：带基底的三参数双曲（容忍基态自发脉冲）
+    # alternative: three-parameter hyperbola with a baseline (tolerating spontaneous ground-state pulses)
     try:
         popt3, _ = curve_fit(hyperb3, Dg, Nm, p0=[Nm[0], 4.0, 0.3], maxfev=20000)
         pred3 = hyperb3(Dg, *popt3)
@@ -505,12 +505,12 @@ def main():
                                R2=float(r2_hyp3)),
                      lin=dict(a=float(lin[1]), b=float(lin[0]), R2=float(r2_lin)),
                      archived=dict(R2=0.920, Dc=0.261),
-                     note="D 由 b_s×1h/35 DSB/Gy 换算，单位映射为假设口径；"
-                          "基态自发脉冲 N(0)≈4.5 由双池随机背景所致")
-    log(f"  诱导脉冲双曲拟合 Nmax={popt[0]:.2f} Dc={popt[1]:.3f} Gy R2={r2_hyp:.3f} | "
-        f"线性 R2={r2_lin:.3f} | 三参数 R2={r2_hyp3:.3f} (归档 R2=0.920, Dc=0.261)")
+                     note="D converted from b_s×1h/35 DSB/Gy; the unit mapping is an assumed convention; "
+                          "the spontaneous ground-state pulses N(0)≈4.5 arise from the two-pool stochastic background")
+    log(f"  induced-pulse hyperbolic fit Nmax={popt[0]:.2f} Dc={popt[1]:.3f} Gy R2={r2_hyp:.3f} | "
+        f"linear R2={r2_lin:.3f} | three-parameter R2={r2_hyp3:.3f} (archived R2=0.920, Dc=0.261)")
 
-    log("[V3] 幅度 CV：随机 DSB + Tw 对数正态异质性(CV=0.5, Mönke Fig4/S8A 做法)")
+    log("[V3] amplitude CV: stochastic DSB + Tw log-normal heterogeneity (CV=0.5, Mönke Fig4/S8A approach)")
     N_HET = 200
     rng = np.random.default_rng(SEED + 31)
     sig_l = np.sqrt(np.log(1 + 0.5**2))
@@ -518,12 +518,12 @@ def main():
     het_pulses = None
     for tag, het in [("ctrl", False), ("Tw_het", True)]:
         if not het:
-            pus = ens200           # 同质对照直接复用 V1 的 b_s=200 系综（120 细胞）
+            pus = ens200           # homogeneous control directly reuses the V1 b_s=200 ensemble (120 cells)
         else:
             pus = []
             for c in range(N_HET):
                 pp = dict(P2025)
-                # 保持均值=1 的对数正态乘子：exp(N(-sig_l^2/2, sig_l^2))，CV=0.5
+                # mean-preserving log-normal multiplier: exp(N(-sig_l^2/2, sig_l^2)), CV=0.5
                 pp["Tw"] = P2025["Tw"] * float(np.exp(rng.normal(0, sig_l) - 0.5 * sig_l**2))
                 g = dsb_stoch_grid(rng, t_grid, b_s=200.0, t_switch=1.0)
                 t, y = simulate(pp, S_of_dsb(pp, grid_func(t_grid, g), "sat"), 48.0, y0,
@@ -542,12 +542,12 @@ def main():
                                 n=len(first_amps))
         log(f"  {tag}: CV(first)={amp_cv_rows[tag]['cv_first']:.3f} "
             f"CV(all)={amp_cv_rows[tag]['cv_all']:.3f} "
-            f"CV(cellmean)={amp_cv_rows[tag]['cv_cellmean']:.3f} (靶标 0.10-0.15)")
+            f"CV(cellmean)={amp_cv_rows[tag]['cv_cellmean']:.3f} (target 0.10-0.15)")
         if het:
             het_pulses = pus
     res["V3"] = amp_cv_rows
 
-    log("[V2] 弥散比 Var(t1)/Var(IPI)：同质系综 + Tw 异质系综")
+    log("[V2] dispersion ratio Var(t1)/Var(IPI): homogeneous ensemble + Tw heterogeneous ensemble")
     def dispersion(pus):
         t1s, ipis, ipi_cv_within = [], [], []
         for pu in pus:
@@ -567,13 +567,13 @@ def main():
     v2_hom = dispersion(ens200)
     v2_het = dispersion(het_pulses)
     res["V2"] = dict(homogeneous=v2_hom, heterogeneous=v2_het, archived=5.8,
-                     note="归档口径：Var(首脉冲时刻)/Var(相继IPI)，文献 5.8，代码81 生成模型 5.7")
-    log(f"  同质: Var(t1)={v2_hom['var_t1']:.4f} Var(IPI)={v2_hom['var_ipi']:.4f} "
-        f"比值={v2_hom['ratio']:.2f}")
-    log(f"  异质: Var(t1)={v2_het['var_t1']:.4f} Var(IPI)={v2_het['var_ipi']:.4f} "
-        f"比值={v2_het['ratio']:.2f} (归档 5.8)")
+                     note="archived convention: Var(first-pulse time)/Var(successive IPI); literature 5.8, code 81 generative model 5.7")
+    log(f"  homogeneous: Var(t1)={v2_hom['var_t1']:.4f} Var(IPI)={v2_hom['var_ipi']:.4f} "
+        f"ratio={v2_hom['ratio']:.2f}")
+    log(f"  heterogeneous: Var(t1)={v2_het['var_t1']:.4f} Var(IPI)={v2_het['var_ipi']:.4f} "
+        f"ratio={v2_het['ratio']:.2f} (archived 5.8)")
 
-    log("[V5] Wip1 RNAi（Tw=TW 阶梯 x1.0/0.85/0.7/0.5/0.3）")
+    log("[V5] Wip1 RNAi (Tw=TW ladder x1.0/0.85/0.7/0.5/0.3)")
     rnai = {}
     for f in [1.0, 0.85, 0.7, 0.5, 0.3]:
         tag = f"x{f}"
@@ -600,11 +600,11 @@ def main():
     res["V5"] = {k: {kk: vv for kk, vv in v.items() if kk != "trace"}
                  for k, v in rnai.items()}
 
-    res["V4"] = dict(ref="F2 时间/幅度通道分解", share_time=share_t, archived_time=0.942)
-    res["V6"] = dict(ref="R4", log_transition="见 R4.log", sat_no_transition="见 R4.sat")
+    res["V4"] = dict(ref="F2 time/amplitude channel decomposition", share_time=share_t, archived_time=0.942)
+    res["V6"] = dict(ref="R4", log_transition="see R4.log", sat_no_transition="see R4.sat")
     res["V7"] = dict(ref="R2", frac_ge1=res["R2"]["frac_ge1"])
 
-    # ============ 图 ============
+    # ============ Figures ============
     make_fig1(res, t_r1, y_r125, y_r117, r2_traces, r4)
     make_fig2(res, eigval, eigvec, per_param, share_t, noise_grid)
     make_fig3(res, dose_rows, popt, lin, ens200, amp_cv_rows, rnai, scan, T0)
@@ -612,10 +612,10 @@ def main():
     OUT.mkdir(parents=True, exist_ok=True)
     with open(OUT / "代码82_机制审计_结果.json", "w", encoding="utf-8") as f:
         json.dump(res, f, ensure_ascii=False, indent=2, default=str)
-    log("[done] JSON 已写出")
+    log("[done] JSON written")
 
 
-# ---------------- 图 ----------------
+# ---------------- Figures ----------------
 C_BLUE, C_RED, C_GREEN, C_ORANGE, C_DARK = "#33527a", "#c05640", "#0b6b3a", "#d9863d", "#8c1d18"
 CLS_COLOR = {"time": C_BLUE, "amp": C_RED, "other": "#777777"}
 
@@ -624,7 +624,7 @@ def savefig(fig, stem):
     fig.savefig(OUT / f"{stem}.png", dpi=300, bbox_inches="tight")
     fig.savefig(OUT / f"{stem}.svg", bbox_inches="tight")
     plt.close(fig)
-    print("图已写出:", OUT / f"{stem}.png", flush=True)
+    print("Figure written:", OUT / f"{stem}.png", flush=True)
 
 
 def make_fig1(res, t_r1, y25, y17, r2_traces, r4):

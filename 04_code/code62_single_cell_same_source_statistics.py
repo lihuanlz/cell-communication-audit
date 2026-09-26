@@ -1,37 +1,37 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-代码62 单细胞同源统计量判决：断裂是否为总体采样假象 v1.0.0
+Code 62 single-cell same-source statistic adjudication: is the fracture a population-sampling artifact? v1.0.0
 ================================================
-任务：判决 §21 提出的"统计结构"解释——K1/2 中位数采样敏感亚群尾
-部、幅值表采样全体中位，两统计量总体不同所以要求的 N 不同。
+Task: adjudicate the "statistical structure" explanation raised in §21 — the K1/2 median samples the tail of the sensitive
+subpopulation while the amplitude table samples the whole-population median; the two statistics sample different populations, hence demand different N.
 
-设计（利用 Moore 2024 数据本身是单细胞 FRET 的事实）：
-  把幅值表也只用可估 K1/2 的那批非删失细胞（da_max≥0.5，33–55%）
-  来构建，则幅值表与 K1/2 来自**严格同一批细胞**。在此同源数据上
-  重做代码54的联合拟合（标准 MWC，λ 扫描 Pareto 前沿）：
-  · 若断裂闭合（出现 R²>0.9 且 K1/2 误差<0.1 dex 的点）→ 断裂是
-    总体采样假象，§21 解释成立；
-  · 若前沿不动 → 断裂在单一总体内部照样存在，§21 解释不充分，
-    断裂为真实的模型结构缺失。
+Design (exploiting the fact that the Moore 2024 data are themselves single-cell FRET):
+  Build the amplitude table using only the same batch of non-censored cells with estimable K1/2 (da_max≥0.5, 33-55%);
+  then the amplitude table and the K1/2 come from **strictly the same batch of cells**. On this same-source data,
+  redo the code-54 joint fit (standard MWC, lambda-scan Pareto front):
+  · If the fracture closes (a point with R²>0.9 and K1/2 error<0.1 dex appears) -> the fracture is
+    a population-sampling artifact and the §21 explanation holds;
+  · If the front does not move -> the fracture persists inside a single population, the §21 explanation is insufficient,
+    and the fracture is a genuine model-structure deficit.
 
-结果（v1.0.0 实跑，与全体对照并列）：
-  敏感亚群：λ=0 → R²=0.971/err=0.573；λ=1 → 0.867/0.206；
-            λ=30 → 0.598/0.071（Ki=4.1, N=2.0）
-  全体对照：λ=0 → R²=0.976/err=0.624；λ=1 → 0.848/0.261；
-            λ=30 → 0.525/0.074（Ki=4.3, N=2.0）
-  逐细胞 K1/2 中位数与代码54完全一致（2.03/2.90/2.17/2.58/3.49/
-  13.92/119.56 µM），流水线复核通过。
+Results (v1.0.0 live run, shown side by side with the whole-population control):
+  Sensitive subpopulation: lam=0 -> R²=0.971/err=0.573; lam=1 -> 0.867/0.206;
+            lam=30 -> 0.598/0.071 (Ki=4.1, N=2.0)
+  Whole-population control: lam=0 -> R²=0.976/err=0.624; lam=1 -> 0.848/0.261;
+            lam=30 -> 0.525/0.074 (Ki=4.3, N=2.0)
+  Per-cell K1/2 medians identical to code 54 (2.03/2.90/2.17/2.58/3.49/
+  13.92/119.56 µM); pipeline cross-check passed.
 
-判定：
-  前沿几乎不动，无可接受折中点 → 断裂不是总体采样假象，在严格同
-  一批细胞内部照样存在。§21 的"两统计量采样不同总体"倾向**部分
-  撤回**（双录）：它仍是两个统计量性质差异的事实描述，但不足以
-  解释断裂。断裂进一步指向标准 MWC+精确适应本身的结构缺失。
+Verdict:
+  The front barely moves, no acceptable trade-off point -> the fracture is not a population-sampling artifact;
+  it persists inside strictly the same batch of cells. The §21 "two statistics sample different populations" leaning
+  is **partially retracted** (double-recorded): it still describes a real difference between the two statistics, but
+  cannot explain the fracture. The fracture further points to a structural deficit of standard MWC + precise adaptation itself.
 
-数据：Moore 2024 Dryad doi:10.5061/dryad.nvx0k6dzz（CC0）
-运行：python3 代码62_单细胞同源统计量判决.py
-依赖：numpy, scipy
+Data: Moore 2024 Dryad doi:10.5061/dryad.nvx0k6dzz (CC0)
+Run: python3 code62_single_cell_same_source_statistics.py
+Depends: numpy, scipy
 """
 
 import os
@@ -74,7 +74,7 @@ def K12_model(B, Ki, Ka, N):
         return np.nan
 
 # ---------------------------------------------------------------
-# 逐细胞曲线提取（保留细胞身份）
+# Per-cell curve extraction (cell identity preserved)
 # ---------------------------------------------------------------
 def per_cell_curves():
     per_cell = defaultdict(list)
@@ -119,7 +119,7 @@ def cell_k12(B, curve):
         return None
     i = int(np.argmax(d >= 0.5))
     if i == 0:
-        return None                    # 左删失，同代码54口径剔除
+        return None                    # left-censored, excluded per code-54 convention
     x0, x1 = np.log10(T[i - 1]), np.log10(T[i])
     y0, y1 = d[i - 1], d[i]
     if y1 == y0:
@@ -182,9 +182,9 @@ def main():
         est_curves[B] = ec
         all_curves[B] = per_cell[B]
         est_k12[B] = np.array(ks)
-        print(f"B={B:7.2f}: 可估 {len(ec)}/{len(per_cell[B])}"
+        print(f"B={B:7.2f}: estimable {len(ec)}/{len(per_cell[B])}"
               f" ({100*len(ec)/len(per_cell[B]):.0f}%),"
-              f" K1/2 中位={np.median(ks) if ks else np.nan:.2f}")
+              f" K1/2 median={np.median(ks) if ks else np.nan:.2f}")
 
     K12_B = np.array(sorted(est_k12))
     K12_obs = np.array([np.median(est_k12[B]) for B in K12_B])
@@ -192,20 +192,20 @@ def main():
     B_E, F_E, R_E = amp_table(est_curves)
     B_A, F_A, R_A = amp_table(all_curves)
 
-    for tag, Bx, Fx, Rx in [("敏感亚群（同源统计量）", B_E, F_E, R_E),
-                            ("全体（代码54口径对照）", B_A, F_A, R_A)]:
+    for tag, Bx, Fx, Rx in [("sensitive subpopulation (same-source statistics)", B_E, F_E, R_E),
+                            ("whole population (code-54-convention control)", B_A, F_A, R_A)]:
         print(f"\n== {tag} ==")
         for lam in [0.0, 1.0, 30.0]:
             r2, dk, par = joint_fit(Bx, Fx, Rx, K12_B, K12_obs, lam)
-            print(f"  λ={lam:5.1f}: 幅值R²={r2:.3f}, K1/2误差={dk:.3f} dex,"
+            print(f"  λ={lam:5.1f}: amplitude R²={r2:.3f}, K1/2 err={dk:.3f} dex,"
                   f" Ki={par[0]:.1f} Ka={par[1]:.0f} N={par[2]:.1f} amax={par[3]:.2f}")
 
     print("""
-== 结论 ==
-同源统计量（同一批非删失细胞出幅值表与 K1/2）的 Pareto 前沿与全体
-口径几乎重合，不存在 R²>0.9 且 K1/2 误差<0.1 dex 的折中点。
-断裂不是总体采样假象 → §21 尾部统计量解释部分撤回（双录），
-断裂为标准 MWC+精确适应的真实结构缺失。
+== Conclusion ==
+The Pareto front of the same-source statistics (amplitude table and K1/2 from the same batch of non-censored cells)
+almost coincides with the whole-population convention; no trade-off point with R²>0.9 and K1/2 error<0.1 dex exists.
+The fracture is not a population-sampling artifact -> the §21 tail-statistic explanation is partially retracted (double-recorded);
+the fracture is a genuine structural deficit of standard MWC + precise adaptation.
 """)
 
 if __name__ == "__main__":

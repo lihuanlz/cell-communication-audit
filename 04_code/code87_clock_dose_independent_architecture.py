@@ -1,32 +1,32 @@
 # -*- coding: utf-8 -*-
 """
-代码87_时钟剂量无关架构.py  (种子确定性)
+code87_clock_dose_independent_architecture.py  (seed-deterministic)
 ================================================
-按 2026-09-25 14:16 盘定的逻辑重建触发层：
-  剂量只走两条通道——门控（是否响应）与终止（发几次）；
-  时钟剂量无关——首脉冲内禀延迟 + 每细胞一台 5.5±1.5h 的钟。
+Trigger layer rebuilt per the logic fixed on 2026-09-25 14:16:
+  dose enters only through two channels — gating (whether to respond) and termination (how many pulses);
+  the clock is dose-independent — intrinsic first-pulse delay + one 5.5±1.5h clock per cell.
 
-文献硬约束（核实于 2026-09-25）：
-  C1 首脉冲时刻剂量无关 ~2-3h          Lahav 2004（GZ2006 引言复述）
-  C2 SD(t1)=4.0h                        归档 (240min)^2
-  C3 周期间细胞散布 5.5±1.5h            Geva-Zatorsky 2006（MSB, 5Gy, 146细胞）
-  C4 池化 IPI SD≈1.67h                  归档 (100min)^2
-  C5 计数律 0-7/24h                     Lahav 2004
-  C6 振荡细胞分数 35%/50%/90% @0.3/5/10Gy  GZ 2006
-  C7 幅度剂量无关 CV~70%                GZ 2006（本模型不建幅度，登记）
+Literature hard constraints (verified 2026-09-25):
+  C1 first-pulse timing dose-independent ~2-3h  Lahav 2004 (restated in GZ2006 intro)
+  C2 SD(t1)=4.0h                        archived (240min)^2
+  C3 inter-period cell spread 5.5±1.5h          Geva-Zatorsky 2006 (MSB, 5Gy, 146 cells)
+  C4 pooled IPI SD≈1.67h                  archived (100min)^2
+  C5 counting law 0-7/24h                     Lahav 2004
+  C6 oscillating-cell fraction 35%/50%/90% @0.3/5/10Gy  GZ 2006
+  C7 amplitude dose-independent CV~70%          GZ 2006 (amplitude not modeled here; registry entry)
 
-自洽性交叉检查：sqrt(1.5^2+0.47^2)=1.57h vs C4 1.67h（差6%，过）；
-方差比预言 = 4.0^2/1.57^2 = 6.5 vs 归档 5.8（差12%，量级过）。
+Self-consistency cross-check: sqrt(1.5^2+0.47^2)=1.57h vs C4 1.67h (6% off, pass);
+variance-ratio prediction = 4.0^2/1.57^2 = 6.5 vs archived 5.8 (12% off, order-of-magnitude pass).
 
-拟合边界（防自欺）：
-  文献锚：t1 伽马形状（k=0.47, scale=5.82h -> mean 2.74h, SD 4.0h，锚 C1+C2）、
-          T_cell=5.5±1.5h（C3）、JIT=0.085（归档）、修复双相（代码84封卷）。
-  唯一拟合件：门控 P=1-(1-p0)*exp(-c*D)，p0=0.25（Loewer 2010 自发脉冲基线）
-          与 c=0.22/Gy，两参数对齐 C6 三点（0.3/5/10Gy -> 0.30/0.50/0.92 拟合值
-          vs 0.35/0.50/0.90 文献值）。
-  纯预言（输出端不许碰）：计数律、方差比、I(D;fate)、振荡分数曲线形状。
+Fitting boundary (guard against self-deception):
+  literature anchors: t1 gamma shape (k=0.47, scale=5.82h -> mean 2.74h, SD 4.0h, anchors C1+C2),
+          T_cell=5.5±1.5h (C3), JIT=0.085 (archived), biphasic repair (code84 SEALED).
+  only fitted piece: gate P=1-(1-p0)*exp(-c*D), p0=0.25 (Loewer 2010 spontaneous-pulse baseline)
+          and c=0.22/Gy; the two parameters align the three C6 points (0.3/5/10Gy -> 0.30/0.50/0.92 fitted
+          vs 0.35/0.50/0.90 literature values).
+  pure predictions (untouchable on the output side): counting law, variance ratio, I(D;fate), oscillation-fraction curve shape.
 
-用法：python 代码87_时钟剂量无关架构.py
+Usage: python code87_clock_dose_independent_architecture.py
 """
 import json
 from pathlib import Path
@@ -57,15 +57,15 @@ JIT_IPI = 0.085
 A_MIN = 10.0
 W = 48.0
 N_MAX = 12
-# t1 内禀延迟（剂量无关）：Gamma(k, scale)，锚 C1+C2
+# t1 intrinsic delay (dose-independent): Gamma(k, scale), anchored to C1+C2
 T1_K, T1_SCALE = 0.47, 5.82
-# 门控（唯一拟合件）
+# gate (only fitted piece)
 P0_SPONT, C_GATE = 0.25, 0.22
-# 解码器与命运阈值（代码81/84 封卷口径）
+# decoder and fate thresholds (code81/84 sealed conventions)
 Q21, TAU21 = 100.0, 10.0
 QPU, TAUPU, PUMA_NTHR = 100.0, 4.0, 3
 TH_PUMA, R0_FATE, TH_P21 = 800.0, 0.15, 1500.0
-# 文献对照点
+# literature reference points
 LIT_OSC_D = np.array([0.3, 5.0, 10.0])
 LIT_OSC_F = np.array([0.35, 0.50, 0.90])
 ARCH_VAR_RATIO = 5.8
@@ -92,10 +92,10 @@ def simulate_dose(D, n, rng):
         slow = rng.random(ni) < FRAC_SLOW
         rates = np.where(slow, R_SLOW, R_FAST)
         taus_list.append(rng.exponential(1.0 / rates))
-    # 门控（拟合件）：基线自发 + 剂量指数
+    # gate (fitted piece): spontaneous baseline + dose exponential
     p_resp = 1.0 - (1.0 - P0_SPONT) * np.exp(-C_GATE * D)
     responded = rng.random(n) < p_resp
-    # 时钟（剂量无关）
+    # clock (dose-independent)
     t1 = rng.gamma(T1_K, T1_SCALE, n)
     T_cell = np.clip(T_MEAN + T_BETWEEN_SD * rng.standard_normal(n), 2.5, 10.0)
     times = np.full((n, N_MAX), np.nan)
@@ -111,7 +111,7 @@ def simulate_dose(D, n, rng):
             tp = times[i, j - 1] + interval
             if tp > W:
                 break
-            if A_at(taus_list[i], tp) < A_MIN:  # 终止：损伤修复通道
+            if A_at(taus_list[i], tp) < A_MIN:  # termination: damage-repair channel
                 break
             times[i, j] = tp
     active = ~np.isnan(times)
@@ -135,7 +135,7 @@ def simulate_dose(D, n, rng):
 
 def main():
     log = lambda *a: print(*a, flush=True)
-    log(f"[代码87] 种子 {SEED}，时钟剂量无关架构启动，N={N_CELLS}")
+    log(f"[code87] seed {SEED}, dose-independent-clock architecture starting, N={N_CELLS}")
     rng = np.random.default_rng(SEED)
     parts = []
     for D in DOSES:
@@ -143,27 +143,27 @@ def main():
         p["dose_idx"] = np.full(N_CELLS, list(DOSES).index(D))
         parts.append(p)
 
-    # ---- 校验 1：响应/振荡分数 vs C6 ----
+    # ---- check 1: response/oscillation fraction vs C6 ----
     resp_frac, osc_frac, count_law = [], [], []
     for di, D in enumerate(DOSES):
         p = parts[di]
         resp_frac.append(float(p["responded"].mean()))
         osc_frac.append(float((p["n_pulse"] >= 3).mean()))
         count_law.append(float(p["n_pulse"].mean()))
-        log(f"  D={D:>5} Gy: 响应={resp_frac[-1]:.3f}, 振荡(>=3脉冲)={osc_frac[-1]:.3f}, "
+        log(f"  D={D:>5} Gy: response={resp_frac[-1]:.3f}, oscillating(>=3 pulses)={osc_frac[-1]:.3f}, "
             f"<N>={count_law[-1]:.2f}")
     gate_fit = [float(1 - (1 - P0_SPONT) * np.exp(-C_GATE * d)) for d in LIT_OSC_D]
-    log(f"  门控拟合值 {np.round(gate_fit,2).tolist()} vs 文献 {LIT_OSC_F.tolist()}")
+    log(f"  gate fitted values {np.round(gate_fit,2).tolist()} vs literature {LIT_OSC_F.tolist()}")
 
-    # ---- 校验 2：t1 剂量无关性（C1） ----
+    # ---- check 2: t1 dose-independence (C1) ----
     t1_by_dose = {}
     for di, D in enumerate(DOSES):
         v = parts[di]["t1"]; v = v[~np.isnan(v)]
         t1_by_dose[f"{D}Gy"] = dict(mean=float(v.mean()), sd=float(v.std()))
-    log("  t1 均值/SD 各剂量:", {k: (round(v["mean"], 2), round(v["sd"], 2))
+    log("  t1 mean/SD by dose:", {k: (round(v["mean"], 2), round(v["sd"], 2))
                                  for k, v in t1_by_dose.items()})
 
-    # ---- 校验 3：方差比（归档口径，5 Gy） ----
+    # ---- check 3: variance ratio (archived convention, 5 Gy) ----
     di5 = list(DOSES).index(5.0)
     p5 = parts[di5]
     t1v = p5["t1"]; t1v = t1v[~np.isnan(t1v)]
@@ -176,26 +176,26 @@ def main():
     var_t1 = float(np.var(t1v, ddof=1))
     var_ipi = float(np.var(ipis_pool, ddof=1))
     var_ratio = var_t1 / var_ipi
-    log(f"  5 Gy 归档口径：SD(t1)={np.sqrt(var_t1):.2f}h（文献 4.0），"
-        f"SD(IPI池化)={np.sqrt(var_ipi):.2f}h（文献 1.67），"
-        f"方差比={var_ratio:.2f}（归档 5.8）")
-    # 同期 SD 比口径（与代码84/86 连续）
+    log(f"  5 Gy archived convention: SD(t1)={np.sqrt(var_t1):.2f}h (literature 4.0), "
+        f"SD(IPI pooled)={np.sqrt(var_ipi):.2f}h (literature 1.67), "
+        f"variance ratio={var_ratio:.2f} (archived 5.8)")
+    # same-period SD-ratio convention (continuity with code84/86)
     ipi_within = []
     for i in range(tt.shape[0]):
         tv = tt[i][~np.isnan(tt[i])]
         if len(tv) >= 3:
             ipi_within.append(float(np.std(np.diff(tv))))
     sd_ratio = float(np.std(t1v) / np.mean(ipi_within))
-    log(f"  5 Gy SD 比口径（连续对照用）={sd_ratio:.2f}")
+    log(f"  5 Gy SD-ratio convention (for continuity comparison)={sd_ratio:.2f}")
 
-    # ---- 校验 4：信息链 ----
+    # ---- check 4: information chain ----
     E = {k: np.concatenate([p[k] for p in parts]) for k in
          ["n_dsb", "t1", "times", "n_pulse", "responded", "m_p21", "m_puma", "fate", "dose_idx"]}
     d = E["dose_idx"]
     H_D = float(np.log2(len(DOSES)))
     I_fate = mi_discrete(d, E["fate"])
-    log(f"  H(D)={H_D:.3f} bits，端到端 I(D;fate)={I_fate:.3f} bits"
-        f"（代码81: 1.325@7剂量; 代码84: 0.817; 代码86: 0.855）")
+    log(f"  H(D)={H_D:.3f} bits, end-to-end I(D;fate)={I_fate:.3f} bits"
+        f" (code81: 1.325@7 doses; code84: 0.817; code86: 0.855)")
 
     results = dict(
         meta=dict(script="代码87_时钟剂量无关架构.py", seed=SEED, date="2026-09-25",
@@ -227,15 +227,15 @@ def main():
     OUT_JSON.write_text(json.dumps(results, ensure_ascii=False, indent=2,
                                    default=lambda o: float(o) if isinstance(o, np.floating) else str(o)),
                         encoding="utf-8")
-    log("JSON 已写出:", OUT_JSON)
+    log("JSON written:", OUT_JSON)
     make_figure(results)
-    log("[代码87] 完成。")
+    log("[code87] done.")
 
 
 def make_figure(R):
     fig, axes = plt.subplots(2, 2, figsize=(13.5, 9.0))
     D = np.array(R["doses"])
-    # (a) 门控：响应/振荡分数 vs 文献
+    # (a) gate: response/oscillation fraction vs literature
     ax = axes[0, 0]
     ax.plot(D, R["resp_frac"], "o-", color="#33527a", label="responding (>=1 pulse)")
     ax.plot(D, R["osc_frac"], "s--", color="#0b6b3a", label="oscillating (>=3 pulses)")
@@ -245,14 +245,14 @@ def make_figure(R):
     ax.set_xlabel("dose (Gy)"); ax.set_ylabel("fraction of cells")
     ax.legend(fontsize=8, loc="center right")
     ax.set_title("(a) Gate: recruitment vs literature (C6)", fontsize=10.5)
-    # (b) 计数律
+    # (b) counting law
     ax = axes[0, 1]
     ax.plot(D, R["count_law"], "o-", color="#33527a")
     ax.axhspan(0, 7, color="#0b6b3a", alpha=0.08)
     ax.text(0.15, 6.2, "literature range 0-7 / 24h (C5)", fontsize=8, color="#0b6b3a")
     ax.set_xscale("log"); ax.set_xlabel("dose (Gy)"); ax.set_ylabel("mean pulse count")
     ax.set_title("(b) Counting law emerges from termination channel", fontsize=10.5)
-    # (c) t1 剂量无关 + 方差比
+    # (c) t1 dose-independent + variance ratio
     ax = axes[1, 0]
     means = [R["t1_by_dose"][f"{d}Gy"]["mean"] for d in R["doses"]]
     sds = [R["t1_by_dose"][f"{d}Gy"]["sd"] for d in R["doses"]]
@@ -266,7 +266,7 @@ def make_figure(R):
     vc = R["variance_check_5Gy"]
     ax.set_title(f"(c) Clock is dose-independent; 5 Gy var ratio "
                  f"{vc['var_ratio']:.1f} (archived 5.8)", fontsize=10.5)
-    # (d) 总账
+    # (d) ledger
     ax = axes[1, 1]; ax.axis("off")
     lines = [
         "Code 87 ledger: dose-independent clock architecture",
@@ -291,7 +291,7 @@ def make_figure(R):
     fig.subplots_adjust(left=0.07, right=0.97, top=0.90, bottom=0.08, hspace=0.36, wspace=0.30)
     fig.savefig(OUT_PNG, dpi=200, bbox_inches="tight")
     fig.savefig(OUT_SVG, bbox_inches="tight")
-    print("图已写出:", OUT_PNG, flush=True)
+    print("Figure written:", OUT_PNG, flush=True)
 
 
 if __name__ == "__main__":

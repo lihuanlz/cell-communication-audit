@@ -1,31 +1,31 @@
 # -*- coding: utf-8 -*-
 """
-代码84：p53 发现式链路模型（常数骨架 + 显式分布 + 全局零拟合）
+Code 84: p53 discovery-based chain model (constant skeleton + explicit distributions + globally zero fitting)
 =====================================================================
-日期：2026-09-25 ｜ 种子固定：20260925 ｜ 确定性部分全程确定
+Date: 2026-09-25 | seed fixed: 20260925 | deterministic parts fully deterministic
 
-谱系：
-  - 常数登记表：结果/常数登记_p53通路_发现式建模_v01_2026-09-25.md（K1-K8 / D1-D4 / G1-G4）
-  - 级联审计：代码81（判词卡 2026-09-23）——本模型的全部下游口径与它逐字一致
-  - 变分竞赛：代码83（2026-09-25）
+Lineage:
+  - Constant registry: 结果/常数登记_p53通路_发现式建模_v01_2026-09-25.md (K1-K8 / D1-D4 / G1-G4)
+  - Cascade audit: code 81 (verdict card 2026-09-23) — all downstream conventions of this model match it verbatim
+  - Variational race: code 83 (2026-09-25)
 
-与代码81 的差异（本模型的全部新意）：
-  L1 传感层从"假设的 ceil(N_DSB/50) 映射"换成机理形式：
-    N0 ~ Poisson(35 DSB/Gy) [K 系锚]
-    每个 DSB 独立修复：90% 快相 r=0.35/h（t½≈2h）[K7]；10% 慢相 t½=20h [K8]
-    ATM 活性 A(t) = 未修复 DSB 数（γH2AX 形成 30 min << T=5.5h，按瞬时处理，双录）[K5]
-    首脉冲：非齐次 Poisson 触发，危害率 lambda(t) = LAM0 * A(t)
-           （精确采样：Lambda(t)=LAM0*Σmin(t,τ_i) 分段线性，解析求逆）
-    后续脉冲：间隔 T=5.5h（CV 0.085）[K1]，仅当 A(t) >= A_MIN 时继续发放
-    => 首脉冲延迟分布（D1）与脉冲计数律（D2）不再假设，从修复随机性涌现
-  脉冲波形显式化：方波宽度 w=3.5h [K2]，解码器对波形积分（代码81 为瞬时量子近似）
-  MDM2 影子层：p53 波形延迟 LAG_MDM2=2h [K3] + τ=1h 泄漏滤波，验证反相滞后形态
-  下游 L3/L4 与代码81 逐字一致（τ_p21=10h、τ_PUMA=4h、PUMA 第3脉冲阈值、命运阈值）
+Differences from code 81 (everything new in this model):
+  The L1 sensing layer is replaced from the "assumed ceil(N_DSB/50) mapping" by a mechanistic form:
+    N0 ~ Poisson(35 DSB/Gy) [K-series anchor]
+    Each DSB is repaired independently: 90% fast phase r=0.35/h (t½≈2h) [K7]; 10% slow phase t½=20h [K8]
+    ATM activity A(t) = number of unrepaired DSBs (γH2AX formation 30 min << T=5.5h, treated as instantaneous, double-recorded) [K5]
+    First pulse: inhomogeneous Poisson triggering, hazard rate lambda(t) = LAM0 * A(t)
+           (exact sampling: Lambda(t)=LAM0*Σmin(t,τ_i) piecewise linear, inverted analytically)
+    Subsequent pulses: interval T=5.5h (CV 0.085) [K1], firing continues only while A(t) >= A_MIN
+    => the first-pulse delay distribution (D1) and the pulse counting law (D2) are no longer assumed; they emerge from repair randomness
+  Pulse waveform made explicit: square-wave width w=3.5h [K2]; the decoder integrates the waveform (code 81 used an instantaneous-quantum approximation)
+  MDM2 shadow layer: p53 waveform delayed by LAG_MDM2=2h [K3] + τ=1h leaky filtering, validating the antiphase-lag morphology
+  Downstream L3/L4 identical to code 81 verbatim (τ_p21=10h, τ_PUMA=4h, PUMA 3rd-pulse threshold, fate thresholds)
 
-仅有两个非文献常数（预注册校准，双录）：
-  LAM0 = 0.003 /DSB/h —— 校准锚：10 Gy 时首脉冲延迟均值 ~1.5h（文献：MCF7 首峰 2-3h；实测 1.66h）
-  A_MIN = 10 DSB —— 校准锚：10 Gy 时 ~7 脉冲/24h（文献 0-7 脉冲范围）
-  两者只对齐这两个文献锚，不对任何审计输出调优。
+Only two non-literature constants (pre-registration calibration, double-recorded):
+  LAM0 = 0.003 /DSB/h — calibration anchor: mean first-pulse delay at 10 Gy ~1.5h (literature: MCF7 first peak 2-3h; measured 1.66h)
+  A_MIN = 10 DSB — calibration anchor: ~7 pulses/24h at 10 Gy (literature range 0-7 pulses)
+  Both are aligned only to these two literature anchors and are not tuned to any audit output.
 """
 
 import json
@@ -50,30 +50,30 @@ OUT_JSON = ROOT / "结果" / "代码84_发现式链路_结果.json"
 OUT_PNG = ROOT / "结果" / "代码84_发现式链路_六面体.png"
 OUT_SVG = ROOT / "结果" / "代码84_发现式链路_六面体.svg"
 
-# ---------------- K 系常数（实测，逐条有出处；见常数登记表） ----------------
+# ---------------- K-series constants (measured, each with a source; see the constant registry) ----------------
 DOSES = np.array([0.1, 0.25, 0.5, 1.0, 2.5, 5.0, 10.0])
 N_CELLS = 4000
-K0_DSB = 35.0          # DSB/Gy（文献锚）
-R_FAST = 0.35          # /h，快相修复率，t½≈2h（K7）
-FRAC_SLOW = 0.10       # 复杂断裂占比（K8）
-T_HALF_SLOW = 20.0     # h，慢相半衰期（K8）
+K0_DSB = 35.0          # DSB/Gy (literature anchor)
+R_FAST = 0.35          # /h, fast-phase repair rate, t½≈2h (K7)
+FRAC_SLOW = 0.10       # fraction of complex breaks (K8)
+T_HALF_SLOW = 20.0     # h, slow-phase half-life (K8)
 R_SLOW = np.log(2) / T_HALF_SLOW
-T_PERIOD = 5.5         # h，脉冲周期（K1，封卷常数）
-JIT_IPI = 0.085        # IPI 抖动 CV（归档）
-W_PULSE = 3.5          # h，脉冲宽度（K2）
-LAG_MDM2 = 2.0         # h，p53->MDM2 滞后（K3）
-TAU_MDM2 = 1.0         # h，MDM2 滤波（近似口径，双录）
-W = 48.0               # h 观测窗
+T_PERIOD = 5.5         # h, pulse period (K1, sealed constant)
+JIT_IPI = 0.085        # IPI jitter CV (archived)
+W_PULSE = 3.5          # h, pulse width (K2)
+LAG_MDM2 = 2.0         # h, p53->MDM2 lag (K3)
+TAU_MDM2 = 1.0         # h, MDM2 filter (approximate convention, double-recorded)
+W = 48.0               # h observation window
 N_MAX = 12
-# 解码器（代码81 逐字）
+# decoder (code 81 verbatim)
 Q21, TAU21 = 100.0, 10.0
 QPU, TAUPU, PUMA_NTHR = 100.0, 4.0, 3
 TH_PUMA, R0_FATE, TH_P21 = 800.0, 0.15, 1500.0
-# 预注册校准常数（仅两个，非文献）
-LAM0 = 0.003           # /DSB/h 触发危害率（校准：10Gy 首脉冲均值 -> 约 1.5h 文献锚）
-A_MIN = 10.0           # DSB 持续发放阈值（校准：10Gy -> 约 7 脉冲/24h 文献锚）
+# pre-registration calibrated constants (only two, non-literature)
+LAM0 = 0.003           # /DSB/h triggering hazard rate (calibration: 10Gy first-pulse mean -> ~1.5h literature anchor)
+A_MIN = 10.0           # DSB persistence-firing threshold (calibration: 10Gy -> ~7 pulses/24h literature anchor)
 
-# ---------------- 互信息工具（与代码81同口径） ----------------
+# ---------------- Mutual-information utilities (same convention as code 81) ----------------
 
 def mi_discrete(x, y):
     x = np.asarray(x); y = np.asarray(y)
@@ -93,25 +93,25 @@ def qbin(v, nbin):
         return np.zeros(len(v), dtype=int)
     return np.clip(np.digitize(v, edges[1:-1]), 0, len(edges) - 2)
 
-# ---------------- 机理 L1：修复生灭 + 触发 ----------------
+# ---------------- Mechanistic L1: repair birth-death + triggering ----------------
 
 def first_pulse_time(taus, lam0, rng):
-    """非齐次 Poisson 触发：Lambda(t)=lam0*Σmin(t,τ_i) 分段线性，解析求逆。
-    taus: 该细胞全部 DSB 的修复时刻。返回 t1 或 None（窗内不发放）。"""
+    """Inhomogeneous Poisson triggering: Lambda(t)=lam0*Σmin(t,τ_i) piecewise linear, inverted analytically.
+    taus: repair times of all DSBs of this cell. Returns t1 or None (no firing within the window)."""
     if len(taus) == 0:
         return None
     ts = np.sort(taus)
-    u = rng.exponential(1.0)  # 触发阈值
+    u = rng.exponential(1.0)  # triggering threshold
     lam_total = lam0 * ts.sum()
     if lam_total <= u:
-        return None  # 全部修复也攒不够触发量 -> 该细胞不响应
-    # 分段：在区间 [t_{k-1}, t_k] 上 Lambda(t) = lam0*(Σ_{i<k} τ_i + (n-k)*t)... 用 cumsum
+        return None  # even repairing everything cannot accumulate enough triggering quantity -> this cell does not respond
+    # piecewise: on interval [t_{k-1}, t_k], Lambda(t) = lam0*(Σ_{i<k} τ_i + (n-k)*t)... via cumsum
     cs = np.cumsum(ts)
     n = len(ts)
     lam_knots = lam0 * (cs + ts * (n - np.arange(n) - 1))
     lam_knots = np.concatenate([[0.0], lam_knots])
     t_knots = np.concatenate([[0.0], ts])
-    # lam_knots[k] 对应 t_knots[k]；区间 [t_knots[k], t_knots[k+1]] 内未修复数 = n - k
+    # lam_knots[k] corresponds to t_knots[k]; within [t_knots[k], t_knots[k+1]] the unrepaired count = n - k
     k = min(int(np.searchsorted(lam_knots, u, side="right")) - 1, n - 1)
     slope = lam0 * (n - k)
     if slope <= 0:
@@ -121,10 +121,10 @@ def first_pulse_time(taus, lam0, rng):
 
 
 def simulate_dose(D, n, rng):
-    """单剂量群体：机理 L1 + 常数骨架 L2 + 代码81 口径 L3/L4。"""
-    # L0：DSB 计数与修复时刻
+    """Single-dose population: mechanistic L1 + constant-skeleton L2 + code 81 conventions L3/L4."""
+    # L0: DSB counts and repair times
     n_dsb = rng.poisson(K0_DSB * D, n)
-    # 每细胞 DSB 修复时刻（快慢混合）
+    # per-cell DSB repair times (fast/slow mixture)
     taus_list = []
     for i in range(n):
         ni = n_dsb[i]
@@ -133,10 +133,10 @@ def simulate_dose(D, n, rng):
         slow = rng.random(ni) < FRAC_SLOW
         rates = np.where(slow, R_SLOW, R_FAST)
         taus_list.append(rng.exponential(1.0 / rates))
-    # L1：首脉冲 + 持续发放
+    # L1: first pulse + persistent firing
     t1 = np.full(n, np.nan)
     times = np.full((n, N_MAX), np.nan)
-    A_at = lambda taus, t: int(np.sum(taus > t))  # 未修复数
+    A_at = lambda taus, t: int(np.sum(taus > t))  # unrepaired count
     for i in range(n):
         tp = first_pulse_time(taus_list[i], LAM0, rng)
         if tp is None:
@@ -155,14 +155,14 @@ def simulate_dose(D, n, rng):
     active = ~np.isnan(times)
     n_pulse = active.sum(1)
     responded = n_pulse > 0
-    # L2/L3 解码：主口径 = 代码81 逐字（脉冲起始时刻触发持续生产 q，泄漏 τ，测于 W），
-    # 保证命运阈值 TH_PUMA/R0/TH_P21 封卷可比；K2 宽度 3.5h 的显式波形积分作旁证口径（双录）。
+    # L2/L3 decoding: main convention = code 81 verbatim (pulse onset triggers sustained production q, leakage τ, measured at W),
+    # keeping the fate thresholds TH_PUMA/R0/TH_P21 sealed-comparable; the explicit-waveform integration with K2 width 3.5h serves as a corroborating convention (double-recorded).
     def integrate_tau(q, tau, mask):
         with np.errstate(invalid="ignore"):
             contrib = np.where(mask, q * tau * (1.0 - np.exp(-(W - times) / tau)), 0.0)
         return np.nansum(contrib, axis=1)
     def integrate_tau_width(q, tau, mask):
-        """旁证口径：方波宽度 w 显式波形（沉积率 q/w 于 [t0,t0+w]，其后衰减）。"""
+        """Corroborating convention: explicit square-wave waveform of width w (deposition rate q/w on [t0,t0+w], decaying thereafter)."""
         qr = q / W_PULSE
         t_end = np.where(mask, np.minimum(times + W_PULSE, W), np.nan)
         with np.errstate(invalid="ignore"):
@@ -173,19 +173,19 @@ def simulate_dose(D, n, rng):
     m_p21 = integrate_tau(Q21, TAU21, active)
     puma_mask = active & (pidx >= PUMA_NTHR - 1)
     m_puma = integrate_tau(QPU, TAUPU, puma_mask)
-    # 旁证：宽度显式口径（阈值未重锚定，仅报告趋势，双录）
+    # corroboration: width-explicit convention (thresholds not re-anchored, trends only, double-recorded)
     m_p21_w = integrate_tau_width(Q21, TAU21, active)
     m_puma_w = integrate_tau_width(QPU, TAUPU, puma_mask)
-    # L4 命运（代码81 逐字）
+    # L4 fate (code 81 verbatim)
     ratio = m_puma / (m_p21 + 1.0)
     fate = np.where((m_puma >= TH_PUMA) & (ratio >= R0_FATE), 2,
                     np.where(m_p21 >= TH_P21, 1, 0))
-    # MDM2 影子层（K3 验证）：p53 波形延迟 2h + tau=1h 滤波，在网格上重建一条
+    # MDM2 shadow layer (K3 validation): p53 waveform delayed 2h + tau=1h filtering, reconstructed on a grid
     tgrid = np.linspace(0, W, 481)
     ex = np.where(responded)[0]
     mdm2_demo, p53_demo = None, None
     if len(ex) > 0:
-        i0 = ex[len(ex) // 2]  # 中位响应细胞做演示
+        i0 = ex[len(ex) // 2]  # use the median responding cell for the demo
         p53_demo = np.zeros_like(tgrid)
         for j in range(int(n_pulse[i0])):
             t0 = times[i0, j]
@@ -195,21 +195,21 @@ def simulate_dose(D, n, rng):
             dt = tgrid[k] - tgrid[k - 1]
             src = p53_demo[max(0, int((tgrid[k] - LAG_MDM2) / (tgrid[1] - tgrid[0])))]
             mdm2_demo[k] = mdm2_demo[k - 1] + dt * (src - mdm2_demo[k - 1]) / TAU_MDM2
-    # A(t) 曲线演示（每剂量平均）
+    # A(t) curve demo (per-dose average)
     return dict(n_dsb=n_dsb, t1=t1, times=times, n_pulse=n_pulse,
                 responded=responded, m_p21=m_p21, m_puma=m_puma, fate=fate,
                 tgrid=tgrid, p53_demo=p53_demo, mdm2_demo=mdm2_demo,
                 taus_list=taus_list)
 
-# ---------------- 主流程 ----------------
+# ---------------- Main flow ----------------
 
 def main():
     log = lambda *a: print(*a, flush=True)
-    log(f"[代码84] 种子 {SEED}，发现式链路模型启动")
+    log(f"[code84] seed {SEED}, discovery-based chain model started")
     rng = np.random.default_rng(SEED)
     parts = []
     for di, D in enumerate(DOSES):
-        log(f"  模拟 D={D} Gy ...")
+        log(f"  simulating D={D} Gy ...")
         p = simulate_dose(D, N_CELLS, rng)
         p["dose_idx"] = np.full(N_CELLS, di)
         parts.append(p)
@@ -218,22 +218,22 @@ def main():
     d = E["dose_idx"]
     H_D = np.log2(len(DOSES))
 
-    # ---- 校验 1：计数律 N(D) 与响应分数（涌现量 vs 代码81/文献） ----
+    # ---- Check 1: counting law N(D) and responding fraction (emergent quantities vs code 81/literature) ----
     count_law, resp_frac = [], []
     for di, D in enumerate(DOSES):
         m = d == di
         count_law.append(float(E["n_pulse"][m].mean()))
         resp_frac.append(float(E["responded"][m].mean()))
-        log(f"  D={D:>5} Gy: <N>={count_law[-1]:.2f}, 响应分数={resp_frac[-1]:.3f}, "
+        log(f"  D={D:>5} Gy: <N>={count_law[-1]:.2f}, responding fraction={resp_frac[-1]:.3f}, "
             f"<N_DSB>={E['n_dsb'][m].mean():.1f}")
 
-    # ---- 校验 2：首脉冲延迟分布与弥散比（涌现量 vs 文献 5.8） ----
+    # ---- Check 2: first-pulse delay distribution and dispersion ratio (emergent quantities vs literature 5.8) ----
     t1_stats = {}
     ipi_sd_all = []
     for di, D in enumerate(DOSES):
         m = d == di
         t1v = E["t1"][m]; t1v = t1v[~np.isnan(t1v)]
-        # 逐细胞 IPI 散布
+        # per-cell IPI dispersion
         ipi_sd_cell = []
         tt = E["times"][m]
         for i in range(tt.shape[0]):
@@ -248,9 +248,9 @@ def main():
                                       ipi_sd=float(np.mean(ipi_sd_cell)),
                                       dispersion_ratio=float(ratio))
             log(f"  D={D:>5} Gy: t1={t1v.mean():.2f}±{t1v.std():.2f}h, "
-                f"IPI sd={np.mean(ipi_sd_cell):.2f}h, 弥散比={ratio:.2f}（文献 5.8）")
+                f"IPI sd={np.mean(ipi_sd_cell):.2f}h, dispersion ratio={ratio:.2f} (literature 5.8)")
 
-    # ---- 校验 3：信息链（与代码81 同口径） ----
+    # ---- Check 3: information chain (same convention as code 81) ----
     y1 = E["n_dsb"]
     y2 = E["n_pulse"]
     y3 = E["n_pulse"] * 8 + qbin(np.where(np.isnan(E["t1"]), -1, E["t1"]) + 1, 8)
@@ -258,21 +258,21 @@ def main():
     y5 = E["fate"]
     I_chain = [mi_discrete(d, y) for y in [y1, y2, y3, y4, y5]]
     losses = [H_D - I_chain[0]] + [I_chain[i] - I_chain[i + 1] for i in range(4)]
-    log(f"  信息链 I(D;Y) = {[round(i,3) for i in I_chain]}")
-    log(f"  逐层损失 = {[round(l,3) for l in losses]}, 端到端 I(D;fate)={I_chain[-1]:.3f} "
-        f"（代码81: 1.325）")
+    log(f"  information chain I(D;Y) = {[round(i,3) for i in I_chain]}")
+    log(f"  layer-by-layer losses = {[round(l,3) for l in losses]}, end-to-end I(D;fate)={I_chain[-1]:.3f} "
+        f"(code 81: 1.325)")
 
-    # ---- 校验 4：MDM2 反相滞后（K3 形态学验证） ----
+    # ---- Check 4: MDM2 antiphase lag (K3 morphological validation) ----
     mdm2_check = None
     p53d = parts[4]["p53_demo"]; mdm2d = parts[4]["mdm2_demo"]; tgd = parts[4]["tgrid"]
     if p53d is not None:
-        # 峰值互相关滞后
+        # peak cross-correlation lag
         xc = np.correlate(mdm2d - mdm2d.mean(), p53d - p53d.mean(), mode="full")
         lag_idx = np.argmax(xc) - (len(tgd) - 1)
         lag_h = lag_idx * (tgd[1] - tgd[0])
         mdm2_check = dict(demo_dose=float(DOSES[4]), measured_lag_h=float(lag_h),
                           expected_lag_h=LAG_MDM2)
-        log(f"  MDM2 影子层：互相关滞后 {lag_h:.2f} h（构造值 {LAG_MDM2} h，K3）")
+        log(f"  MDM2 shadow layer: cross-correlation lag {lag_h:.2f} h (constructed value {LAG_MDM2} h, K3)")
 
     results = dict(
         meta=dict(script="代码84_发现式链路模型.py", seed=SEED, date="2026-09-25",
@@ -281,30 +281,30 @@ def main():
                                    JIT_IPI=JIT_IPI, W_PULSE=W_PULSE,
                                    LAG_MDM2=LAG_MDM2, W=W),
                   calibrated=dict(LAM0=LAM0, A_MIN=A_MIN,
-                                  anchors="LAM0: 10Gy 首脉冲均值~1.5h; A_MIN: 10Gy ~7脉冲/24h")),
+                                  anchors="LAM0: 10Gy first-pulse mean ~1.5h; A_MIN: 10Gy ~7 pulses/24h")),
         H_D=H_D, count_law=count_law, responding_fraction=resp_frac,
         doses=DOSES.tolist(), t1_stats=t1_stats,
         info_chain=dict(I_chain=I_chain, losses=losses,
                         end_to_end=I_chain[-1], code81_reference=1.325),
         mdm2_check=mdm2_check,
         double_record=[
-            "LAM0 与 A_MIN 是仅有的两个非文献常数：分别对齐'10Gy 首脉冲均值约1.5h'与'10Gy 约7脉冲/24h'两个文献锚，未对任何审计输出调优",
-            "γH2AX 形成时标 30 min（K5）远小于 T=5.5h，按瞬时处理；若按 30 min 显式延迟平移，首脉冲分布整体右移 0.5h 量级，不改变离散比量级（未跑，登记）",
-            "弥散比的文献值 5.8 的测量口径（Loewer 2010，逐剂量 SD(t1)/SD(IPI)）与本模型的系综口径存在口径差；代码82 已登记同质系综复现不到 5.8（需额外异质性来源），本模型若同样复现不到则与代码82 互为印证",
-            "MDM2 影子层为形态学演示（τ=1h 滤波为近似口径），不进信息链",
-            "方波宽度 3.5h（K2）通过面积对齐 q_r=q/w 保持与代码81 量子口径可比；宽度对积分器输出的二阶影响未单独扫描",
-            "互信息为分箱 plug-in 估计（同代码81 口径），绝对值有偏、趋势可靠",
+            "LAM0 and A_MIN are the only two non-literature constants: aligned respectively to the two literature anchors '10Gy first-pulse mean ~1.5h' and '10Gy ~7 pulses/24h'; not tuned to any audit output",
+            "The γH2AX formation timescale of 30 min (K5) is far below T=5.5h and is treated as instantaneous; with an explicit 30 min delay shift, the first-pulse distribution would shift right by ~0.5h without changing the order of magnitude of the dispersion ratio (not run, registered)",
+            "The measurement convention of the literature dispersion ratio 5.8 (Loewer 2010, per-dose SD(t1)/SD(IPI)) differs from this model's ensemble convention; code 82 already registered that a homogeneous ensemble cannot reproduce 5.8 (an extra heterogeneity source is needed), and if this model likewise fails to reproduce it, the two corroborate each other",
+            "The MDM2 shadow layer is a morphological demo (τ=1h filtering is an approximate convention) and does not enter the information chain",
+            "The square-wave width 3.5h (K2) stays comparable to the code 81 quantum convention via area alignment q_r=q/w; second-order effects of width on integrator output were not scanned separately",
+            "Mutual information is a binned plug-in estimate (same convention as code 81); absolute values are biased, trends are reliable",
         ],
     )
     with open(OUT_JSON, "w", encoding="utf-8") as f:
         json.dump(results, f, ensure_ascii=False, indent=2, default=lambda o: float(o) if isinstance(o, np.floating) else (int(o) if isinstance(o, np.integer) else str(o)))
-    log("JSON 已写出:", OUT_JSON)
+    log("JSON written:", OUT_JSON)
 
-    # ---------------- 六面体 ----------------
+    # ---------------- Six-panel figure ----------------
     fig = plt.figure(figsize=(17, 10.5))
     gs = fig.add_gridspec(2, 3, hspace=0.44, wspace=0.32)
 
-    # (a) A(t) 修复曲线（机理 L1 的输入）
+    # (a) A(t) repair curves (input of the mechanistic L1)
     axa = fig.add_subplot(gs[0, 0])
     tg_a = np.linspace(0, W, 300)
     for D in DOSES:
@@ -317,7 +317,7 @@ def main():
     axa.legend(fontsize=7.5, ncol=2)
     axa.set_title("(a) Mechanistic L1: biphasic DSB repair (K7/K8)", fontsize=10.5)
 
-    # (b) 计数律 + 响应分数（涌现）
+    # (b) counting law + responding fraction (emergent)
     axb = fig.add_subplot(gs[0, 1])
     axb.plot(DOSES, count_law, "o-", color="#33527a", label="mean pulse count <N> (emergent)")
     axb.set_xscale("log"); axb.set_xlabel("dose (Gy)"); axb.set_ylabel("pulse count")
@@ -329,7 +329,7 @@ def main():
     axb.legend(h1 + h2, l1 + l2, fontsize=8, loc="upper left")
     axb.set_title("(b) Emergent counting law and digital recruitment", fontsize=10.5)
 
-    # (c) t1 分布与弥散比
+    # (c) t1 distributions and dispersion ratio
     axc = fig.add_subplot(gs[0, 2])
     for di, D in enumerate(DOSES):
         t1v = E["t1"][d == di]; t1v = t1v[~np.isnan(t1v)]
@@ -344,7 +344,7 @@ def main():
     axc.legend(fontsize=7.5)
     axc.set_title("(c) Emergent first-pulse delay distributions (D1)", fontsize=10.5)
 
-    # (d) 信息瀑布对比
+    # (d) information waterfall comparison
     axd = fig.add_subplot(gs[1, 0])
     names = ["H(D)", "L0", "L1+\n(trigger)", "L2", "L3", "L4", "I(D;fate)"]
     starts = [0.0]; heights = [H_D]; run = H_D
@@ -361,7 +361,7 @@ def main():
     axd.set_ylabel("bits")
     axd.set_title("(d) Information waterfall, mechanistic L1", fontsize=10.5)
 
-    # (e) MDM2 影子层反相
+    # (e) MDM2 shadow-layer antiphase
     axe = fig.add_subplot(gs[1, 1])
     if p53d is not None:
         axe.plot(tgd, p53d, color="#33527a", lw=1.2, label="p53 (square pulses, w=3.5h)")
@@ -370,7 +370,7 @@ def main():
         axe.legend(fontsize=8)
         axe.set_title(f"(e) MDM2 antiphase shadow (demo cell, {DOSES[4]} Gy)", fontsize=10.5)
 
-    # (f) 摘要
+    # (f) summary
     axs = fig.add_subplot(gs[1, 2]); axs.axis("off")
     summary = (
         f"Code 84 discovery-chain summary (seed {SEED})\n\n"
@@ -393,8 +393,8 @@ def main():
                  fontsize=12.5)
     fig.savefig(OUT_PNG, dpi=150, bbox_inches="tight")
     fig.savefig(OUT_SVG, bbox_inches="tight")
-    log("图已写出:", OUT_PNG)
-    log("[代码84] 完成。")
+    log("Figure written:", OUT_PNG)
+    log("[code84] done.")
 
 
 if __name__ == "__main__":

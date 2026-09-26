@@ -1,16 +1,16 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-代码49 · P7 盲裁决：FCD/Weber 判决——趋化单细胞 FRET 同配体背景阶梯
-预注册：预注册_P7_FCD-Weber判决_趋化单细胞FRET_v01.md（注册·九十七，已冻结）
-数据：Moore et al. 2024 Cell Syst 15:628；Dryad doi:10.5061/dryad.nvx0k6dzz（CC0）
-v0.1.0 · 2026-08-15 · 种子 20260815 · bootstrap 2000
-判定线（§3，冻结）：30 条件单元 R(B,F) 上
+Code 49 · P7 blind ruling: FCD/Weber adjudication — chemotaxis single-cell FRET same-ligand background steps
+pre-registration: 预注册_P7_FCD-Weber判决_趋化单细胞FRET_v01.md (registry No. 97, frozen)
+Data: Moore et al. 2024 Cell Syst 15:628; Dryad doi:10.5061/dryad.nvx0k6dzz (CC0)
+v0.1.0 · 2026-08-15 · seed 20260815 · bootstrap 2000
+Criterion (§3, frozen): over 30 condition units R(B,F)
   ΔR2 = R2(R~log10 r) - R2(R~log10 T)，r=(B+F)/B，T=B+F
-  >=+0.15 且 fold 斜率>0 → P7 命中；<= -0.15 → 证伪；其间 → 中间态
-护栏（§5）：可分离性 |ρ(log r,log T)|>=0.95 中止；单元细胞数<10 剔除；
-  <24 功效限定；<18 中止；响应方向反转 >50% 中止（空跑）。
-运行：python3 代码49.py [DATA_DIR]
+  >=+0.15 and fold slope>0 → P7 hit; <= -0.15 → falsified; in between → intermediate
+Guardrails (§5): separability |ρ(log r,log T)|>=0.95 abort; unit cell count <10 removed;
+  <24 power-limited; <18 abort; response direction reversal >50% abort (empty run).
+run: python3 代码49.py [DATA_DIR]
 """
 import os, sys, json, datetime
 import numpy as np
@@ -27,10 +27,10 @@ COLLAPSE_DLOGR = 0.15
 COLLAPSE_BRATIO = 10.0
 COLLAPSE_SPREAD = 0.10
 
-FILES = {  # 文件名(去.mat) -> BackgroundLIst 背景 µM（§1；最终以行级 s 实测复核）
+FILES = {  # filename (minus .mat) -> BackgroundLIst background µM (§1; final per-row s measured recheck)
  "210802_FOV1":0,"210802_FOV2":0,"210805_FOV1":0,"210805_FOV2":0,"220106_FOV1":0,"230417_FOV1":0,
  "230815_FOV1":0.01,"230815_FOV2":0.01,"230816_FOV1":0.01,"230816_FOV2":0.01,
- "230830_FOV1":0.1,"230830_FOV2":0.1,"230831_FOV1":0.1,"230831_FOV2":0.1,  # FOV2 备案异常（s=100-180）
+ "230830_FOV1":0.1,"230830_FOV2":0.1,"230831_FOV1":0.1,"230831_FOV2":0.1,  # FOV2 filed exception (s=100-180)
  "220615_FOV1":0.3,"230410_FOV1":0.3,
  "230428_FOV1":1.0,"230429_FOV1":1.0,
  "220302_FOV1":10.0,"220303_FOV1":10.0,
@@ -60,39 +60,39 @@ def main():
     if os.path.exists(LOG_PATH):
         os.remove(LOG_PATH)
     log("=" * 74)
-    log("代码49 · P7 盲裁决：FCD/Weber 判决——趋化单细胞 FRET 背景阶梯  v0.1.0")
-    log(f"运行时间: {datetime.datetime.now():%Y-%m-%d %H:%M:%S}")
-    log(f"种子={SEED} bootstrap={N_BOOT} 判定线 ΔR2=±{DELTA_LINE}")
-    log("预注册: 预注册_P7_FCD-Weber判决_趋化单细胞FRET_v01.md（注册·九十七，已冻结）")
-    log(f"数据根目录：{root}")
+    log("Code 49 · P7 blind ruling: FCD/Weber adjudication — chemotaxis single-cell FRET background steps  v0.1.0")
+    log(f"run time: {datetime.datetime.now():%Y-%m-%d %H:%M:%S}")
+    log(f"seed={SEED} bootstrap={N_BOOT} criterion ΔR2=±{DELTA_LINE}")
+    log("pre-registration: 预注册_P7_FCD-Weber判决_趋化单细胞FRET_v01.md (registry No. 97, frozen)")
+    log(f"data root directory: {root}")
     log("=" * 74)
 
     import scipy.io as sio
-    # ---------- 加载 + §5-3 schema 护栏 + 行级 s 实测复核 ----------
+    # ---------- load + §5-3 schema guardrail + row-level s measured recheck ----------
     cell_rec = []   # (B_file_measured, F, Δa_i, ΔA_i, cell_key)
     file_log = []
     for name, bg_list in FILES.items():
         p = os.path.join(root, name + ".mat")
         if not os.path.isfile(p):
-            log(f"[缺文件] {name}.mat——剔除并记录"); file_log.append((name, "missing")); continue
+            log(f"[missing file] {name}.mat — removed and recorded"); file_log.append((name, "missing")); continue
         try:
             m = sio.loadmat(p)
             rd = m["reorgData"]["resp_data"][0, 0]
         except Exception as e:
-            log(f"[护栏] {name} schema 异常（{str(e)[:50]}）——剔除并记录"); file_log.append((name, "schema")); continue
+            log(f"[guardrail] {name} schema exception ({str(e)[:50]}) — removed and recorded"); file_log.append((name, "schema")); continue
         ncells = rd.shape[1]
-        # 行级 s 实测：基线 = 首列中位；文件背景 B 以实测为准（§1 备案）
+        # row-level s measured: baseline = first-column median; file background B taken as measured (§1 filing)
         s0 = rd["s"][0, 0].astype(float)
         B_meas = float(np.median(s0[:, 0]))
-        flag = "" if abs(B_meas - bg_list) < 0.5 * max(bg_list, 0.01) + 1e-9 else "  <<< 与 BackgroundLIst 矛盾，按实测归入"
-        log(f"[装载] {name}: 细胞 {ncells}，实测背景 B={B_meas:g} µM（表列 {bg_list:g}）{flag}")
+        flag = "" if abs(B_meas - bg_list) < 0.5 * max(bg_list, 0.01) + 1e-9 else "  <<< contradicts BackgroundLIst, filed as measured"
+        log(f"[loaded] {name}: cell {ncells}, measured background B={B_meas:g} µM (table column {bg_list:g}){flag}")
         file_log.append((name, f"ok n={ncells} B_meas={B_meas:g}"))
         for ci in range(ncells):
             a = rd["a"][0, ci].astype(float)
             A = rd["A"][0, ci].astype(float)
             s = rd["s"][0, ci].astype(float)
             if a.shape != (35, 20) or s.shape != (35, 20):
-                log(f"  [护栏] {name} 细胞{ci} 形状 {a.shape}≠(35,20)——整细胞剔除"); continue
+                log(f"  [guardrail] {name} cell{ci} shape {a.shape}≠(35,20) — whole cell removed"); continue
             Bc = float(np.median(s[:, 0]))
             lev_resp, lev_respA = {}, {}
             for row in range(35):
@@ -121,14 +121,14 @@ def main():
                 if not (np.isfinite(da_i) and np.isfinite(dA_i)):
                     continue
                 cell_rec.append((Bc, k - Bc, da_i, dA_i, f"{name}#{ci}"))
-    log(f"\n[合计] 细胞×水平记录 {len(cell_rec)} 条")
+    log(f"\n[total] cell×level records: {len(cell_rec)}")
 
-    # ---------- 条件单元 ----------
+    # ---------- condition units ----------
     units = {}
     for Bc, F, da, dA, ck in cell_rec:
         Bq = round(Bc, 4); Fq = round(F, 4)
         units.setdefault((Bq, Fq), []).append((da, dA))
-    log(f"[单元] 原始 (B,F) 组合 {len(units)} 个（含 B=0 描述组）")
+    log(f"[units] raw (B,F) combinations: {len(units)} (incl. B=0 descriptive group)")
 
     rows = []
     for (B, F), lst in sorted(units.items()):
@@ -137,55 +137,55 @@ def main():
     main_units = [r for r in rows if r["B"] > 0 and r["n"] >= MIN_CELL_UNIT]
     dropped = [r for r in rows if r["B"] > 0 and r["n"] < MIN_CELL_UNIT]
     if dropped:
-        log(f"[剔除] 细胞数<{MIN_CELL_UNIT} 的单元 {len(dropped)} 个：" +
+        log(f"[removed] units with cell count<{MIN_CELL_UNIT}: {len(dropped)}: " +
             str([(r["B"], r["F"], r["n"]) for r in dropped]))
-    log(f"[主判单元] {len(main_units)}/30（B>0）")
+    log(f"[main adjudication units] {len(main_units)}/30 (B>0)")
     if len(main_units) < MIN_UNITS_ABORT:
-        log("[中止] 有效单元 <18——空跑"); sys.exit(2)
+        log("[abort] valid units <18 — empty run"); sys.exit(2)
     power_note = len(main_units) < MIN_UNITS_PWR
     if power_note:
-        log(f"[限定] 有效单元 {len(main_units)} < {MIN_UNITS_PWR}——功效缩减限定语入账")
+        log(f"[limited] valid units {len(main_units)} < {MIN_UNITS_PWR} — reduced-power limitation on record")
 
     neg = sum(1 for r in main_units if r["R"] < 0)
     if neg > len(main_units) / 2:
-        log(f"[中止] 响应方向反转单元 {neg}/{len(main_units)} >50%——符号约定检查，空跑"); sys.exit(2)
+        log(f"[abort] response-direction-reversed units {neg}/{len(main_units)} >50% — check sign convention, empty run"); sys.exit(2)
 
     r_lg = np.array([np.log10((r["B"] + r["F"]) / r["B"]) for r in main_units])
     T_lg = np.array([np.log10(r["B"] + r["F"]) for r in main_units])
     R = np.array([r["R"] for r in main_units])
     RA = np.array([r["RA"] for r in main_units])
 
-    # §5-1 可分离性
+    # §5-1 separability
     rho_sep = float(np.corrcoef(r_lg, T_lg)[0, 1])
-    log(f"[护栏] 可分离性 Pearson(log r, log T) = {rho_sep:+.4f}（|ρ|≥{SEP_ABORT} 则中止）")
+    log(f"[guardrail] separability Pearson(log r, log T) = {rho_sep:+.4f} (abort if |ρ|≥{SEP_ABORT})")
     if abs(rho_sep) >= SEP_ABORT:
-        log("[中止] 设计无法区分 fold 与绝对总量——空跑"); sys.exit(2)
+        log("[abort] design cannot distinguish fold from absolute total — empty run"); sys.exit(2)
 
     r2_fold, b_fold = linfit(r_lg, R)
     r2_abs, b_abs = linfit(T_lg, R)
     dR2 = r2_fold - r2_abs
 
     log("\n" + "=" * 74)
-    log("裁决（主判：a 特征，30 条件单元 R(B,F)）")
+    log("ruling (main adjudication: a feature, 30 condition units R(B,F))")
     log("-" * 74)
     for r in main_units:
         log(f"  B={r['B']:>7g} F={r['F']:>7g}  r={(r['B']+r['F'])/r['B']:>8.2f}  T={r['B']+r['F']:>8.3g}  n={r['n']:>4d}  R={r['R']:+.4f}")
-    log(f"\n  R2(R~log fold) = {r2_fold:.4f}（斜率 {b_fold:+.4f}）")
-    log(f"  R2(R~log T)    = {r2_abs:.4f}（斜率 {b_abs:+.4f}）")
-    log(f"  ΔR2 = {dR2:+.4f}（判定线 ±{DELTA_LINE}）")
+    log(f"\n  R2(R~log fold) = {r2_fold:.4f} (slope {b_fold:+.4f})")
+    log(f"  R2(R~log T)    = {r2_abs:.4f} (slope {b_abs:+.4f})")
+    log(f"  ΔR2 = {dR2:+.4f} (criterion ±{DELTA_LINE})")
     sign_ok = b_fold > 0
     if dR2 >= DELTA_LINE and sign_ok:
-        verdict = "P7 命中（fold/Weber 载波）"
+        verdict = "P7 hit（fold/Weber 载波）"
     elif dR2 >= DELTA_LINE and not sign_ok:
-        verdict = "P7 中间态（ΔR2 达标但 fold 斜率反向，按预注册降级）"
+        verdict = "P7 中间态（ΔR2 达标但 fold slopereverse，按pre-registration降级）"
     elif dR2 <= -DELTA_LINE:
         verdict = "P7 证伪（绝对总量载波）"
     else:
         verdict = "P7 中间态"
-    log(f"  裁决：{verdict}")
+    log(f"  ruling：{verdict}")
     log("=" * 74)
 
-    # bootstrap CI（描述）
+    # bootstrap CI (descriptive)
     rng = np.random.default_rng(SEED)
     nU = len(main_units); boots = []
     for _ in range(N_BOOT):
@@ -193,12 +193,12 @@ def main():
         r2f, _ = linfit(r_lg[idx], R[idx]); r2a, _ = linfit(T_lg[idx], R[idx])
         boots.append(r2f - r2a)
     ci = np.percentile(boots, [2.5, 97.5])
-    log(f"[CI] ΔR2 bootstrap 95% = [{ci[0]:+.4f}, {ci[1]:+.4f}]（描述）")
+    log(f"[CI] ΔR2 bootstrap 95% = [{ci[0]:+.4f}, {ci[1]:+.4f}] (descriptive)")
 
-    # ---------- §4 稳健臂 ----------
+    # ---------- §4 robust arm ----------
     r2f_A, bf_A = linfit(r_lg, RA); r2a_A, _ = linfit(T_lg, RA)
-    log(f"[稳健①] A 特征：R2fold={r2f_A:.4f} R2abs={r2a_A:.4f} ΔR2={r2f_A-r2a_A:+.4f}")
-    # ② 细胞级 + B 哑变量
+    log(f"[robust①] A feature: R2fold={r2f_A:.4f} R2abs={r2a_A:.4f} ΔR2={r2f_A-r2a_A:+.4f}")
+    # ② cell-level + B dummies
     rec = [x for x in cell_rec if round(x[0],4) > 0]
     Bl = np.array([x[0] for x in rec]); Fl = np.array([x[1] for x in rec])
     yl = np.array([x[2] for x in rec])
@@ -212,8 +212,8 @@ def main():
         res = y - X @ beta
         return 1 - float(res @ res) / float(((y - y.mean()) ** 2).sum())
     r2f_c, r2a_c = r2m(X1, yl), r2m(X2, yl)
-    log(f"[稳健②] 细胞级+B哑变量：R2fold={r2f_c:.4f} R2abs={r2a_c:.4f} ΔR2={r2f_c-r2a_c:+.4f}（n={len(yl)}）")
-    # ③ 匹配 fold 组坍缩
+    log(f"[robust②] cell-level+B dummies: R2fold={r2f_c:.4f} R2abs={r2a_c:.4f} ΔR2={r2f_c-r2a_c:+.4f} (n={len(yl)})")
+    # ③ matched-fold group collapse
     groups = []
     used = set()
     for i_, r1 in enumerate(main_units):
@@ -224,7 +224,7 @@ def main():
         Bs = [main_units[j_]["B"] for j_ in mates]
         if len(set(Bs)) >= 2 and max(Bs)/min(Bs) >= COLLAPSE_BRATIO:
             groups.append(mates); used.update(mates)
-    log(f"[稳健③] 匹配 fold 组 {len(groups)} 个（r±{COLLAPSE_DLOGR} log10 且 B 跨≥{COLLAPSE_BRATIO:g}×）：")
+    log(f"[robust③] matched-fold groups: {len(groups)} (r±{COLLAPSE_DLOGR} log10 and B spanning ≥{COLLAPSE_BRATIO:g}×):")
     ncol = 0
     for mates in groups:
         Rs = [main_units[j_]["R"] for j_ in mates]
@@ -232,27 +232,27 @@ def main():
         ok = spread <= COLLAPSE_SPREAD
         ncol += ok
         r0 = (main_units[mates[0]]["B"] + main_units[mates[0]]["F"]) / main_units[mates[0]]["B"]
-        log(f"   r≈{r0:.2f}: Bs={[main_units[j_]['B'] for j_ in mates]} Rs={[round(x,3) for x in Rs]} 展幅={spread:.3f} {'坍缩' if ok else '未坍缩'}")
+        log(f"   r≈{r0:.2f}: Bs={[main_units[j_]['B'] for j_ in mates]} Rs={[round(x,3) for x in Rs]} spread={spread:.3f} {'collapsed' if ok else 'not collapsed'}")
     if groups:
-        log(f"   坍缩比例 {ncol}/{len(groups)}（≥2/3 支持 fold，描述）")
-    # ⑤ 剔除 B=100
+        log(f"   collapse ratio {ncol}/{len(groups)} (≥2/3 supports fold, descriptive)")
+    # ⑤ removed B=100
     keep = [k for k, r in enumerate(main_units) if r["B"] < 100]
     if len(keep) >= MIN_UNITS_ABORT:
         r2f5, _ = linfit(r_lg[keep], R[keep]); r2a5, _ = linfit(T_lg[keep], R[keep])
-        log(f"[稳健⑤] 剔除 B=100：n={len(keep)} ΔR2={r2f5-r2a5:+.4f}")
+        log(f"[robust⑤] removed B=100：n={len(keep)} ΔR2={r2f5-r2a5:+.4f}")
 
-    # ---------- §6 描述臂 ----------
-    log("\n[描述臂] B=0 组绝对剂量-响应：")
+    # ---------- §6 descriptive arm ----------
+    log("\n[descriptive arm] B=0 group absolute dose-response:")
     for r in rows:
         if r["B"] == 0 and r["n"] >= MIN_CELL_UNIT:
             log(f"  F={r['F']:>5g}  n={r['n']:>4d}  R={r['R']:+.4f}")
     F_lg_only = np.array([np.log10(r["F"]) for r in main_units])
     r2_inc, b_inc = linfit(F_lg_only, R)
-    log(f"[描述臂] 第三模型 R~log10(F)（纯前景）：R2={r2_inc:.4f}（斜率 {b_inc:+.4f}）")
+    log(f"[descriptive arm] third model R~log10(F) (pure foreground): R2={r2_inc:.4f} (slope {b_inc:+.4f})")
 
-    # ---------- 输出 ----------
+    # ---------- output ----------
     import csv
-    with open(os.path.join(outdir, "代码49_单元表.csv"), "w", newline="", encoding="utf-8") as f:
+    with open(os.path.join(outdir, "代码49_单元table.csv"), "w", newline="", encoding="utf-8") as f:
         w = csv.writer(f)
         w.writerow(["B_uM", "F_uM", "fold_r", "T_uM", "log10r", "log10T", "n_cells", "R_a", "R_A"])
         for r in main_units:
@@ -273,9 +273,9 @@ def main():
                    "collapse_groups": len(groups), "collapse_ok": ncol},
         "file_log": file_log,
     }
-    with open(os.path.join(outdir, "代码49_裁决.json"), "w", encoding="utf-8") as f:
+    with open(os.path.join(outdir, "代码49_ruling.json"), "w", encoding="utf-8") as f:
         json.dump(vjson, f, ensure_ascii=False, indent=2)
-    log(f"\n输出：{outdir}/代码49_{{判定日志.txt, 单元表.csv, 裁决.json}}")
+    log(f"\noutput: {outdir}/代码49_{{判定日志.txt, 单元table.csv, ruling.json}}")
 
 if __name__ == "__main__":
     main()

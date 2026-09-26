@@ -1,52 +1,52 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-代码63 GPCR 功能亲和力断裂检验：D2R 多通路 operational 模型审计 v1.1.0
+Code 63 GPCR functional-affinity fracture test: D2R multi-pathway operational model audit v1.1.0
 ================================================
-细胞线4 第一刀。任务：把"断裂审计"从趋化系统平移到 GPCR。
-数据：Klein Herenbrink et al. 2016, Nat Commun 7:10842（D2L 受体，CHO
-细胞，同一实验室同一体系），SI Table 1（7 配体 × 6 通路 log(τ/KA) ± SEM，
-5 min）、SI Table 5（[3H]spiperone 竞争结合 pKi ± SEM）、SI Table 6（荧光
-PPHT 示踪剂动力学 pKd，独立复制）、SI Table 7（cAMP/GαoB pEC50+Emax 时程）。
+Cell line 4, first cut. Task: port the "fracture audit" from chemotaxis to GPCR.
+Data: Klein Herenbrink et al. 2016, Nat Commun 7:10842 (D2L receptor, CHO
+cells, same lab same system), SI Table 1 (7 ligands × 6 pathways log(τ/KA) ± SEM,
+5 min), SI Table 5 ([3H]spiperone competition binding pKi ± SEM), SI Table 6 (fluorescent
+PPHT tracer kinetics pKd, independent replication), SI Table 7 (cAMP/GαoB pEC50+Emax time course).
 
-审计设计（operational 模型的内部约束，任一破坏即断裂）：
-  检验1（结合锚点）：pKi 锚定 τ → 预言 Emax vs 实测。
-  检验2（功能亲和力反演）：pKA_func=logR−log τ；跨通路守恒性 +
-    与 pKi 的一致性，SEM 全传播。
-  检验3（时间不变性）：SI T7 全配体 pEC50 时程（2–90 min）；
-    平衡模型要求 ΔlogR 不漂移。
-  自审①：零模型判据 pKi−pEC50>0（BL 下 pEC50=pKA+log(1+τ)≥pKA，
-    单 KA 假设下不得显著低于 pKi）——无任何拟合假设。
-  自审②：第二示踪剂（PPHT 动力学 pKd）独立复制结合锚点。
-  自审③：系统最大 E_sys 扰动 ±10% 的敏感性。
-  自审④：误差全传播（σ_Δ 含 logR/pKi/Emax 三项）。
+Audit design (internal constraints of the operational model; breaking any one is a fracture):
+  Test 1 (binding anchor): pKi anchors τ → predicts Emax vs measured.
+  Test 2 (functional-affinity inversion): pKA_func=logR−log τ; cross-pathway conservation +
+    consistency with pKi, SEM fully propagated.
+  Test 3 (time invariance): SI T7 all-ligand pEC50 time course (2–90 min);
+    the equilibrium model requires ΔlogR not to drift.
+  Self-audit ①: zero-model criterion pKi−pEC50>0 (under BL, pEC50=pKA+log(1+τ)≥pKA,
+    under the single-KA assumption it must not lie significantly below pKi) — no fitting assumptions.
+  Self-audit ②: second tracer (PPHT kinetics pKd) independently replicates the binding anchor.
+  Self-audit ③: sensitivity to ±10% perturbation of system maximum E_sys.
+  Self-audit ④: full error propagation (σ_Δ includes logR/pKi/Emax).
 
-结果（v1.1.0 实跑）：
-  检验2：Δ=pKA_func−pKi：bifeprunox −3.5（21–23σ）、aripiprazole
-    −2.6/−2.9（18–26σ）、cariprazine −1.2/−1.4（9–11σ）；常规激动剂
-    |Δ|≤1.3（dopamine +1.2/1.3 为两态移动预期方向）。pKA_func 跨
-    通路守恒（臂间差 0.08–0.31 dex）。
-  自审①：零模型复现：pKi−pEC50 = +1.96/+0.52/+2.45 dex（三个高亲和力
-    部分激动剂），其余配体为负（备用受体方向，单 KA 允许）。
-  自审②：PPHT 复制：同一三配体 pKd−pEC50 = +2.19/+1.15/+2.39 dex；
-    两示踪剂互差仅 0.06–0.63 dex，锚点本身稳固。
-  自审③：E_sys 100→110 时 Δ 仅移 0.1–0.35 dex，分类不变。
-  检验3：全激动剂效价 90 min 下移 −1.15…−1.37 dex（脱敏），三个部分
-    激动剂稳定或上移（bifeprunox +1.09）；bifeprunox vs ropinirole
-    偏向因子 2' 时 −0.42 → 90' 时 +1.93 dex，摆动 2.35 dex 且变号
-    （SEM 0.02–0.03）→ 平衡偏向定量给出依赖读数时刻的相反答案。
+Results (v1.1.0 actual run):
+  Test 2: Δ=pKA_func−pKi: bifeprunox −3.5 (21–23σ), aripiprazole
+    −2.6/−2.9 (18–26σ), cariprazine −1.2/−1.4 (9–11σ); conventional agonists
+    |Δ|≤1.3 (dopamine +1.2/1.3 in the direction expected for two-state shift). pKA_func conserved
+    across pathways (between-arm difference 0.08–0.31 dex).
+  Self-audit ①: zero-model reproduction: pKi−pEC50 = +1.96/+0.52/+2.45 dex (the three high-affinity
+    partial agonists), negative for the other ligands (spare-receptor direction, allowed under single KA).
+  Self-audit ②: PPHT replication: same three ligands pKd−pEC50 = +2.19/+1.15/+2.39 dex;
+    the two tracers differ by only 0.06–0.63 dex — the anchor itself is solid.
+  Self-audit ③: with E_sys 100→110, Δ shifts only 0.1–0.35 dex; classification unchanged.
+  Test 3: all full-agonist potencies shift down −1.15…−1.37 dex by 90 min (desensitization); the three partial
+    agonists stable or shifted up (bifeprunox +1.09); bifeprunox vs ropinirole
+    bias factor −0.42 at 2' → +1.93 dex at 90', a 2.35 dex swing with sign reversal
+    (SEM 0.02–0.03) → equilibrium bias quantification gives opposite answers depending on readout time.
 
-判定：单亲和力平衡 operational 模型在 D2R 数据上断裂，定位于高亲和力
-部分激动剂——恰是全部显著偏向报道所属类别（SI T3 星号集中于此）。
-方法自审四条全部通过，断裂稳健。
+Verdict: the single-affinity equilibrium operational model fractures on the D2R data, localized to the high-affinity
+partial agonists — exactly the class to which all significant-bias reports belong (SI T3 asterisks cluster here).
+All four method self-audits pass; the fracture is robust.
 
-⚠️ 双录：PTH1R（Sachdev 2024，Source Data 已入卷）缺结合锚点，
-归一化曲线上 Black–Leff 的 τ/KA 在 nH≠1 时不可辨识（撞边界伪影
-+5.77/+9.58 dex，不作结论）。教训：无独立亲和力锚点时，边际
-operational 统计量不构成可判伪检验。
+⚠️ dual-record: PTH1R (Sachdev 2024, Source Data archived) lacks a binding anchor;
+on normalized curves Black–Leff τ/KA is unidentifiable when nH≠1 (boundary-hitting artifacts
++5.77/+9.58 dex, no conclusion drawn). Lesson: without an independent affinity anchor, marginal
+operational statistics do not constitute a falsifiable test.
 
-运行：python3 代码63_GPCR功能亲和力_断裂检验.py
-依赖：numpy
+run: python3 代码63_GPCR功能亲和力_断裂检验.py
+dependencies: numpy
 """
 
 import numpy as np
@@ -85,13 +85,13 @@ PEC50_T = {
 }
 
 def main():
-    print("== 检验2：功能 KA 反演，误差全传播 ==")
-    print(f"{'配体':13s} {'通路':5s} {'pKA_func':>8s} {'pKi':>6s} {'Δ(dex)':>8s} {'σ(Δ)':>6s} {'显著性':>6s}")
+    print("== Test 2: functional KA inversion, full error propagation ==")
+    print(f"{'ligand':13s} {'path':5s} {'pKA_func':>8s} {'pKi':>6s} {'Δ(dex)':>8s} {'σ(Δ)':>6s} {'signif.':>6s}")
     for lig in LIGS:
         for path in ["cAMP", "GaoB"]:
             em, eme = EMAX5[path][lig]
             if em >= 99.5:
-                print(f"{lig:13s} {path:5s}   τ→∞（满激动，KA 不可分辨）")
+                print(f"{lig:13s} {path:5s}   τ→∞ (full agonism, KA indistinguishable)")
                 continue
             tau = em / (100 - em)
             lr, lre = logR[lig][path]; pk, pke = pKi[lig]
@@ -100,17 +100,17 @@ def main():
             sd = np.sqrt(lre**2 + pke**2 + s_logtau**2)
             print(f"{lig:13s} {path:5s} {pka:8.2f} {pk:6.2f} {pka-pk:+8.2f} {sd:6.2f} {abs(pka-pk)/sd:5.1f}σ")
 
-    print("\n== 自审①：零模型判据 pKi−pEC50（>0.3 即断裂，无拟合假设）==")
+    print("\n== Self-audit ①: zero-model criterion pKi−pEC50 (>0.3 = fracture, no fitting assumptions) ==")
     for lig in LIGS:
         d = pKi[lig][0] - PEC50_5[lig]
-        tag = "⚠断裂" if d > 0.3 else ("备用受体方向（满激动预期）" if d < -0.3 else "一致")
-        print(f"  {lig:13s} pKi={pKi[lig][0]:5.2f} pEC50={PEC50_5[lig]:5.2f} 差={d:+.2f}  {tag}")
+        tag = "⚠fracture" if d > 0.3 else ("spare-receptor direction (expected for full agonism)" if d < -0.3 else "consistent")
+        print(f"  {lig:13s} pKi={pKi[lig][0]:5.2f} pEC50={PEC50_5[lig]:5.2f} diff={d:+.2f}  {tag}")
 
-    print("\n== 自审②：第二示踪剂 PPHT 动力学 pKd 复制 ==")
+    print("\n== Self-audit ②: second tracer PPHT kinetics pKd replication ==")
     for lig in LIGS:
-        print(f"  {lig:13s} pKd_ppht={pKd2[lig]:5.2f} 两示踪剂差={pKd2[lig]-pKi[lig][0]:+.2f} pKd−pEC50={pKd2[lig]-PEC50_5[lig]:+.2f}")
+        print(f"  {lig:13s} pKd_ppht={pKd2[lig]:5.2f} two-tracer diff={pKd2[lig]-pKi[lig][0]:+.2f} pKd−pEC50={pKd2[lig]-PEC50_5[lig]:+.2f}")
 
-    print("\n== 自审③：系统最大扰动（E_sys=100/105/110，cAMP 臂 Δ）==")
+    print("\n== Self-audit ③: system-maximum perturbation (E_sys=100/105/110, cAMP arm Δ) ==")
     for esys in [100, 105, 110]:
         out = []
         for lig in LIGS:
@@ -119,13 +119,13 @@ def main():
             out.append(f"{lig[:4]}={logR[lig]['cAMP'][0]-np.log10(tau)-pKi[lig][0]:+.2f}")
         print(f"  E_sys={esys}: " + ", ".join(out))
 
-    print("\n== 检验3：pEC50 时间漂移（2'→90'）与偏向因子摆动 ==")
+    print("\n== Test 3: pEC50 time drift (2'→90') and bias-factor swing ==")
     for lig in LIGS:
         v = PEC50_T[lig]
         print(f"  {lig:13s}: {v[0]:.2f}→{v[-1]:.2f}  Δ={v[-1]-v[0]:+.2f} dex")
     for lig in ["Bifeprunox", "Aripiprazole", "Cariprazine", "S-3PPP"]:
         d = [a - b for a, b in zip(PEC50_T[lig], PEC50_T["Ropinirole"])]
-        print(f"  {lig:13s} vs Ropi: 2'={d[0]:+.2f} → 90'={d[-1]:+.2f}  摆动={max(d)-min(d):.2f} dex")
+        print(f"  {lig:13s} vs Ropi: 2'={d[0]:+.2f} → 90'={d[-1]:+.2f}  swing={max(d)-min(d):.2f} dex")
 
 if __name__ == "__main__":
     main()
