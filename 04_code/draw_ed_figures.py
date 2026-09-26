@@ -1,7 +1,7 @@
 # Extended Data schematics for
 # "Scale-free statistics are the currency of cellular communication"
 # EDFig1  : mathematical framework schematic (SI S1)
-# EDFig13 : human-AI collaborative audit-trail workflow (SI S10)
+# EDFig13 : audit-trail workflow (SI S10)
 # Style: Arial/Helvetica fallback DejaVu Sans, base 7pt, svg.fonttype='none',
 # colorblind-safe muted palette (Okabe-Ito), vector schematic, no chartjunk.
 
@@ -241,39 +241,19 @@ fig.savefig(OUT / "EDFig1_framework.png", dpi=200)
 plt.close(fig)
 
 # ----------------------------------------------------------------------------
-# EDFig 13 : human-AI collaborative audit-trail workflow
+# EDFig 13 : audit-trail workflow
 # ----------------------------------------------------------------------------
-fig = plt.figure(figsize=(7.2, 3.7))
+fig = plt.figure(figsize=(7.2, 2.75))
 ax = fig.add_axes([0, 0, 1, 1])
 ax.set_xlim(0, 184)
-ax.set_ylim(0, 100)
+ax.set_ylim(14, 87.5)
 ax.axis("off")
-
-# swimlanes
-ax.add_patch(Rectangle((2, 88), 180, 10, fc=BLUE, ec="none", alpha=0.10))
-ax.text(4, 93, "HUMAN: questions, assumptions, arbitration", fontsize=6.5,
-        fontweight="bold", color="#005A8E", va="center")
-ax.text(102, 93, "sets questions; owns all modelling assumptions; arbitrates "
-        "every disputed interpretation", fontsize=5.0, color="#005A8E",
-        va="center")
-
-ax.add_patch(Rectangle((2, 2), 180, 10, fc=ORANGE, ec="none", alpha=0.13))
-ax.text(4, 7, "AI: code, records, drafts", fontsize=6.5, fontweight="bold",
-        color="#8A5A00", va="center")
-ax.text(102, 7, "drafts and runs analysis code; maintains the archive; "
-        "drafts text under human revision", fontsize=5.0, color="#8A5A00",
-        va="center")
 
 # rule banner
 ax.add_patch(Rectangle((2, 78.5), 180, 7, fc=GRAY, ec="none", alpha=0.13))
 ax.text(92, 82, "Rule: every quantitative claim traces to an archived script "
-        "output, not to conversation", fontsize=6.5, fontweight="bold",
+        "output, not to memory", fontsize=6.5, fontweight="bold",
         color=GRAY, ha="center", va="center")
-
-# human lane connectors to chain
-arrow(ax, 16, 88, 16, 67.0, color="#005A8E", lw=0.7, ls=(0, (3, 2)), ms=5, z=1)
-arrow(ax, 133.6, 88, 133.6, 67.0, color="#005A8E", lw=0.7, ls=(0, (3, 2)),
-      ms=5, z=1)
 
 # ---------------- artefact chain nodes --------------------------------------
 NW, NH, NY = 26.0, 16.0, 50.0
