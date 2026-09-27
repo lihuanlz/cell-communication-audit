@@ -11,3 +11,17 @@ _tmp*/
 
 # rerun intermediates (copied archived inputs, do not commit)
 04_code/*.mat
+
+# rerun artifacts regenerated next to scripts (canonical figures live in 02_figures/)
+04_code/Fig*.png
+04_code/Fig*.svg
+04_code/EDFig*.png
+04_code/EDFig*.svg
+
+# rerun outputs with legacy Chinese filenames (not for release)
+04_code/代码*
+04_code/NFκB*
+04_code/PdPC*
+04_code/判别图*
+04_code/非symmetry*
+04_code/p53_Fisherstratified_S7.png
