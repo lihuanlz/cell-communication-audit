@@ -1,0 +1,20 @@
+{
+ "S1P_CN_ERK": {
+  "median_R": 2.1690338522035306,
+  "n_cond": 2,
+  "all_R": [
+   2.049257675717101,
+   2.28881002868996
+  ]
+ },
+ "Histamine_CN_AktRB": {
+  "median_R": null,
+  "n_cond": 0,
+  "all_R": []
+ },
+ "UK_CN_AktRB": {
+  "median_R": null,
+  "n_cond": 0,
+  "all_R": []
+ }
+}

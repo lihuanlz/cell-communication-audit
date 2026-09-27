@@ -21,8 +21,8 @@ code51r1_p53_fisher_audit.py,03_细胞线3\代码与图\代码51_p53脉冲发生
 code51r2_p53_fisher_audit.py,03_细胞线3\代码与图\代码51r2_p53_Fisher审计.py,16 (r2 archive),S4.1-S4.3,"p53 Fisher audit, revision 2 (archived lineage)"
 code51r3_p53_fisher_audit.py,03_细胞线3\代码与图\代码51r3_p53_Fisher审计.py,16,S4.1-S4.3,"p53 channel-level identifiability audit, definitive r3 (94.2%/5.5%, lambda7/lambda1=4.7e-19)"
 code51r4_p53_fisher_wrapup.py,03_细胞线3\代码与图\代码51r4_p53_Fisher收尾.py,,S4.3/S4.6,p53 Fisher wrap-up: noise calibration and M=4000 robustness (51r4A/51r4B outputs)
-code52_TrackC2_discrimination_map.py,03_细胞线3\代码与图\代码52_TrackC2_判别图.py,17,S3.4,"TrackC2 source-figure digitisation bootstrap re-check (8.6 sigma, tau_r ~ 7.7 h)"
-code52chemo_protocol_artifact_FRET_coordinates.py,03_细胞线3\代码与图\代码52_协议伪影检验_原始FRET坐标分析.py,,S8.1/S8.3,Chemotaxis-line script sharing number 52: protocol-artefact test on raw FRET coordinates (distinct from TrackC2)
+code52_TrackC2_discrimination_diagram.py,03_细胞线3\代码与图\代码52_TrackC2_判别图.py,17,S3.4,"TrackC2 source-figure digitisation bootstrap re-check (8.6 sigma, tau_r ~ 7.7 h)"
+code52_protocol_artifact_test_raw_FRET_coordinate_analysis.py,03_细胞线3\代码与图\代码52_协议伪影检验_原始FRET坐标分析.py,,S8.1/S8.3,Chemotaxis-line script sharing number 52: protocol-artefact test on raw FRET coordinates (distinct from TrackC2)
 code51chemo_receptor_layer_selfcheck.py,03_细胞线3\代码与图\代码51_趋化受体层_框架自检仿真.py,,S1.9/S8.1,Chemotaxis receptor-layer framework self-check simulation (chemotaxis version of code 51)
 code53_CheA_node_mechanism_kernel_competition.py,03_细胞线3\代码与图\代码53_CheA节点机制检验与核模型竞赛.py,,S8.3,CheA-node mechanism test and kernel-model race
 code54_K12_joint_fit_rupture_quantification.py,03_细胞线3\代码与图\代码54_K12联合拟合_断裂度定量.py,,S8.2,K1/2 joint fit and rupture quantification (Pareto front)
