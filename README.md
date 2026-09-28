@@ -1,5 +1,7 @@
 # Submission Package — Cell Communication Audit
 
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.23008825.svg)](https://doi.org/10.5281/zenodo.23008825)
+
 **Paper:** *Scale-free statistics are the currency of cellular communication: an audit across four signalling systems*
 **Version:** manuscript v06 / SI v06, 2026-09-28 (v05 archived in ../_archive_旧版本/manuscript_v05/; see 更新清单_v05_to_v06_2026-09-28.md)
 **Package assembled:** 2026-09-23, from the local project archive. All files are **copies**; archive originals were never moved, modified, or deleted.
