@@ -1,6 +1,6 @@
 # Validation & Audit Records Index
 
-Paper: *Scale-free statistics are the currency of cellular communication: an audit across four signalling systems* (manuscript v05, 2026-09-23).
+Paper: *Scale-free statistics are the currency of cellular communication: an audit across four signalling systems* (manuscript v06, 2026-09-28; v05 archived).
 
 This index lists every validation/audit artefact cited in the manuscript and SI. Paths are relative to the workspace root (`D:\Kimi_Agent_细胞仿真工具包扩展以及具身智能20260911\`). All artefacts remain in their original archive locations; this package copies only the manuscript, figures, data tables and code. Original filenames are quoted verbatim (Chinese names included) for traceability.
 
@@ -93,3 +93,20 @@ The programme's failures are archived with the same discipline as its hits:
 S13 evidence-strength register (2026-09-23), including the code 82 mechanism-level stress test M1–M6 on the reconstructed 23-parameter Mönke p53 model. Location: SI section S13 (S13.1 headline-claim register E1–E32 with tier assignments, S13.3 mechanism-level stress test, S13.4 calibrated-wording ledger). Verdict card: `03_细胞线3\结果\判词卡_代码82_p53机制模型_2026-09-23.md` (with companion report `报告_代码82_p53机制模型_2026-09-23.md` and `代码82_机制审计_结果.json` in the same folder). Working-copy Chinese archive of the section: `05_主线纲领与设计\论文_细胞通讯审计_2026-09-23\S13_证据强度登记_2026-09-23.md`.
 
 - 2026-09-25: codes 89-93 verdict cards and audit card (`03_细胞线3/结果/判词卡_代码89..93_*.md`, `审计卡_代码89-91_*.md`) underpin SI S14; result JSONs copied to `03_data_csv/p53_molecular_layer/`.
+
+## 肿瘤预言线（v06 新增，P11–P16）
+
+卡片、脚本与结果已归位投稿包：`07_audit_cards_tumour_chain\`（英文文件名，内容中文为权威工作记录）、`04_code\tumour_chain_P11_P16\`、`03_data_csv\tumour_chain_P11_P16\`；工作副本（中文文件名）保留于 `05_主线纲领与设计\肿瘤预言线\`：
+
+| 编号 | 内容 | 判决 | 预注册卡 / 判词卡 |
+|---|---|---|---|
+| P11 | p53 计数律跨细胞系 | 一毙一不决一弱反对 | 预注册卡_P11 / 判词卡_P11_p53计数律跨细胞系_2026-09-28 |
+| P12 | 增益分布与耐药零方向 | P12a 不成立；P12b 成立 + EGFR 弱成立 | 预注册卡_P12（含 A1–A5）/ 判词卡_P12_增益分布与耐药零方向_2026-09-28 |
+| P13 | 信道容量互信息 | 部分成立、分级、复核稳健 | 预注册卡_P13（含 A1）/ 判词卡_P13_信道容量_2026-09-28 |
+| P14 | p53 下游误读 | 成立（AUC 校正登记） | 预注册卡_P14（含 A1）/ 判词卡_P14_p53下游误读_2026-09-28 |
+| P15 | TCGA 组织解耦 | 不成立（外推边界） | 预注册卡_P15 / 判词卡_P15_TCGA信道解耦_2026-09-28 |
+| P16 | G13D 信道预言 | 冻结待验 | 预注册卡_P16_G13D信道预言_2026-09-28 |
+
+结果 JSON：p13_mi_results.json、p13_robustness.json、p14_results.json、
+p15_tcga_results.json、p12b_egfr_dms_results.json、p12b_egfr_dms_A5_results.json、
+p13_fig6_decay.json。逐样本/逐基因表：data/p15_*_persample.csv、p14_pergene_log2R.csv。

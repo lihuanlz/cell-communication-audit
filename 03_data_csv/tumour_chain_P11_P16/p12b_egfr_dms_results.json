@@ -1,0 +1,74 @@
+{
+ "both": {
+  "n_res": 66,
+  "n_other": 1314,
+  "med_activity_res": 0.0,
+  "med_activity_other": 0.0080444147964235,
+  "median_ratio": 0.0,
+  "p_one_sided": 1.0
+ },
+ "osi": {
+  "n_res": 479,
+  "n_other": 901,
+  "med_activity_res": 0.0,
+  "med_activity_other": 0.015361729084806016,
+  "median_ratio": 0.0,
+  "p_one_sided": 1.0
+ },
+ "blu": {
+  "n_res": 128,
+  "n_other": 1252,
+  "med_activity_res": 0.0009146642860478144,
+  "med_activity_other": 0.007504878066389345,
+  "median_ratio": 0.12187596893068063,
+  "p_one_sided": 0.9999913018570732
+ },
+ "named": [
+  {
+   "label": "G719S",
+   "site": 6,
+   "wt_aa": "V",
+   "mut_aa": "S",
+   "activity": 1.0940765059300925,
+   "osi_res": -9.033956726874235,
+   "blu_res": -20.848634644306703
+  },
+  {
+   "label": "G719C",
+   "site": 7,
+   "wt_aa": "L",
+   "mut_aa": "C",
+   "activity": 0.0008771515304464484,
+   "osi_res": 4.630155998953195,
+   "blu_res": 1.472417142558304
+  },
+  {
+   "label": "G719C",
+   "site": 7,
+   "wt_aa": "L",
+   "mut_aa": "C",
+   "activity": 22.820114259139302,
+   "osi_res": 6.490116077309182,
+   "blu_res": 5.3454707461515945
+  },
+  {
+   "label": "L718V",
+   "site": 18,
+   "wt_aa": "G",
+   "mut_aa": "V",
+   "activity": 0.02210199388755301,
+   "osi_res": 0.403000278201468,
+   "blu_res": 0.4828245725034067
+  },
+  {
+   "label": "G724S",
+   "site": 24,
+   "wt_aa": "G",
+   "mut_aa": "S",
+   "activity": 0.0035836316329885256,
+   "osi_res": 2.2927886075979957,
+   "blu_res": -0.5573877801152127
+  }
+ ],
+ "n_missense_tested": 1380
+}

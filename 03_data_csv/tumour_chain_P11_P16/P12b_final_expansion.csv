@@ -1,0 +1,15 @@
+mutation,abs_dlog10_catEff_vs_ref,class,note
+ABL Y253H,0.3118,clinical,EGFR entries vs driver background
+ABL E255V,0.2371,clinical,EGFR entries vs driver background
+ABL I315M,0.1618,clinical,EGFR entries vs driver background
+EGFR T790M,0.6532,clinical,EGFR entries vs driver background
+EGFR C797S,0.1135,clinical,EGFR entries vs driver background
+ABL Y253C,0.5982,predicted_not_clinical,EVER all_data
+ABL V299M,0.8124,predicted_not_clinical,EVER all_data
+ABL I314V,0.1227,predicted_not_clinical,EVER all_data
+ABL F382Y,1.2239,predicted_not_clinical,EVER all_data
+ABL M318I,1.3798,predicted_not_clinical,EVER all_data
+ABL Y320D,0.4992,predicted_not_clinical,EVER all_data
+ABL L248M,1.069,predicted_not_clinical,EVER all_data
+ABL V299L,0.5486,predicted_not_clinical,EVER all_data
+ABL T315I,0.5198,gatekeeper_excluded,steric

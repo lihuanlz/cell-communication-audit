@@ -1,0 +1,15 @@
+mutation,kcat_s-1,KM_mM,kcat_over_KM,fold_vs_WT,abs_dlog10,class
+WT,10.8,0.0218,495.4,1.0,0,WT
+L248R,7.08,0.288,24.6,0.05,1.3043,ambiguous_sensitivity
+Y253H,17.9,0.0147,1217.7,2.458,0.3906,clinical_main
+E255V,24.8,0.029,855.2,1.726,0.2371,clinical_main
+T315I,46.9,0.0186,2521.5,5.09,0.7067,clinical_gatekeeper_excluded
+T315V,86.9,0.0658,1320.7,2.666,0.4258,ambiguous_sensitivity
+L248M,205,0.0353,5807.4,11.722,1.069,predicted_not_clinical
+Y253C,54.4,0.0277,1963.9,3.964,0.5982,predicted_not_clinical
+V299L,95.5,0.0545,1752.3,3.537,0.5486,predicted_not_clinical
+V299M,35.7,0.0111,3216.2,6.492,0.8124,predicted_not_clinical
+I314V,4.78,0.0128,373.4,0.754,0.1227,predicted_not_clinical
+M318I,35.4,0.00298,11879.2,23.978,1.3798,predicted_not_clinical
+Y320D,119,0.0761,1563.7,3.156,0.4992,predicted_not_clinical
+F382Y,56,0.00675,8296.3,16.746,1.2239,predicted_not_clinical
