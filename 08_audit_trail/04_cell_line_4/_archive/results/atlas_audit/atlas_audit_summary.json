@@ -1,0 +1,448 @@
+{
+ "rows_total": 9041,
+ "entries_with_tc_em_pec": 3096,
+ "groups_multi_ligand": 269,
+ "pairs_total": 17987,
+ "pair_dev_quantiles_dex": {
+  "P50": 0.11692962839111143,
+  "P75": 0.21461601440760258,
+  "P90": 0.36629088258964115,
+  "P95": 0.6104644217173512,
+  "P99": 1.1356982708568912
+ },
+ "groups_dev_median_gt_0.3": 70,
+ "papers_total": 66,
+ "papers_dev_median_gt_0.3": 15,
+ "emax_qc": {
+  "emax_gt110": 711,
+  "emax_gt150": 181,
+  "emax_gt300": 30,
+  "emax_neg": 8
+ },
+ "closure_triangles": 3931,
+ "closure_violations_gt_0.01": 0,
+ "worst_groups": [
+  {
+   "grp": "10.1124/mol.113.088880|ADRB2_HUMAN|Internalization |Transducer|HEK|nan",
+   "doi": "10.1124/mol.113.088880",
+   "receptor": "ADRB2_HUMAN",
+   "process": "Internalization ",
+   "level": "Transducer",
+   "cell": "HEK",
+   "effector": "nan",
+   "n_ligands": 2,
+   "n_pairs": 1,
+   "dev_median": 2.867366931916888,
+   "dev_max": 2.867366931916888
+  },
+  {
+   "grp": "10.1124/mol.115.101980|CNR1_HUMAN|Phosphorylation|Downstream|STHdhQ111/Q111|nan",
+   "doi": "10.1124/mol.115.101980",
+   "receptor": "CNR1_HUMAN",
+   "process": "Phosphorylation",
+   "level": "Downstream",
+   "cell": "STHdhQ111/Q111",
+   "effector": "nan",
+   "n_ligands": 6,
+   "n_pairs": 15,
+   "dev_median": 1.9719163591567552,
+   "dev_max": 4.989772014905391
+  },
+  {
+   "grp": "10.1074/jbc.M116.757559|CCR2_HUMAN|Dissociation|Transducer|HEK-293T|Gi2",
+   "doi": "10.1074/jbc.M116.757559",
+   "receptor": "CCR2_HUMAN",
+   "process": "Dissociation",
+   "level": "Transducer",
+   "cell": "HEK-293T",
+   "effector": "Gi2",
+   "n_ligands": 2,
+   "n_pairs": 1,
+   "dev_median": 1.9656791142999648,
+   "dev_max": 1.9656791142999648
+  },
+  {
+   "grp": "10.1038/s41467-019-11875-6|ADRB2_HUMAN|Recruitment |Transducer|HEK-293|Arrestin-3 (β-arrestin-2)",
+   "doi": "10.1038/s41467-019-11875-6",
+   "receptor": "ADRB2_HUMAN",
+   "process": "Recruitment ",
+   "level": "Transducer",
+   "cell": "HEK-293",
+   "effector": "Arrestin-3 (β-arrestin-2)",
+   "n_ligands": 4,
+   "n_pairs": 6,
+   "dev_median": 1.662347421557736,
+   "dev_max": 3.324694843115472
+  },
+  {
+   "grp": "10.1111/bph.13854|OPRK_HUMAN|Activation|Transducer|CHO|nan",
+   "doi": "10.1111/bph.13854",
+   "receptor": "OPRK_HUMAN",
+   "process": "Activation",
+   "level": "Transducer",
+   "cell": "CHO",
+   "effector": "nan",
+   "n_ligands": 2,
+   "n_pairs": 1,
+   "dev_median": 1.5290484588333726,
+   "dev_max": 1.5290484588333726
+  },
+  {
+   "grp": "10.1074/jbc.M116.757559|CCR5_HUMAN|Accumulation|Downstream|CHO-K1|nan",
+   "doi": "10.1074/jbc.M116.757559",
+   "receptor": "CCR5_HUMAN",
+   "process": "Accumulation",
+   "level": "Downstream",
+   "cell": "CHO-K1",
+   "effector": "nan",
+   "n_ligands": 2,
+   "n_pairs": 1,
+   "dev_median": 1.4280451799550997,
+   "dev_max": 1.4280451799550997
+  },
+  {
+   "grp": "10.1073/pnas.1312515110|CXCR4_HUMAN|Recruitment |Transducer|HEK-293T|nan",
+   "doi": "10.1073/pnas.1312515110",
+   "receptor": "CXCR4_HUMAN",
+   "process": "Recruitment ",
+   "level": "Transducer",
+   "cell": "HEK-293T",
+   "effector": "nan",
+   "n_ligands": 2,
+   "n_pairs": 1,
+   "dev_median": 1.3573241391720483,
+   "dev_max": 1.3573241391720483
+  },
+  {
+   "grp": "10.1124/mol.115.098848|OPRM_HUMAN|Accumulation|Downstream|CHO|nan",
+   "doi": "10.1124/mol.115.098848",
+   "receptor": "OPRM_HUMAN",
+   "process": "Accumulation",
+   "level": "Downstream",
+   "cell": "CHO",
+   "effector": "nan",
+   "n_ligands": 13,
+   "n_pairs": 78,
+   "dev_median": 1.2699489028835078,
+   "dev_max": 3.3626205036783254
+  },
+  {
+   "grp": "10.1124/jpet.116.232561|CNR2_MOUSE|Recruitment |Transducer|CHO-K1|nan",
+   "doi": "10.1124/jpet.116.232561",
+   "receptor": "CNR2_MOUSE",
+   "process": "Recruitment ",
+   "level": "Transducer",
+   "cell": "CHO-K1",
+   "effector": "nan",
+   "n_ligands": 11,
+   "n_pairs": 55,
+   "dev_median": 1.2332623817562798,
+   "dev_max": 4.0706069662677224
+  },
+  {
+   "grp": "10.1016/j.bcp.2018.04.021|AGTR1_HUMAN|Dissociation|Transducer|HEK-293|Gz",
+   "doi": "10.1016/j.bcp.2018.04.021",
+   "receptor": "AGTR1_HUMAN",
+   "process": "Dissociation",
+   "level": "Transducer",
+   "cell": "HEK-293",
+   "effector": "Gz",
+   "n_ligands": 4,
+   "n_pairs": 6,
+   "dev_median": 1.154991782504141,
+   "dev_max": 1.2633674543453113
+  },
+  {
+   "grp": "10.1124/mol.113.088880|ADRB2_HUMAN|Phosphorylation|Downstream|HEK|nan",
+   "doi": "10.1124/mol.113.088880",
+   "receptor": "ADRB2_HUMAN",
+   "process": "Phosphorylation",
+   "level": "Downstream",
+   "cell": "HEK",
+   "effector": "nan",
+   "n_ligands": 8,
+   "n_pairs": 28,
+   "dev_median": 1.1356982708568912,
+   "dev_max": 3.6756181219288164
+  },
+  {
+   "grp": "10.1124/mol.115.101980|CNR1_HUMAN|Phosphorylation|Downstream|STHdhQ7/Q7|nan",
+   "doi": "10.1124/mol.115.101980",
+   "receptor": "CNR1_HUMAN",
+   "process": "Phosphorylation",
+   "level": "Downstream",
+   "cell": "STHdhQ7/Q7",
+   "effector": "nan",
+   "n_ligands": 6,
+   "n_pairs": 15,
+   "dev_median": 1.1290872055494656,
+   "dev_max": 3.563877338830763
+  },
+  {
+   "grp": "10.1111/bph.13854|OPRK_HUMAN|Recruitment |Transducer|U2OS|Arrestin-3 (β-arrestin-2)",
+   "doi": "10.1111/bph.13854",
+   "receptor": "OPRK_HUMAN",
+   "process": "Recruitment ",
+   "level": "Transducer",
+   "cell": "U2OS",
+   "effector": "Arrestin-3 (β-arrestin-2)",
+   "n_ligands": 3,
+   "n_pairs": 3,
+   "dev_median": 1.115370367161435,
+   "dev_max": 2.208553569393428
+  },
+  {
+   "grp": "10.1016/j.bcp.2018.04.021|AGTR1_HUMAN|Dissociation|Transducer|HEK-293|Gi2",
+   "doi": "10.1016/j.bcp.2018.04.021",
+   "receptor": "AGTR1_HUMAN",
+   "process": "Dissociation",
+   "level": "Transducer",
+   "cell": "HEK-293",
+   "effector": "Gi2",
+   "n_ligands": 4,
+   "n_pairs": 6,
+   "dev_median": 1.0234042632019733,
+   "dev_max": 1.843270556860058
+  },
+  {
+   "grp": "10.1126/scisignal.aar4309|OPRK_HUMAN|Recruitment |Transducer|U2OS|Arrestin-3 (β-arrestin-2)",
+   "doi": "10.1126/scisignal.aar4309",
+   "receptor": "OPRK_HUMAN",
+   "process": "Recruitment ",
+   "level": "Transducer",
+   "cell": "U2OS",
+   "effector": "Arrestin-3 (β-arrestin-2)",
+   "n_ligands": 3,
+   "n_pairs": 3,
+   "dev_median": 0.9554276862380471,
+   "dev_max": 0.9856420487151691
+  },
+  {
+   "grp": "10.1124/jpet.116.232561|CNR2_MOUSE|Accumulation|Downstream|HEK-293|nan",
+   "doi": "10.1124/jpet.116.232561",
+   "receptor": "CNR2_MOUSE",
+   "process": "Accumulation",
+   "level": "Downstream",
+   "cell": "HEK-293",
+   "effector": "nan",
+   "n_ligands": 19,
+   "n_pairs": 171,
+   "dev_median": 0.9206580681820569,
+   "dev_max": 3.583269843682805
+  },
+  {
+   "grp": "10.1073/pnas.2000712117|OPRK_HUMAN|Activation|Transducer|U2OS|nan",
+   "doi": "10.1073/pnas.2000712117",
+   "receptor": "OPRK_HUMAN",
+   "process": "Activation",
+   "level": "Transducer",
+   "cell": "U2OS",
+   "effector": "nan",
+   "n_ligands": 21,
+   "n_pairs": 210,
+   "dev_median": 0.885046900000857,
+   "dev_max": 4.56947809601624
+  },
+  {
+   "grp": "10.1038/s41598-020-65636-3|ADRB1_HUMAN|Dissociation|Transducer|HEK-293|G12",
+   "doi": "10.1038/s41598-020-65636-3",
+   "receptor": "ADRB1_HUMAN",
+   "process": "Dissociation",
+   "level": "Transducer",
+   "cell": "HEK-293",
+   "effector": "G12",
+   "n_ligands": 5,
+   "n_pairs": 10,
+   "dev_median": 0.8490373772123716,
+   "dev_max": 1.808708406721765
+  },
+  {
+   "grp": "10.1016/j.bcp.2018.04.021|AGTR1_HUMAN|Dissociation|Transducer|HEK-293|G12",
+   "doi": "10.1016/j.bcp.2018.04.021",
+   "receptor": "AGTR1_HUMAN",
+   "process": "Dissociation",
+   "level": "Transducer",
+   "cell": "HEK-293",
+   "effector": "G12",
+   "n_ligands": 4,
+   "n_pairs": 6,
+   "dev_median": 0.8350301621341201,
+   "dev_max": 1.6700603242682401
+  },
+  {
+   "grp": "10.1124/mol.115.101980|CNR1_HUMAN|Recruitment |Transducer|STHdhQ111/Q111|Arrestin-2 (β-arrestin-1)",
+   "doi": "10.1124/mol.115.101980",
+   "receptor": "CNR1_HUMAN",
+   "process": "Recruitment ",
+   "level": "Transducer",
+   "cell": "STHdhQ111/Q111",
+   "effector": "Arrestin-2 (β-arrestin-1)",
+   "n_ligands": 5,
+   "n_pairs": 10,
+   "dev_median": 0.8346137809151775,
+   "dev_max": 1.756470421042354
+  }
+ ],
+ "worst_papers": [
+  {
+   "doi": "10.1111/bph.13854",
+   "n_groups": 2,
+   "n_pairs": 4,
+   "dev_median": 1.3222094129974038,
+   "dev_max": 2.208553569393428,
+   "receptors": "OPRK_HUMAN"
+  },
+  {
+   "doi": "10.1124/jpet.116.232561",
+   "n_groups": 2,
+   "n_pairs": 226,
+   "dev_median": 1.0769602249691683,
+   "dev_max": 4.0706069662677224,
+   "receptors": "CNR2_MOUSE"
+  },
+  {
+   "doi": "10.1124/mol.115.101980",
+   "n_groups": 4,
+   "n_pairs": 50,
+   "dev_median": 0.9818504932323215,
+   "dev_max": 4.989772014905391,
+   "receptors": "CNR1_HUMAN"
+  },
+  {
+   "doi": "10.1124/mol.113.088880",
+   "n_groups": 5,
+   "n_pairs": 50,
+   "dev_median": 0.8274757666188934,
+   "dev_max": 3.6756181219288164,
+   "receptors": "ADRB2_HUMAN"
+  },
+  {
+   "doi": "10.1074/jbc.M116.757559",
+   "n_groups": 7,
+   "n_pairs": 13,
+   "dev_median": 0.6820080530223134,
+   "dev_max": 1.9656791142999648,
+   "receptors": "CCR2_HUMAN|CCR5_HUMAN"
+  },
+  {
+   "doi": "10.1073/pnas.1312515110",
+   "n_groups": 3,
+   "n_pairs": 3,
+   "dev_median": 0.6764664248174999,
+   "dev_max": 1.3573241391720483,
+   "receptors": "CXCR4_HUMAN"
+  },
+  {
+   "doi": "10.1073/pnas.1908662116",
+   "n_groups": 4,
+   "n_pairs": 28,
+   "dev_median": 0.530954585619815,
+   "dev_max": 1.4960065988800375,
+   "receptors": "OPRM_MOUSE"
+  },
+  {
+   "doi": "10.3389/fphar.2020.00188",
+   "n_groups": 1,
+   "n_pairs": 1,
+   "dev_median": 0.528861632411326,
+   "dev_max": 0.528861632411326,
+   "receptors": "OPRK_HUMAN"
+  },
+  {
+   "doi": "10.1016/j.bcp.2018.04.021",
+   "n_groups": 8,
+   "n_pairs": 48,
+   "dev_median": 0.5256915254402188,
+   "dev_max": 1.843270556860058,
+   "receptors": "AGTR1_HUMAN"
+  },
+  {
+   "doi": "10.1073/pnas.2000712117",
+   "n_groups": 6,
+   "n_pairs": 1240,
+   "dev_median": 0.4518166379929127,
+   "dev_max": 4.56947809601624,
+   "receptors": "OPRD_HUMAN|OPRK_HUMAN|OPRM_HUMAN"
+  },
+  {
+   "doi": "10.1007/s00018-013-1461-7",
+   "n_groups": 2,
+   "n_pairs": 16,
+   "dev_median": 0.42913855348549745,
+   "dev_max": 0.7221956094697406,
+   "receptors": "OPRD_HUMAN"
+  },
+  {
+   "doi": "10.1111/bph.14913",
+   "n_groups": 5,
+   "n_pairs": 214,
+   "dev_median": 0.41829008377108945,
+   "dev_max": 4.556279286061881,
+   "receptors": "OPRD_HUMAN|OPRD_MOUSE|OPRK_MOUSE|OPRM_HUMAN|OPRM_MOUSE"
+  },
+  {
+   "doi": "10.1124/mol.110.068106",
+   "n_groups": 2,
+   "n_pairs": 57,
+   "dev_median": 0.39955576816585525,
+   "dev_max": 1.7959202104277239,
+   "receptors": "DRD2_HUMAN"
+  },
+  {
+   "doi": "10.1016/j.bmc.2017.08.037",
+   "n_groups": 2,
+   "n_pairs": 91,
+   "dev_median": 0.3554244930706798,
+   "dev_max": 1.65390657568428,
+   "receptors": "DRD2_HUMAN"
+  },
+  {
+   "doi": "10.1038/ncomms13958",
+   "n_groups": 8,
+   "n_pairs": 288,
+   "dev_median": 0.32605910158914675,
+   "dev_max": 4.053655560938572,
+   "receptors": "CNR2_HUMAN|CNR2_MOUSE"
+  },
+  {
+   "doi": "10.1074/jbc.M115.704122",
+   "n_groups": 1,
+   "n_pairs": 15,
+   "dev_median": 0.2872988330029411,
+   "dev_max": 0.6102841834319586,
+   "receptors": "NPSR1_HUMAN"
+  },
+  {
+   "doi": "10.1074/jbc.M112.408534",
+   "n_groups": 3,
+   "n_pairs": 18,
+   "dev_median": 0.2834999443452584,
+   "dev_max": 0.6139087409443196,
+   "receptors": "ACM2_HUMAN"
+  },
+  {
+   "doi": "10.1038/s41598-017-15258-z",
+   "n_groups": 2,
+   "n_pairs": 13,
+   "dev_median": 0.2702995083064921,
+   "dev_max": 0.6641336797167199,
+   "receptors": "OPRM_HUMAN"
+  },
+  {
+   "doi": "10.1124/mol.115.099192",
+   "n_groups": 2,
+   "n_pairs": 42,
+   "dev_median": 0.26663381465092284,
+   "dev_max": 0.7372497426819704,
+   "receptors": "CNR1_HUMAN"
+  },
+  {
+   "doi": "10.1016/j.phrs.2017.08.008",
+   "n_groups": 3,
+   "n_pairs": 15,
+   "dev_median": 0.2625753500718613,
+   "dev_max": 0.7650646798527925,
+   "receptors": "CNR1_HUMAN"
+  }
+ ]
+}

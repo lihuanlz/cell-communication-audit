@@ -1,0 +1,242 @@
+grp,n,dev_median,dev_max,frac_gt03,p_rho0,p_rho3,p_rho5,高置信断裂,候选断裂,jackknife,置信度,标签
+10.1016/j.bcp.2015.11.013|AA1R_HUMAN|Accumulation|Downstream|CHO|nan,12,0.0,1.1952649667787627,0.25,0.0,0.0,0.0,True,False,1.0,100.0,高置信断裂
+10.1016/j.bcp.2018.04.021|AGTR1_HUMAN|Dissociation|Transducer|HEK-293|Gi2,4,0.0,1.134452578871224,1.0,0.0,0.0,0.0,True,False,1.0,100.0,高置信断裂
+10.1038/ncomms13958|CNR2_HUMAN|Activation|Downstream|AtT20|nan,12,0.0,1.579232955700696,0.5,0.0,0.0,0.0,True,False,1.0,100.0,高置信断裂
+10.1038/ncomms13958|CNR2_HUMAN|Recruitment |Transducer|CHO-K1|nan,11,0.0,3.51511320169735,0.2727272727272727,0.0,0.0,0.0,True,False,1.0,100.0,高置信断裂
+10.1038/ncomms13958|CNR2_HUMAN|Activation|Transducer|CHO-K1|nan,11,0.0,1.4068894597231516,0.5454545454545454,0.0,0.0,0.0,True,False,1.0,100.0,高置信断裂
+10.1038/s41467-019-11875-6|ADRB2_HUMAN|Recruitment |Transducer|HEK-293|Arrestin-3 (β-arrestin-2),4,2.498001805406602e-16,2.7423596742682665,0.5,0.0,0.0,0.0,True,False,1.0,100.0,高置信断裂
+10.1038/s41467-019-11875-6|OPRD_HUMAN|Dissociation|Transducer|HEK-293|Gi1,19,0.0,1.660640416521563,0.2631578947368421,0.0,0.0,0.0,True,False,1.0,100.0,高置信断裂
+10.1038/s41467-019-11875-6|OPRD_HUMAN|Recruitment |Transducer|HEK-293|Arrestin-3 (β-arrestin-2),46,0.0,2.008597894476542,0.10869565217391304,0.0,0.0,0.0,True,False,1.0,100.0,高置信断裂
+10.1038/s41467-018-03941-2|GLP1R_HUMAN|Recruitment |Transducer|CHO-K1|Arrestin-3 (β-arrestin-2),12,0.0,1.3130901024020811,0.25,0.0,0.0,0.0,True,False,1.0,100.0,高置信断裂
+10.1073/pnas.2000712117|OPRD_HUMAN|Activation|Transducer|U2OS|nan,21,0.0,1.951993415195532,0.7142857142857143,0.0,0.0,0.0,True,False,1.0,100.0,高置信断裂
+10.1073/pnas.2000712117|OPRK_HUMAN|Recruitment |Transducer|U2OS|Arrestin-3 (β-arrestin-2),20,0.0,1.474036784059141,0.6,0.0,0.0,0.0,True,False,1.0,100.0,高置信断裂
+10.1073/pnas.2000712117|OPRK_HUMAN|Activation|Transducer|U2OS|nan,21,0.0,3.2076644122218623,0.6666666666666666,0.0,0.0,0.0,True,False,1.0,100.0,高置信断裂
+10.1073/pnas.2000712117|OPRD_HUMAN|Recruitment |Transducer|U2OS|Arrestin-3 (β-arrestin-2),21,0.0,1.1667300568979178,0.3333333333333333,0.0,0.0,0.0,True,False,1.0,100.0,高置信断裂
+10.1038/s41467-019-11875-6|OPRM_RAT|Recruitment |Transducer|HEK-293|Arrestin-3 (β-arrestin-2),60,0.0,1.42664938991887,0.06666666666666667,0.0,0.0,0.0,True,False,1.0,100.0,高置信断裂
+10.1038/s41598-020-65636-3|ADRB1_HUMAN|Dissociation|Transducer|HEK-293|G12,5,0.0,1.2825977361865748,0.6,0.0,0.0,0.0,True,False,1.0,100.0,高置信断裂
+10.1038/s41467-019-11875-6|OPRM_RAT|Dissociation|Transducer|HEK-293|Gi1,25,0.0,1.182706316789209,0.16,0.0,0.0,0.0,True,False,1.0,100.0,高置信断裂
+10.1038/s41467-019-11875-6|OPRM_RAT|Dissociation|Transducer|HEK-293|Gi2,25,0.0,1.4932085863666558,0.2,0.0,0.0,0.0,True,False,1.0,100.0,高置信断裂
+10.1124/jpet.116.232561|CNR2_MOUSE|Accumulation|Downstream|HEK-293|nan,19,0.0,2.51884531229258,0.7894736842105263,0.0,0.0,0.0,True,False,1.0,100.0,高置信断裂
+10.1124/jpet.116.232561|CNR2_MOUSE|Recruitment |Transducer|CHO-K1|nan,11,0.0,3.032414323562984,0.7272727272727273,0.0,0.0,0.0,True,False,1.0,100.0,高置信断裂
+10.1124/mol.110.068106|DRD2_HUMAN|Phosphorylation|Downstream|CHO|nan,9,0.0,1.3772030474414647,0.2222222222222222,0.0,0.0,0.0,True,False,1.0,100.0,高置信断裂
+10.1111/bph.14913|OPRK_MOUSE|Accumulation|Downstream|HEK-293|nan,12,0.0,1.538993362435638,0.4166666666666667,0.0,0.0,0.0,True,False,1.0,100.0,高置信断裂
+10.1111/bph.13854|OPRK_HUMAN|Recruitment |Transducer|U2OS|Arrestin-3 (β-arrestin-2),3,0.0,1.115370367161435,0.6666666666666666,0.0,0.0,0.0,True,False,1.0,100.0,高置信断裂
+10.1111/bph.14913|OPRD_MOUSE|Accumulation|Downstream|HEK-293|nan,12,0.0,1.0310889485974877,0.5833333333333334,0.0,0.0,0.0,True,False,1.0,100.0,高置信断裂
+10.1111/bph.14913|OPRM_MOUSE|Accumulation|Downstream|HEK-293|nan,12,0.0,2.356030060440097,0.4166666666666667,0.0,0.0,0.0,True,False,1.0,100.0,高置信断裂
+10.1073/pnas.2000712117|OPRM_HUMAN|Recruitment |Transducer|U2OS|Arrestin-3 (β-arrestin-2),21,0.0,1.7039766848250668,0.2857142857142857,0.0,0.0,0.0,True,False,1.0,100.0,高置信断裂
+10.1124/mol.115.101980|CNR1_HUMAN|Phosphorylation|Downstream|STHdhQ111/Q111|nan,18,0.0,4.51922772379565,0.6666666666666666,0.0,0.0,0.0,True,False,1.0,100.0,高置信断裂
+10.1124/mol.115.101980|CNR1_HUMAN|Phosphorylation|Downstream|STHdhQ7/Q7|nan,18,0.0,3.279942805270401,0.3333333333333333,0.0,0.0,0.0,True,False,1.0,100.0,高置信断裂
+10.1124/mol.116.106153|HRH3_HUMAN|Accumulation|Downstream|CHO|nan,22,0.0,1.47641271318117,0.5909090909090909,0.0,0.0,0.0,True,False,1.0,100.0,高置信断裂
+10.1124/mol.113.088880|ADRB2_HUMAN|Accumulation|Downstream|HEK|nan,9,0.0,1.7983361089754295,0.5555555555555556,0.0,0.0,0.0,True,False,1.0,100.0,高置信断裂
+10.1124/mol.113.088880|ADRB2_HUMAN|Phosphorylation|Downstream|HEK|nan,8,0.0,2.3185881671898305,0.625,0.0,0.0,0.0,True,False,1.0,100.0,高置信断裂
+10.1124/mol.115.098848|OPRM_HUMAN|Accumulation|Downstream|CHO|nan,13,0.0,1.8914460475676176,0.46153846153846156,0.0,0.0,0.0,True,False,1.0,100.0,高置信断裂
+10.1124/mol.115.101980|CNR1_HUMAN|Recruitment |Transducer|STHdhQ111/Q111|Arrestin-2 (β-arrestin-1),5,0.0,1.5339573036022074,0.4,0.0,0.0,0.0,True,False,1.0,100.0,高置信断裂
+10.1124/mol.115.099150|OPRX_HUMAN|Accumulation|Downstream|HEK-293|nan,7,0.0,1.140785393790912,0.2857142857142857,0.0,0.0,0.0,True,False,1.0,100.0,高置信断裂
+10.1038/s41467-019-11875-6|OPRD_RAT|Recruitment |Transducer|HEK-293|Arrestin-3 (β-arrestin-2),39,0.0,1.156298062291282,0.02564102564102564,0.0,0.0,0.0,True,False,0.9743589743589743,99.2,高置信断裂
+10.1021/acsptsci.9b00083|CALRL_HUMAN|Phosphorylation|Downstream|COS-7|nan,151,0.0,0.9688171741890192,0.059602649006622516,0.0,0.0,0.0,True,False,1.0,99.1,高置信断裂
+10.1126/scisignal.aaz3140|OPRM_HUMAN|Accumulation|Downstream|HEK-293|nan,9,0.0,0.962391689498256,0.3333333333333333,0.0,0.0,0.0,True,False,1.0,98.9,高置信断裂
+10.1126/scisignal.aaz3140|OPRM_HUMAN|Recruitment |Transducer|HEK-293|Arrestin-3 (β-arrestin-2),16,0.0,0.9563475910204896,0.25,0.0,0.0,0.0,True,False,1.0,98.7,高置信断裂
+10.1002/pep2.24070|OPRD_MOUSE|Accumulation|Downstream|HEK-293|nan,13,0.0,0.9461741886852836,0.23076923076923078,0.0,0.0,0.0,True,False,1.0,98.4,高置信断裂
+10.1124/mol.110.068106|DRD2_HUMAN|Accumulation|Downstream|CHO|nan,7,0.0,0.8987450655636193,0.42857142857142855,0.0,0.0,0.0,True,False,1.0,97.0,高置信断裂
+10.1126/scisignal.aaz3140|OPRM_HUMAN|Recruitment |Transducer|HEK-293|Gi2,9,0.0,1.3924926103055952,0.1111111111111111,0.0,0.0,0.0,True,False,0.8888888888888888,96.7,高置信断裂
+10.1016/j.bcp.2018.04.021|AGTR1_HUMAN|Recruitment |Transducer|HEK-293|Arrestin-2 (β-arrestin-1),4,0.0,0.8898198320503221,1.0,0.0,0.0,0.0,True,False,1.0,96.7,高置信断裂
+10.1021/acsptsci.9b00083|CALRL_HUMAN|Accumulation|Downstream|COS-7|nan,67,0.0,0.861398927596909,0.014925373134328358,0.0,0.0,0.0,True,False,0.9850746268656716,95.4,高置信断裂
+10.1016/j.bmc.2017.08.037|DRD2_HUMAN|Activation|Transducer|HEK-293T|GoA,9,0.0,0.8435806628125926,0.5555555555555556,0.0,0.0,0.0,True,False,1.0,95.3,高置信断裂
+10.1016/j.phrs.2018.02.032|APJ_HUMAN|Dissociation|Transducer|HEK-293|GoA,10,0.0,0.8259705940004292,0.4,0.0,0.0,0.0,True,False,1.0,94.8,高置信断裂
+10.1038/s41467-019-11875-6|OPRD_HUMAN|Dissociation|Transducer|HEK-293|GoA,19,0.0,0.8028931412042537,0.15789473684210525,0.0,0.0,0.0,True,False,1.0,94.1,高置信断裂
+10.1124/mol.115.101980|CNR1_HUMAN|Recruitment |Transducer|STHdhQ7/Q7|Arrestin-2 (β-arrestin-1),5,0.0,1.0928885958652268,0.2,0.0,0.0,0.0,True,False,0.8,94.0,高置信断裂
+10.1124/mol.116.103283|AA3R_HUMAN|Phosphorylation|Downstream|CHO|nan,30,0.0,0.7884912717760182,0.36666666666666664,0.0,0.0,0.0,True,False,1.0,93.7,高置信断裂
+10.1016/j.bmc.2017.08.037|DRD2_HUMAN|Recruitment |Transducer|HEK-293|Arrestin-3 (β-arrestin-2),11,0.0,0.782140368909662,0.18181818181818182,0.0,0.0,0.0,True,False,1.0,93.5,高置信断裂
+10.1126/scisignal.aat1631|AGTR1_HUMAN|Accumulation|Downstream|HEK-293|nan,8,0.0,0.7849841814193184,0.5,0.0,0.0,0.0,True,False,1.0,93.5,高置信断裂
+10.1016/j.phrs.2018.02.032|APJ_HUMAN|Recruitment |Transducer|HEK-293|Arrestin-3 (β-arrestin-2),10,0.0,0.7695041105472411,0.2,0.0,0.0,0.0,True,False,1.0,93.1,高置信断裂
+10.1073/pnas.1312515110|CXCR4_HUMAN|Recruitment |Transducer|HEK-293T|nan,4,0.0,0.7675238722304485,1.0,0.0,0.0,0.0,True,False,1.0,93.0,高置信断裂
+10.1016/j.bcp.2018.04.021|AGTR1_HUMAN|Dissociation|Transducer|HEK-293|G12,4,0.0,1.3930721398445698,0.25,0.0,0.0,0.0,True,False,0.75,92.5,高置信断裂
+10.1073/pnas.1908662116|OPRM_MOUSE|Internalization |Transducer|AtT20|nan,4,0.0,1.303742663289135,0.25,0.0,0.0,0.0,True,False,0.75,92.5,高置信断裂
+10.1073/pnas.1908662116|OPRM_MOUSE|Activation|Downstream|AtT20|nan,5,0.0,0.7123339658939996,0.4,0.0,0.0,0.0,True,False,1.0,91.4,高置信断裂
+10.1016/j.phrs.2018.02.032|APJ_HUMAN|Recruitment |Transducer|HEK-293|Arrestin-2 (β-arrestin-1),10,0.0,0.692861990242231,0.2,0.0,0.0,0.0,True,False,1.0,90.8,高置信断裂
+10.1021/acs.jmedchem.7b00363|DRD2_HUMAN|Recruitment |Transducer|HEK-293|Arrestin-3 (β-arrestin-2),11,0.0,0.692972852700402,0.18181818181818182,0.0,0.0,0.0,True,False,1.0,90.8,高置信断裂
+10.1073/pnas.2000712117|OPRM_HUMAN|Activation|Transducer|U2OS|nan,21,0.0,0.6887140625317754,0.23809523809523808,0.0,0.0,0.0,True,False,1.0,90.7,高置信断裂
+10.1038/s41467-019-11875-6|OPRD_RAT|Dissociation|Transducer|HEK-293|GoA,20,0.0,0.6730371193596469,0.4,0.0,0.0,0.0,True,False,1.0,90.2,高置信断裂
+10.1124/mol.115.098848|OPRM_HUMAN|Internalization |Transducer|CHO|nan,13,0.0,0.6682787169726572,0.46153846153846156,0.0,0.0,0.0,True,False,1.0,90.0,高置信断裂
+10.1038/s41467-019-11875-6|ADRB2_HUMAN|Accumulation|Downstream|HEK-293|nan,4,0.0,0.6543433414048447,0.5,0.0,0.0,0.0,True,False,1.0,89.6,高置信断裂
+10.1016/j.bcp.2018.04.021|AGTR1_HUMAN|Dissociation|Transducer|HEK-293|Gz,4,0.0,0.6497159930192797,1.0,0.0,0.0,0.0,True,False,1.0,89.5,高置信断裂
+10.1124/mol.116.106153|HRH3_HUMAN|Phosphorylation|Downstream|CHO|nan,15,0.0,0.6327272974977003,0.6,0.0,0.0,0.0,True,False,1.0,89.0,高置信断裂
+10.1126/scisignal.aar4309|OPRK_HUMAN|Recruitment |Transducer|U2OS|Arrestin-3 (β-arrestin-2),3,0.0,0.9554276862380472,0.3333333333333333,0.0,0.0,0.0,True,False,0.6666666666666666,88.7,高置信断裂
+10.1038/ncomms13958|CNR2_HUMAN|Phosphorylation|Downstream|Flp-In-293 |nan,12,0.0,0.6206283901140068,0.3333333333333333,0.0,0.0,0.0,True,False,1.0,88.6,高置信断裂
+10.1038/s41467-019-11875-6|OPRM_HUMAN|Dissociation|Transducer|HEK-293|Gi1,25,0.0,0.6102891738094529,0.12,0.0,0.0,0.0,True,False,1.0,88.3,高置信断裂
+10.1021/acs.jmedchem.6b01875|DRD2_HUMAN|Accumulation|Downstream|HEK-293|nan,16,0.0,0.6700008050754338,0.0625,0.0,0.0,0.0,True,False,0.9375,88.2,高置信断裂
+10.1016/j.bcp.2018.04.021|AGTR1_HUMAN|Phosphorylation|Downstream|HEK-293|nan,8,0.0,0.5986741661524166,0.25,0.0,0.0,0.0,True,False,1.0,88.0,高置信断裂
+10.1124/mol.113.089649|OPRK_HUMAN|Recruitment |Transducer|HEK|Arrestin-3 (β-arrestin-2),44,0.0,0.5903658365369848,0.11363636363636363,0.0,0.0,0.0,True,False,1.0,87.7,高置信断裂
+10.1126/scisignal.aat1631|AGTR1_HUMAN|Dissociation|Transducer|HEK-293|Gi2,14,0.0,0.645504456375027,0.07142857142857142,0.0,0.0,0.0,True,False,0.9285714285714286,87.2,高置信断裂
+10.1124/mol.110.067454|ADA1A_HUMAN|Accumulation|Downstream|CHO-K1|nan,15,0.0,0.5648232659408956,0.13333333333333333,0.0,0.0,0.0,True,False,1.0,86.9,高置信断裂
+10.1021/acs.jmedchem.8b00047|AA1R_HUMAN|Accumulation|Downstream|CHO|nan,34,0.0,0.5545484308197484,0.11764705882352941,0.0,0.0,0.0,True,False,1.0,86.6,高置信断裂
+10.1016/j.phrs.2018.02.032|APJ_HUMAN|Dissociation|Transducer|HEK-293|Gi1,10,0.0,0.552820289495358,0.2,0.0,0.0,0.0,True,False,1.0,86.6,高置信断裂
+10.3390/molecules24244542|OPRM_HUMAN|Recruitment |Transducer|CHO|Arrestin-3 (β-arrestin-2),14,0.0,0.5341798860824625,0.2857142857142857,0.0,0.0,0.0,True,False,1.0,86.0,高置信断裂
+10.1124/jpet.114.220293|DRD2_HUMAN|Accumulation|Downstream|CHO|nan,11,0.0,0.5270732361046857,0.18181818181818182,0.0,0.0,0.0,True,False,1.0,85.8,高置信断裂
+10.1124/mol.116.103283|AA3R_HUMAN|Accumulation|Downstream|CHO|nan,30,0.0,0.5196122306879367,0.1,0.0,0.0,0.0,True,False,1.0,85.6,高置信断裂
+10.3390/molecules24244542|OPRM_MOUSE|Accumulation|Downstream|HEK-293|nan,14,0.0,0.5187638272240309,0.14285714285714285,0.0,0.0,0.0,True,False,1.0,85.6,高置信断裂
+10.1038/s41467-019-11875-6|OPRM_HUMAN|Binding/coupling|Downstream|HEK-293|nan,23,0.0,0.5121299865058253,0.13043478260869565,0.0,0.0,0.0,True,False,1.0,85.4,高置信断裂
+10.1016/j.phrs.2018.02.032|APJ_HUMAN|Accumulation|Downstream|HEK-293|nan,10,0.0,0.5083574326450577,0.3,0.0,0.0,0.0,True,False,1.0,85.3,高置信断裂
+10.1016/j.bcp.2016.05.014|OPRM_HUMAN|Accumulation|Downstream|CHO|nan,8,0.0,0.5066850613321359,0.5,0.0,0.0,0.0,True,False,1.0,85.2,高置信断裂
+10.1074/jbc.M115.659250|GHSR_HUMAN|Dissociation|Transducer|HEK-293T|Gq,5,0.0,0.4936923375611286,0.6,0.0,0.0,0.0,True,False,1.0,84.8,高置信断裂
+10.1038/s41467-019-11875-6|OPRD_HUMAN|Accumulation|Downstream|HEK-293|nan,20,0.0,0.4866410419284577,0.1,0.0,0.0,0.0,True,False,1.0,84.6,高置信断裂
+10.1038/s41467-019-11875-6|OPRD_RAT|Binding/coupling|Downstream|HEK-293|nan,19,0.0,0.4766301621807134,0.2631578947368421,0.0,0.0,0.0,True,False,1.0,84.3,高置信断裂
+10.1124/mol.110.065664|GLP1R_HUMAN|Accumulation|Downstream|CHO|nan,10,0.0,0.5767569170129598,0.1,0.0,0.0,0.0,True,False,0.9,84.3,高置信断裂
+10.1074/jbc.M115.704122|NPSR1_HUMAN|Accumulation|Downstream|HEK-293|nan,12,0.0,0.4745532550610001,0.25,0.0,0.0,0.0,True,False,1.0,84.2,高置信断裂
+10.1038/s41598-020-65636-3|ADRB1_HUMAN|Dissociation|Transducer|HEK-293|Gs,7,0.0,0.6176584957947142,0.14285714285714285,0.0,0.0,0.0,True,False,0.8571428571428571,84.2,高置信断裂
+10.1038/s41467-019-11875-6|OPRD_HUMAN|Binding/coupling|Downstream|HEK-293|nan,18,0.0,0.4586569336514796,0.16666666666666666,0.0,0.0,0.0,True,False,1.0,83.8,高置信断裂
+10.1021/acs.jmedchem.7b00363|DRD2_HUMAN|Activation|Transducer|HEK-293T|GoA,11,0.0,0.5475875030410671,0.09090909090909091,0.0,0.0,0.0,True,False,0.9090909090909091,83.7,高置信断裂
+10.1016/j.phrs.2017.08.008|CNR1_HUMAN|Accumulation|Downstream|CHO|nan,4,0.0,0.4547968647296634,0.5,0.0,0.0,0.0,True,False,1.0,83.6,高置信断裂
+10.1002/pep2.24070|OPRM_HUMAN|Accumulation|Downstream|HEK-293|nan,13,0.0,0.4300125570425006,0.15384615384615385,0.0,0.0,0.0,True,False,1.0,82.9,高置信断裂
+10.1038/s41467-019-11875-6|OPRD_RAT|Dissociation|Transducer|HEK-293|Gi2,21,0.0,0.4178691688276403,0.14285714285714285,0.0,0.0,0.0,True,False,1.0,82.5,高置信断裂
+10.1038/s41467-019-11875-6|OPRD_RAT|Dissociation|Transducer|HEK-293|Gi1,17,0.0,0.4148781510271213,0.11764705882352941,0.0,0.0,0.0,True,False,1.0,82.4,高置信断裂
+10.1124/mol.115.099192|CNR1_HUMAN|Phosphorylation|Downstream|CHO|nan,7,0.0,0.408433167536864,0.2857142857142857,0.0,0.0,0.0,True,False,1.0,82.3,高置信断裂
+10.1021/acsptsci.0c00022|GLP1R_HUMAN|Recruitment |Transducer|CHO-K1|Arrestin-3 (β-arrestin-2),21,0.0,0.4106982974936892,0.09523809523809523,0.0,0.0,0.0,True,False,1.0,82.3,高置信断裂
+10.1038/s41467-019-11875-6|OPRM_RAT|Binding/coupling|Downstream|HEK-293|nan,25,0.0,0.3938118797410617,0.08,0.0,0.0,0.0,True,False,1.0,81.8,高置信断裂
+10.1124/mol.113.089649|OPRK_HUMAN|Accumulation|Downstream|HEK|nan,31,0.0,0.3939867234096947,0.06451612903225806,0.0,0.0,0.0,True,False,1.0,81.8,高置信断裂
+10.1124/jpet.114.220293|DRD2_HUMAN|Recruitment |Transducer|CHO|Arrestin-3 (β-arrestin-2),11,0.0,0.4646087539523753,0.09090909090909091,0.0,0.0,0.0,True,False,0.9090909090909091,81.2,高置信断裂
+10.1038/s41467-019-11875-6|OPRM_HUMAN|Recruitment |Transducer|HEK-293|Arrestin-2 (β-arrestin-1),13,0.0,0.445547436489667,0.07692307692307693,0.0,0.0,0.0,True,False,0.9230769230769231,81.1,高置信断裂
+10.1038/s41467-019-11875-6|OPRM_HUMAN|Recruitment |Transducer|HEK-293|Arrestin-3 (β-arrestin-2),71,0.0,0.3650486871683851,0.028169014084507043,0.0,0.0,0.0,True,False,1.0,81.0,高置信断裂
+10.1038/s41467-019-11875-6|OPRM_RAT|Recruitment |Transducer|HEK-293|Arrestin-2 (β-arrestin-1),11,0.0,0.4543335376747315,0.09090909090909091,0.0,0.0,0.0,True,False,0.9090909090909091,80.9,高置信断裂
+10.1007/s00210-014-1054-5|ADRB2_HUMAN|Accumulation|Downstream|Sf9|nan,14,0.0,0.4314219210244792,0.07142857142857142,0.0,0.0,0.0,True,False,0.9285714285714286,80.8,高置信断裂
+10.1124/mol.116.106153|HRH3_HUMAN|Signaling|nan|CHO|nan,10,0.0,0.3569111039439008,0.2,0.0,0.0,0.0,True,False,1.0,80.7,高置信断裂
+10.1074/jbc.M116.757559|CCR5_HUMAN|Dissociation|Transducer|HEK-293T|GoA,3,0.0,0.6900000000000004,0.3333333333333333,0.0,0.0,0.0,True,False,0.6666666666666666,80.7,高置信断裂
+10.3390/molecules24244542|OPRD_MOUSE|Accumulation|Downstream|HEK-293|nan,14,0.0,0.3495565081101102,0.14285714285714285,0.0,0.0,0.0,True,False,1.0,80.5,高置信断裂
+10.1038/s41467-019-11875-6|OPRM_RAT|Dissociation|Transducer|HEK-293|GoA,25,0.0,0.3710184931180569,0.04,0.0,0.0,0.0,True,False,0.96,79.9,高置信断裂
+10.1074/jbc.M112.408534|ACM2_HUMAN|Internalization |Transducer|CHO|nan,4,0.0,0.5704863328782603,0.25,0.0,0.0,0.0,True,False,0.75,79.6,高置信断裂
+10.1002/pep2.24070|OPRM_HUMAN|Recruitment |Transducer|HEK-293|Arrestin-3 (β-arrestin-2),12,0.0,0.4039590202808449,0.08333333333333333,0.0,0.0,0.0,True,False,0.9166666666666666,79.6,高置信断裂
+10.1007/s00210-014-1054-5|ADRB2_HUMAN|Activation|Downstream|Sf9|Gi2,13,0.0,0.3193686981038115,0.15384615384615385,0.0,0.0,0.0,True,False,1.0,79.6,高置信断裂
+10.1016/j.bcp.2014.05.008|AA2BR_HUMAN|Accumulation|Downstream|HEK-A2B|nan,7,0.0,0.3128787452803374,0.2857142857142857,0.0,0.0,0.0,True,False,1.0,79.4,高置信断裂
+10.3390/molecules24244542|OPRD_HUMAN|Recruitment |Transducer|CHO|Arrestin-3 (β-arrestin-2),13,0.0,0.3873509157830952,0.07692307692307693,0.0,0.0,0.0,True,False,0.9230769230769231,79.3,高置信断裂
+10.1124/mol.115.098848|OPRM_HUMAN|Activation|Transducer|CHO|nan,15,0.0,0.355082931330088,0.06666666666666667,0.0,0.0,0.0,True,False,0.9333333333333333,78.7,高置信断裂
+10.1038/s41467-019-11875-6|OPRM_HUMAN|Dissociation|Transducer|HEK-293|GoA,25,0.0,0.3218767187864495,0.04,0.0,0.0,0.0,True,False,0.96,78.5,高置信断裂
+10.1038/s41467-019-11875-6|OPRD_RAT|Accumulation|Downstream|HEK-293|nan,19,0.0,0.334579721183311,0.05263157894736842,0.0,0.0,0.0,True,False,0.9473684210526315,78.5,高置信断裂
+10.1007/s00018-013-1461-7|OPRD_HUMAN|Accumulation|Downstream|HEK-293|nan,5,0.0,0.4785706091631141,0.2,0.0,0.0,0.0,True,False,0.8,78.4,高置信断裂
+10.1016/j.bcp.2017.03.014|AA2BR_HUMAN|Accumulation|Downstream|CHO|nan,9,0.0,0.381007003394938,0.1111111111111111,0.0,0.0,0.0,True,False,0.8888888888888888,78.1,高置信断裂
+10.1038/s41467-019-11875-6|OPRD_HUMAN|Dissociation|Transducer|HEK-293|Gi2,20,0.0,0.3153618612791753,0.05,0.0,0.0,0.0,True,False,0.95,78.0,高置信断裂
+10.3390/ijms20102417|CCR1_HUMAN|Recruitment |Transducer|HEK-293|Arrestin-3 (β-arrestin-2),5,0.0,0.4681899310765374,0.2,0.0,0.0,0.0,True,False,0.8,78.0,高置信断裂
+10.1073/pnas.1908662116|OPRM_MOUSE|Phosphorylation|Transducer|AtT20|nan,4,0.0,0.5045484308197481,0.25,0.0,0.0,0.0,True,False,0.75,77.6,高置信断裂
+10.1016/j.bcp.2018.04.021|AGTR1_HUMAN|Dissociation|Transducer|HEK-293|Gi3,4,0.0,0.4945956180238182,0.25,0.0,0.0,0.0,True,False,0.75,77.3,高置信断裂
+10.1101/2020.11.09.375162|CNR1_HUMAN|Recruitment |Transducer|HEK-293SL|GoB,8,0.0,0.3624862418231958,0.125,0.0,0.0,0.0,True,False,0.875,77.1,高置信断裂
+10.1126/scisignal.aat1631|AGTR1_HUMAN|Dissociation|Transducer|HEK-293|Gq,10,0.0,0.3317785482981286,0.1,0.0,0.0,0.0,True,False,0.9,77.0,高置信断裂
+10.1074/jbc.M116.757559|CCR5_HUMAN|Dissociation|Transducer|HEK-293T|Gi2,3,0.0,0.5659687322722817,0.3333333333333333,0.0,0.0,0.0,True,False,0.6666666666666666,77.0,高置信断裂
+10.3389/fphar.2018.01202|CNR2_HUMAN|Phosphorylation|Downstream|Flp-In-293 |nan,6,0.0,0.3912689376086562,0.16666666666666666,0.0,0.0,0.0,True,False,0.8333333333333334,76.7,高置信断裂
+10.1021/jm500457x|DRD2_HUMAN|Phosphorylation|Downstream|CHO|nan,7,0.0,0.3599999999999994,0.14285714285714285,0.0,0.0,0.0,True,False,0.8571428571428571,76.5,高置信断裂
+10.1016/j.bcp.2014.05.008|AA2BR_MOUSE|Recruitment |Transducer|CHO|Arrestin-3 (β-arrestin-2),3,0.0,0.5455670894284959,0.3333333333333333,0.0,0.0,0.0,True,False,0.6666666666666666,76.4,高置信断裂
+10.1038/ncomms13958|CNR2_MOUSE|Accumulation|Downstream|CHO|nan,4,0.0,0.4431189865533032,0.25,0.0,0.0,0.0,True,False,0.75,75.8,高置信断裂
+10.1124/mol.115.099192|CNR1_HUMAN|Accumulation|Downstream|CHO|nan,7,0.0,0.3369482542529116,0.14285714285714285,0.0,0.0,0.0,True,False,0.8571428571428571,75.8,高置信断裂
+10.1007/s00018-013-1461-7|OPRD_HUMAN|Internalization |Transducer|HEK-293|nan,4,0.0,0.4347714369436546,0.25,0.0,0.0,0.0,True,False,0.75,75.5,高置信断裂
+10.1038/s41598-017-15258-z|OPRM_HUMAN|Recruitment |Transducer|CHO-K1|Arrestin-3 (β-arrestin-2),3,0.0,0.4963808770279989,0.3333333333333333,0.0,0.0,0.0,True,False,0.6666666666666666,74.9,高置信断裂
+10.3390/ijms20102417|CCR1_HUMAN|Accumulation|Downstream|HEK-293|nan,5,0.0,0.3618085310523824,0.2,0.0,0.0,0.0,True,False,0.8,74.9,高置信断裂
+10.1016/j.bcp.2018.04.021|AGTR1_HUMAN|Accumulation|Downstream|HEK-293|nan,4,0.0,0.3786186693886666,0.25,0.0,0.0,0.0,True,False,0.75,73.9,高置信断裂
+10.1074/jbc.M112.408534|ACM2_HUMAN|Activation|Transducer|CHO|nan,4,0.0,0.3646211568055153,0.25,0.0,0.0,0.0,True,False,0.75,73.4,高置信断裂
+10.1016/j.euroneuro.2018.12.013|OPRD_HUMAN|Accumulation|Downstream|HEK-293|nan,4,0.0,0.3017812623153348,0.25,0.0,0.0,0.0,True,False,0.75,71.6,高置信断裂
+10.1111/bph.14913|OPRD_HUMAN|Recruitment |Transducer|CHO-K1|Arrestin-3 (β-arrestin-2),4,0.0,0.3040490200071275,0.25,0.0,0.0,0.0,True,False,0.75,71.6,高置信断裂
+10.1038/nchembio.2527|DRD2_HUMAN|Accumulation|Downstream|HEK-293T|nan,3,0.0,0.3278789568490037,0.3333333333333333,0.0,0.0,0.0,True,False,0.6666666666666666,69.8,高置信断裂
+10.1016/j.bcp.2018.04.021|AGTR1_HUMAN|Recruitment |Transducer|HEK-293|Arrestin-3 (β-arrestin-2),4,0.0,0.2939881964754072,0.0,1.0,1.0,1.0,False,False,1.0,38.8,未检出
+10.1007/s00210-014-1054-5|ADRB2_HUMAN|Accumulation|Downstream|Human neutrophils|nan,14,0.0,0.2776458002620452,0.0,1.0,1.0,1.0,False,False,1.0,38.3,未检出
+10.1038/s41467-019-11875-6|OPRM_RAT|Accumulation|Downstream|HEK-293|nan,25,0.0,0.2727908467428603,0.0,1.0,1.0,1.0,False,False,1.0,38.2,未检出
+10.1074/jbc.M113.504381|OPRK_HUMAN|Recruitment |Transducer|U2OS|Arrestin-3 (β-arrestin-2),12,0.0,0.2707379033453181,0.0,1.0,1.0,1.0,False,False,1.0,38.1,未检出
+10.1038/s41598-020-65636-3|ADRB1_HUMAN|Recruitment |Transducer|HEK-293|Arrestin-3 (β-arrestin-2),4,0.0,0.2670968885432998,0.0,1.0,1.0,1.0,False,False,1.0,38.0,未检出
+10.1016/j.phrs.2017.08.008|CNR1_HUMAN|Recruitment |Transducer|CHO|Arrestin-3 (β-arrestin-2),3,0.0,0.2625753500718613,0.0,1.0,1.0,1.0,False,False,1.0,37.9,未检出
+10.1074/jbc.M116.757559|CCR2_HUMAN|Dissociation|Transducer|HEK-293T|GoA,3,0.0,0.2600000000000007,0.0,1.0,1.0,1.0,False,False,1.0,37.8,未检出
+10.1002/pep2.24070|OPRD_MOUSE|Recruitment |Transducer|HEK-293|Arrestin-3 (β-arrestin-2),12,0.0,0.2564623739950118,0.0,1.0,1.0,1.0,False,False,1.0,37.7,未检出
+10.1016/j.bcp.2017.03.018|GLP1R_HUMAN|Recruitment |Transducer|CHO|Arrestin-3 (β-arrestin-2),7,0.0,0.2581861476162821,0.0,1.0,1.0,1.0,False,False,1.0,37.7,未检出
+10.1016/j.bcp.2016.05.014|OPRM_MOUSE|Recruitment |Transducer|AtT20|Arrestin-3 (β-arrestin-2),8,0.0,0.2507510289168411,0.0,1.0,1.0,1.0,False,False,1.0,37.5,未检出
+10.1124/mol.113.088880|ADRB2_HUMAN|Accumulation|Downstream|HEK-293S|nan,3,0.0,0.2450612633916993,0.0,1.0,1.0,1.0,False,False,1.0,37.4,未检出
+10.1126/scisignal.aaz3140|OPRM_HUMAN|Binding/coupling|Transducer|HEK-293|MiniGi,9,0.0,0.238433167536864,0.0,1.0,1.0,1.0,False,False,1.0,37.2,未检出
+10.1038/s41598-020-65636-3|ADRB1_HUMAN|Accumulation|Downstream|HEK-293|nan,10,0.0,0.2410848442982054,0.0,1.0,1.0,1.0,False,False,1.0,37.2,未检出
+10.1021/acs.jmedchem.6b01875|DRD2_HUMAN|Recruitment |Transducer|HEK-293|Arrestin-3 (β-arrestin-2),16,0.0,0.2410944061701854,0.0,1.0,1.0,1.0,False,False,1.0,37.2,未检出
+10.1124/mol.116.106153|HRH3_HUMAN|Activation|Transducer|CHO|nan,10,0.0,0.2406899026432363,0.0,1.0,1.0,1.0,False,False,1.0,37.2,未检出
+10.3390/ijms20102417|CCR1_HUMAN|Recruitment |Transducer|HEK-293|Gi2,4,0.0,0.2356366217237013,0.0,1.0,1.0,1.0,False,False,1.0,37.1,未检出
+10.1038/ncomms13958|CNR2_HUMAN|Accumulation|Downstream|CHO|nan,8,0.0,0.2363469868909726,0.0,1.0,1.0,1.0,False,False,1.0,37.1,未检出
+10.1126/scisignal.aat1631|AGTR1_HUMAN|Dissociation|Transducer|HEK-293|Gi3,14,0.0,0.2327353129478737,0.0,1.0,1.0,1.0,False,False,1.0,37.0,未检出
+10.1124/mol.115.098848|OPRM_HUMAN|Recruitment |Transducer|CHO|Arrestin-3 (β-arrestin-2),15,0.0,0.2329319556497244,0.0,1.0,1.0,1.0,False,False,1.0,37.0,未检出
+10.1016/j.bcp.2015.11.013|AA1R_HUMAN|Phosphorylation|Downstream|CHO|nan,12,0.0,0.2316170643574056,0.0,1.0,1.0,1.0,False,False,1.0,36.9,未检出
+10.1126/scisignal.aat1631|AGTR1_HUMAN|Phosphorylation|Downstream|HEK-293|nan,7,0.0,0.2268039425795098,0.0,1.0,1.0,1.0,False,False,1.0,36.8,未检出
+10.1021/acs.jmedchem.6b01857|DRD2_HUMAN|Dissociation|Transducer|HEK-293|GoA,15,0.0,0.2279158273846881,0.0,1.0,1.0,1.0,False,False,1.0,36.8,未检出
+10.1038/s41467-019-11875-6|OPRM_HUMAN|Dissociation|Transducer|HEK-293|Gi2,25,0.0,0.2228151426679412,0.0,1.0,1.0,1.0,False,False,1.0,36.7,未检出
+10.1101/2020.11.09.375162|CNR2_HUMAN|Recruitment |Transducer|HEK-293SL|Gi1,33,0.0,0.2151093600618763,0.0,1.0,1.0,1.0,False,False,1.0,36.5,未检出
+10.1126/scisignal.aat1631|AGTR1_HUMAN|Dissociation|Transducer|HEK-293|G12,14,0.0,0.216863093417774,0.0,1.0,1.0,1.0,False,False,1.0,36.5,未检出
+10.1124/mol.110.065664|GLP1R_HUMAN|Phosphorylation|Downstream|CHO|nan,6,0.0,0.2141954557292917,0.0,1.0,1.0,1.0,False,False,1.0,36.4,未检出
+10.1016/j.bcp.2016.05.014|OPRM_MOUSE|Recruitment |Transducer|AtT20|Arrestin-2 (β-arrestin-1),8,0.0,0.2141138080942672,0.0,1.0,1.0,1.0,False,False,1.0,36.4,未检出
+10.1016/j.bcp.2017.03.018|GLP1R_HUMAN|Accumulation|Downstream|CHO|nan,19,0.0,0.2068487496163564,0.0,1.0,1.0,1.0,False,False,1.0,36.2,未检出
+10.1126/scisignal.aat1631|AGTR1_HUMAN|Recruitment |Transducer|HEK-293|Gq,12,0.0,0.2076582054521036,0.0,1.0,1.0,1.0,False,False,1.0,36.2,未检出
+10.1124/mol.115.099150|OPRX_HUMAN|Recruitment |Transducer|HEK-293|Arrestin-3 (β-arrestin-2),3,0.0,0.2045621841390223,0.0,1.0,1.0,1.0,False,False,1.0,36.1,未检出
+10.1038/s41401-018-0200-x|ADRB2_HUMAN|Recruitment |Transducer|CHO-K1|nan,19,0.0,0.2035648837191939,0.0,1.0,1.0,1.0,False,False,1.0,36.1,未检出
+10.1021/acschemneuro.9b00429|CNR1_HUMAN|Internalization |Transducer|HEK|nan,4,0.0,0.201274894330476,0.0,1.0,1.0,1.0,False,False,1.0,36.0,未检出
+10.1124/mol.113.088880|ADRB2_HUMAN|Phosphorylation|Downstream|HEK-293S|nan,3,0.0,0.2009190808566998,0.0,1.0,1.0,1.0,False,False,1.0,36.0,未检出
+10.1021/acs.jmedchem.6b01857|DRD2_HUMAN|Recruitment |Transducer|HEK-293|Arrestin-3 (β-arrestin-2),9,0.0,0.1969203516755522,0.0,1.0,1.0,1.0,False,False,1.0,35.9,未检出
+10.1021/jm401318w|DRD2_HUMAN|Phosphorylation|Downstream|CHO|nan,8,0.0,0.1919869636825737,0.0,1.0,1.0,1.0,False,False,1.0,35.8,未检出
+10.1124/mol.115.098848|OPRM_HUMAN|Recruitment |Transducer|CHO|Arrestin-2 (β-arrestin-1),14,0.0,0.1944395915154113,0.0,1.0,1.0,1.0,False,False,1.0,35.8,未检出
+10.1101/2020.11.09.375162|CNR1_HUMAN|Recruitment |Transducer|HEK-293SL|G12,8,0.0,0.1922881593230521,0.0,1.0,1.0,1.0,False,False,1.0,35.8,未检出
+10.1007/s00210-014-1054-5|ADRB2_HUMAN|Recruitment |Transducer|HEK-293|Arrestin-3 (β-arrestin-2),12,0.0,0.1904243591858536,0.0,1.0,1.0,1.0,False,False,1.0,35.7,未检出
+10.1016/j.bcp.2016.05.014|OPRM_HUMAN|Recruitment |Transducer|CHO|Arrestin-2 (β-arrestin-1),8,0.0,0.1886416699884114,0.0,1.0,1.0,1.0,False,False,1.0,35.7,未检出
+10.1124/mol.115.099150|OPRX_HUMAN|Recruitment |Transducer|HEK-293|Arrestin-2 (β-arrestin-1),3,0.0,0.1890369234042683,0.0,1.0,1.0,1.0,False,False,1.0,35.7,未检出
+10.1101/2020.11.09.375162|CNR2_HUMAN|Recruitment |Transducer|HEK-293SL|Arrestin-2 (β-arrestin-1),25,0.0,0.1869072453220042,0.0,1.0,1.0,1.0,False,False,1.0,35.6,未检出
+10.1126/scisignal.aat1631|AGTR1_HUMAN|Recruitment |Transducer|HEK-293|Arrestin-3 (β-arrestin-2),14,0.0,0.186260969076236,0.0,1.0,1.0,1.0,False,False,1.0,35.6,未检出
+10.1074/jbc.M112.408534|ACM2_HUMAN|Phosphorylation|Downstream|CHO|nan,4,0.0,0.1876052297237889,0.0,1.0,1.0,1.0,False,False,1.0,35.6,未检出
+10.1007/s00210-014-1054-5|ADRB2_HUMAN|Activation|Downstream|Sf9|Gs,14,0.0,0.1799715196360707,0.0,1.0,1.0,1.0,False,False,1.0,35.4,未检出
+10.1016/j.euroneuro.2018.12.013|OPRD_HUMAN|Recruitment |Transducer|CHO|Arrestin-3 (β-arrestin-2),4,0.0,0.1765657537835547,0.0,1.0,1.0,1.0,False,False,1.0,35.3,未检出
+10.1101/2020.11.09.375162|CNR1_HUMAN|Recruitment |Transducer|HEK-293SL|Gi2,8,0.0,0.1778400421830639,0.0,1.0,1.0,1.0,False,False,1.0,35.3,未检出
+10.3390/ijms20102417|CCR1_HUMAN|Phosphorylation|Downstream|HEK-293|nan,5,0.0,0.178039866988815,0.0,1.0,1.0,1.0,False,False,1.0,35.3,未检出
+10.3390/ijms20102417|CCR1_HUMAN|Recruitment |Transducer|HEK-293|Gi1,5,0.0,0.1694262565294328,0.0,1.0,1.0,1.0,False,False,1.0,35.1,未检出
+10.1021/jm401318w|DRD2_HUMAN|Accumulation|Downstream|CHO|nan,20,0.0,0.1683776354712263,0.0,1.0,1.0,1.0,False,False,1.0,35.1,未检出
+10.1016/j.bcp.2017.03.014|AA2BR_HUMAN|Phosphorylation|Downstream|CHO|nan,3,0.0,0.1704408588080834,0.0,1.0,1.0,1.0,False,False,1.0,35.1,未检出
+10.1016/j.lfs.2016.02.069|EDNRA_HUMAN|Recruitment |Transducer|CHO-K1|nan,4,0.0,0.1702445630534006,0.0,1.0,1.0,1.0,False,False,1.0,35.1,未检出
+10.1016/j.bcp.2016.05.014|OPRM_HUMAN|Recruitment |Transducer|CHO|Arrestin-3 (β-arrestin-2),8,0.0,0.1675391109518846,0.0,1.0,1.0,1.0,False,False,1.0,35.0,未检出
+10.3389/fphar.2018.01202|CNR2_HUMAN|Accumulation|Downstream|Flp-In-293 |nan,6,0.0,0.1673245708937303,0.0,1.0,1.0,1.0,False,False,1.0,35.0,未检出
+10.1021/acsptsci.0c00022|GLP1R_HUMAN|Internalization |Transducer|HEK-293|nan,7,0.0,0.1655015487564322,0.0,1.0,1.0,1.0,False,False,1.0,35.0,未检出
+10.1016/j.phrs.2017.08.008|CNR1_HUMAN|Activation|Transducer|CHO|nan,4,0.0,0.1623412940750843,0.0,1.0,1.0,1.0,False,False,1.0,34.9,未检出
+10.1111/bph.14913|OPRM_HUMAN|Recruitment |Transducer|CHO-K1|Arrestin-3 (β-arrestin-2),5,0.0,0.1646327985172364,0.0,1.0,1.0,1.0,False,False,1.0,34.9,未检出
+10.1074/jbc.M113.504381|OPRK_HUMAN|Activation|Transducer|CHO-K1|nan,11,0.0,0.1622530557430241,0.0,1.0,1.0,1.0,False,False,1.0,34.9,未检出
+10.1021/acschemneuro.9b00429|CNR1_HUMAN|Phosphorylation|Downstream|HEK|nan,4,0.0,0.1613533486927667,0.0,1.0,1.0,1.0,False,False,1.0,34.8,未检出
+10.1101/2020.11.09.375162|CNR2_HUMAN|Recruitment |Transducer|HEK-293SL|GoA,32,0.0,0.1565753291126621,0.0,1.0,1.0,1.0,False,False,1.0,34.7,未检出
+10.1021/acs.jmedchem.8b01912|FPR1_HUMAN|Accumulation|Downstream|CHO|nan,4,0.0,0.1580456295278409,0.0,1.0,1.0,1.0,False,False,1.0,34.7,未检出
+10.1021/jm500457x|DRD2_HUMAN|Accumulation|Downstream|CHO|nan,8,0.0,0.1524285823799758,0.0,1.0,1.0,1.0,False,False,1.0,34.6,未检出
+10.1016/j.bcp.2017.03.018|GLP1R_HUMAN|Phosphorylation|Downstream|CHO|nan,10,0.0,0.1500610928312511,0.0,1.0,1.0,1.0,False,False,1.0,34.5,未检出
+10.1126/scisignal.aaz3140|OPRM_MOUSE|Activation|Downstream|HEK-293|nan,7,0.0,0.1436923375611289,0.0,1.0,1.0,1.0,False,False,1.0,34.3,未检出
+10.1038/s41467-019-11875-6|OPRD_HUMAN|Recruitment |Transducer|HEK-293|Arrestin-2 (β-arrestin-1),7,0.0,0.1334340700631582,0.0,1.0,1.0,1.0,False,False,1.0,34.0,未检出
+10.1038/nchembio.2527|DRD2_HUMAN|Recruitment |Transducer|HTLA|Arrestin-3 (β-arrestin-2),5,0.0,0.1321121711740467,0.0,1.0,1.0,1.0,False,False,1.0,34.0,未检出
+10.1124/mol.115.098848|OPRM_HUMAN|Phosphorylation|Downstream|CHO|nan,15,0.0,0.1283688584328768,0.0,1.0,1.0,1.0,False,False,1.0,33.9,未检出
+10.1021/acs.jmedchem.8b01912|FPR2_HUMAN|Accumulation|Downstream|CHO|nan,3,0.0,0.1299999999999999,0.0,1.0,1.0,1.0,False,False,1.0,33.9,未检出
+10.1126/scisignal.aar4309|OPRK_HUMAN|Activation|Downstream|CHO|nan,3,0.0,0.1257055522550256,0.0,1.0,1.0,1.0,False,False,1.0,33.8,未检出
+10.1126/scisignal.aar4309|OPRK_HUMAN|Accumulation|Downstream|CHO|nan,6,0.0,0.1267771644862785,0.0,1.0,1.0,1.0,False,False,1.0,33.8,未检出
+10.1038/s41401-018-0200-x|ADRB2_HUMAN|Accumulation|Downstream|HEK-293|nan,19,0.0,0.1250233967839458,0.0,1.0,1.0,1.0,False,False,1.0,33.8,未检出
+10.1016/j.neuropharm.2019.107718|OPRM_HUMAN|Recruitment |Transducer|HEK-293A|Arrestin-3 (β-arrestin-2),3,0.0,0.122630167425898,0.0,1.0,1.0,1.0,False,False,1.0,33.7,未检出
+10.1016/j.bcp.2017.03.018|GLP1R_HUMAN|Recruitment |Transducer|CHO|Arrestin-2 (β-arrestin-1),9,0.0,0.1184807473813824,0.0,1.0,1.0,1.0,False,False,1.0,33.6,未检出
+10.1038/s41598-020-65636-3|ADRB1_HUMAN|Recruitment |Transducer|HEK-293|G12,4,0.0,0.1194364264885652,0.0,1.0,1.0,1.0,False,False,1.0,33.6,未检出
+10.1021/acs.jmedchem.8b01912|FPR1_HUMAN|Phosphorylation|Downstream|CHO|nan,4,0.0,0.1174857540814868,0.0,1.0,1.0,1.0,False,False,1.0,33.5,未检出
+10.1038/s41467-019-11875-6|OPRD_RAT|Recruitment |Transducer|HEK-293|Arrestin-2 (β-arrestin-1),6,0.0,0.1154200025779292,0.0,1.0,1.0,1.0,False,False,1.0,33.5,未检出
+10.1101/2020.11.09.375162|CNR1_HUMAN|Recruitment |Transducer|HEK-293SL|Gz,8,0.0,0.1134363850484518,0.0,1.0,1.0,1.0,False,False,1.0,33.4,未检出
+10.1021/acschemneuro.9b00429|CNR1_HUMAN|Accumulation|Downstream|HEK|nan,4,0.0,0.1090718517060786,0.0,1.0,1.0,1.0,False,False,1.0,33.3,未检出
+10.1101/2020.11.09.375162|CNR2_HUMAN|Recruitment |Transducer|HEK-293SL|Gi3,33,0.0,0.1096421100560602,0.0,1.0,1.0,1.0,False,False,1.0,33.3,未检出
+10.1038/s41467-019-11875-6|OPRM_HUMAN|Accumulation|Downstream|HEK-293|nan,25,0.0,0.107225731919585,0.0,1.0,1.0,1.0,False,False,1.0,33.2,未检出
+10.1016/j.neuropharm.2019.107718|OPRM_HUMAN|Recruitment |Transducer|HEK-293A|Arrestin-2 (β-arrestin-1),3,0.0,0.1020299956639805,0.0,1.0,1.0,1.0,False,False,1.0,33.1,未检出
+10.1021/acsptsci.0c00022|GLP1R_HUMAN|Accumulation|Downstream|CHO-K1|nan,21,0.0,0.1000000000000014,0.0,1.0,1.0,1.0,False,False,1.0,33.0,未检出
+10.1016/j.bcp.2017.03.014|AA2BR_HUMAN|Phosphorylation|Downstream|HEK-293T|nan,3,0.0,0.0962466175302179,0.0,1.0,1.0,1.0,False,False,1.0,32.9,未检出
+10.1101/2020.11.09.375162|CNR1_HUMAN|Recruitment |Transducer|HEK-293SL|G15,7,0.0,0.0868867983026522,0.0,1.0,1.0,1.0,False,False,1.0,32.6,未检出
+10.1038/s41467-018-03941-2|GLP1R_HUMAN|Accumulation|Downstream|CHO-K1|nan,12,0.0,0.0812752996905228,0.0,1.0,1.0,1.0,False,False,1.0,32.4,未检出
+10.1073/pnas.1908662116|OPRM_MOUSE|Recruitment |Transducer|AtT20|Arrestin-3 (β-arrestin-2),4,0.0,0.0745719908503961,0.0,1.0,1.0,1.0,False,False,1.0,32.2,未检出
+10.1126/scisignal.aar4309|OPRK_HUMAN|Activation|Transducer|CHO|nan,3,0.0,0.0623400909712765,0.0,1.0,1.0,1.0,False,False,1.0,31.9,未检出
+10.1101/2020.11.09.375162|CNR1_HUMAN|Recruitment |Transducer|HEK-293SL|GoA,8,0.0,0.06226425770034,0.0,1.0,1.0,1.0,False,False,1.0,31.9,未检出
+10.1021/acs.jmedchem.8b01912|FPR2_HUMAN|Phosphorylation|Downstream|CHO|nan,3,0.0,0.0600000000000005,0.0,1.0,1.0,1.0,False,False,1.0,31.8,未检出
+10.1038/ncomms13958|CNR2_MOUSE|Recruitment |Transducer|CHO-K1|nan,4,0.0,0.0594068482395302,0.0,1.0,1.0,1.0,False,False,1.0,31.8,未检出
+10.1038/s41598-020-65636-3|ADRB1_HUMAN|Dissociation|Transducer|HEK-293|Gi2,3,0.0,0.0573021647105038,0.0,1.0,1.0,1.0,False,False,1.0,31.7,未检出
+10.1016/j.bcp.2014.05.008|AA2BR_HUMAN|Phosphorylation|Downstream|HEK-A2B|nan,4,0.0,0.0564281241757673,0.0,1.0,1.0,1.0,False,False,1.0,31.7,未检出
+10.1016/j.bcp.2016.05.014|OPRM_MOUSE|Accumulation|Downstream|AtT20|nan,8,0.0,0.0453869621537523,0.0,1.0,1.0,1.0,False,False,1.0,31.4,未检出
+10.1038/s41598-017-15258-z|OPRM_HUMAN|Accumulation|Downstream|CHO-K1|nan,5,0.0,0.0480287236002432,0.0,1.0,1.0,1.0,False,False,1.0,31.4,未检出
+10.1038/ncomms13958|CNR2_MOUSE|Activation|Transducer|CHO-K1|nan,4,0.0,0.0469238458133709,0.0,1.0,1.0,1.0,False,False,1.0,31.4,未检出
+10.3389/fphar.2018.01202|CNR2_HUMAN|Internalization |Transducer|Flp-In-293 |nan,6,0.0,0.0436017488557758,0.0,1.0,1.0,1.0,False,False,1.0,31.3,未检出
+10.1101/2020.11.09.375162|CNR1_HUMAN|Recruitment |Transducer|HEK-293SL|G13,8,0.0,0.041022912652421,0.0,1.0,1.0,1.0,False,False,1.0,31.2,未检出
+10.1016/j.neuropharm.2019.107718|OPRM_HUMAN|Dissociation|Transducer|HEK-293A|GoA,6,0.0,0.0375158966132795,0.0,1.0,1.0,1.0,False,False,1.0,31.1,未检出
+10.1016/j.neuropharm.2019.107718|OPRM_HUMAN|Dissociation|Transducer|HEK-293A|Gi2,6,0.0,0.0336174862796379,0.0,1.0,1.0,1.0,False,False,1.0,31.0,未检出
+10.1016/j.bcp.2017.03.014|AA2BR_HUMAN|Accumulation|Downstream|HEK-293T|nan,3,0.0,0.0302564167839678,0.0,1.0,1.0,1.0,False,False,1.0,30.9,未检出
+10.1101/2020.11.09.375162|CNR1_HUMAN|Recruitment |Transducer|HEK-293SL|Gi3,8,0.0,0.0180178495398672,0.0,1.0,1.0,1.0,False,False,1.0,30.5,未检出
+10.1038/s41598-020-65636-3|ADRB1_HUMAN|Dissociation|Transducer|HEK-293|Gz,4,0.0,0.0165184994035816,0.0,1.0,1.0,1.0,False,False,1.0,30.5,未检出
+10.1101/2020.11.09.375162|CNR1_HUMAN|Recruitment |Transducer|HEK-293SL|Gi1,8,0.0,0.0017628079312368,0.0,1.0,1.0,1.0,False,False,1.0,30.1,未检出
+10.1101/2020.11.09.375162|CNR2_HUMAN|Recruitment |Transducer|HEK-293SL|GoB,33,0.0,0.0017408824681703,0.0,1.0,1.0,1.0,False,False,1.0,30.1,未检出
+10.1101/2020.11.09.375162|CNR2_HUMAN|Recruitment |Transducer|HEK-293SL|Arrestin-3 (β-arrestin-2),29,0.0,0.0039665670122426,0.0,1.0,1.0,1.0,False,False,1.0,30.1,未检出
+10.1101/2020.11.09.375162|CNR1_HUMAN|Recruitment |Transducer|HEK-293SL|Arrestin-2 (β-arrestin-1),7,0.0,0.0018663202832804,0.0,1.0,1.0,1.0,False,False,1.0,30.1,未检出
+10.1101/2020.11.09.375162|CNR2_HUMAN|Recruitment |Transducer|HEK-293SL|Gi2,33,0.0,0.0017406208719821,0.0,1.0,1.0,1.0,False,False,1.0,30.1,未检出
+10.1101/2020.11.09.375162|CNR1_HUMAN|Recruitment |Transducer|HEK-293SL|Arrestin-3 (β-arrestin-2),8,0.0,0.0016152296532818,0.0,1.0,1.0,1.0,False,False,1.0,30.0,未检出

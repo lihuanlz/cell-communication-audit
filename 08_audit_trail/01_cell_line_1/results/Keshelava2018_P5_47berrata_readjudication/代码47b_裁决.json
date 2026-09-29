@@ -1,0 +1,181 @@
+{
+  "case": "P5",
+  "dataset": "Keshelava2018_NatCommun9_876",
+  "seed": 20260815,
+  "n_boot": 2000,
+  "k": 3,
+  "n_cells": 195,
+  "n_excluded": 13,
+  "experiments_included": 11,
+  "timing_exclusions": [
+    {
+      "experiment": "experiment_02.dot",
+      "reason": "无有效锚/链"
+    },
+    {
+      "experiment": "experiment_03.dot",
+      "reason": "无有效锚/链"
+    },
+    {
+      "experiment": "experiment_06.dot",
+      "reason": "无有效锚/链"
+    },
+    {
+      "experiment": "experiment_07.dot",
+      "reason": "无有效锚/链"
+    },
+    {
+      "experiment": "experiment_13.dot",
+      "reason": "无有效锚/链"
+    },
+    {
+      "experiment": "experiment_14.dot",
+      "reason": "无有效锚/链"
+    },
+    {
+      "experiment": "experiment_16.dot",
+      "reason": "无有效锚/链"
+    },
+    {
+      "experiment": "experiment_17.dot",
+      "reason": "无有效锚/链"
+    },
+    {
+      "experiment": "experiment_18.dot",
+      "reason": "无有效锚/链"
+    },
+    {
+      "experiment": "experiment_20.dot",
+      "reason": "无有效锚/链"
+    },
+    {
+      "experiment": "experiment_21.dot",
+      "reason": "无有效锚/链"
+    },
+    {
+      "experiment": "experiment_23.dot",
+      "reason": "无有效锚/链"
+    },
+    {
+      "experiment": "experiment_24.dot",
+      "reason": "无有效锚/链"
+    },
+    {
+      "experiment": "experiment_26.dot",
+      "reason": "无有效锚/链"
+    },
+    {
+      "experiment": "experiment_27.dot",
+      "reason": "无有效锚/链"
+    },
+    {
+      "experiment": "experiment_28.dot",
+      "reason": "无有效锚/链"
+    }
+  ],
+  "power_note": "功效缩减限定：有效细胞 195 ∈ [150,200)",
+  "units": [
+    {
+      "stat": "ta",
+      "pair": "D1↔D2",
+      "auc": 0.6290335305719921,
+      "lo": 0.5977495069033532,
+      "hi": 0.6623823142669296,
+      "n": 195
+    },
+    {
+      "stat": "ta",
+      "pair": "D2↔D3",
+      "auc": 0.6585667324128862,
+      "lo": 0.6254102564102564,
+      "hi": 0.6919720578566733,
+      "n": 195
+    },
+    {
+      "stat": "ta",
+      "pair": "D5↔D6",
+      "auc": 0.5677449046679816,
+      "lo": 0.5388902038132808,
+      "hi": 0.5993172255095333,
+      "n": 195
+    },
+    {
+      "stat": "ta",
+      "pair": "D6↔D7",
+      "auc": 0.5196581196581197,
+      "lo": 0.4874667981591058,
+      "hi": 0.5540328731097961,
+      "n": 195
+    },
+    {
+      "stat": "cnt",
+      "pair": "D1↔D2",
+      "auc": 0.6294543063773833,
+      "lo": 0.5977718606180145,
+      "hi": 0.6620910585141355,
+      "n": 195
+    },
+    {
+      "stat": "cnt",
+      "pair": "D2↔D3",
+      "auc": 0.6585930309007232,
+      "lo": 0.6261357659434582,
+      "hi": 0.6914434582511505,
+      "n": 195
+    },
+    {
+      "stat": "cnt",
+      "pair": "D5↔D6",
+      "auc": 0.5703353057199211,
+      "lo": 0.5498037475345168,
+      "hi": 0.5929628533859302,
+      "n": 195
+    },
+    {
+      "stat": "cnt",
+      "pair": "D6↔D7",
+      "auc": 0.5216568047337278,
+      "lo": 0.5013671926364234,
+      "hi": 0.5429720578566732,
+      "n": 195
+    },
+    {
+      "stat": "pk",
+      "pair": "D1↔D2",
+      "auc": 0.7307034845496384,
+      "lo": 0.6922084155161078,
+      "hi": 0.7701255752794214,
+      "n": 195
+    },
+    {
+      "stat": "pk",
+      "pair": "D2↔D3",
+      "auc": 0.7436949375410914,
+      "lo": 0.7161729125575279,
+      "hi": 0.7759513477975016,
+      "n": 195
+    },
+    {
+      "stat": "pk",
+      "pair": "D5↔D6",
+      "auc": 0.5512820512820513,
+      "lo": 0.5312541091387245,
+      "hi": 0.571413872452334,
+      "n": 195
+    },
+    {
+      "stat": "pk",
+      "pair": "D6↔D7",
+      "auc": 0.5234845496383957,
+      "lo": 0.5089799474030243,
+      "hi": 0.5383606180144641,
+      "n": 195
+    }
+  ],
+  "verdicts": {
+    "P5-1": "证伪（2/4 单元出 [0.40,0.60] 带）",
+    "P5-2": "中间态（2/4 单元达线）",
+    "P5-3": "数据集级弱解码限定（仅 2/4 单元 peak-AUC≥0.60）",
+    "overall": "P5 证伪（边界预测器在本形态上死亡，死亡侧见分款）"
+  }
+}
