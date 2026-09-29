@@ -1,6 +1,6 @@
 # Supplementary Information
 
-**Scale-free statistics are the currency of cellular communication: an audit across four signalling systems**
+**Scale-free statistics are the currency of cellular communication**
 
 Huan Li^1^
 

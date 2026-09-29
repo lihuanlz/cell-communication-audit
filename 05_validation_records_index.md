@@ -1,6 +1,6 @@
 # Validation & Audit Records Index
 
-Paper: *Scale-free statistics are the currency of cellular communication: an audit across four signalling systems* (manuscript v06, 2026-09-28; v05 archived).
+Paper: *Scale-free statistics are the currency of cellular communication* (manuscript v06, 2026-09-28; v05 archived).
 
 This index lists every validation/audit artefact cited in the manuscript and SI. Paths are relative to the workspace root (`D:\Kimi_Agent_细胞仿真工具包扩展以及具身智能20260911\`). All artefacts remain in their original archive locations; this package copies only the manuscript, figures, data tables and code. Original filenames are quoted verbatim (Chinese names included) for traceability.
 

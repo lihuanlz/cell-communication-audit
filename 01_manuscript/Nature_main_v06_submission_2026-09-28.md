@@ -1,4 +1,4 @@
-# Scale-free statistics are the currency of cellular communication: an audit across four signalling systems
+# Scale-free statistics are the currency of cellular communication
 Huan Li^1^
 
 ^1^Shanghai Liangta Biotech Co., Ltd., Shanghai 201899, P. R. China

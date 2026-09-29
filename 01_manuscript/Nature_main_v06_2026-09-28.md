@@ -1,4 +1,4 @@
-# Scale-free statistics are the currency of cellular communication: an audit across four signalling systems
+# Scale-free statistics are the currency of cellular communication
 
 **Manuscript v06 (2026-09-28): adds the cancer-chain audit (P11–P16, "Hijacked, not interrupted") as a new Results subsection, six new prediction-ledger rows, references 77–82, and a registered correction to the P15 verdict card (COADREAD/LUAD figures had been transposed; verdict direction unchanged). All quantitative claims in the new subsection verified verbatim against the archived result files (p13_mi_results.json, p13_robustness.json, p14_results.json, p15_tcga_results.json, p12b_egfr_dms_A5_results.json) on 2026-09-28. Companion SI: Nature_SI_v06_2026-09-28.md (new section S19).**
 **Previous version note (v05, 2026-09-23): formal text version, em-dash-free. All quantitative claims verified verbatim against archived verdict cards on 2026-09-23 (three-axis audit: PdPC/p53; adjudications P2–P7; chemotaxis/GPCR). Calibrated wording per SI S13.4 applied 2026-09-24. References formalised 2026-09-25, extended 2026-09-27.**
