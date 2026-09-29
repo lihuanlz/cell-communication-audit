@@ -917,31 +917,42 @@ Eleven findings produced by the audits that are independent of the main theorem.
 
 **Methodology level.**
 
-S18.1 *Repair timescale from the counting-law slope.* Lemma 3's slope inverts the DSB repair timescale: $\tau_r \approx \nu \cdot T = 1.4 \times 5.5\ \mathrm{h} \approx 7.7\ \mathrm{h}$, consistent with the fast DSB-repair component. Any pulse-count dataset thereby yields a repair rate without a $\gamma$H2AX assay. Anchor: S14.
+### S18.1 Repair timescale from the counting-law slope
+Lemma 3's slope inverts the DSB repair timescale: $\tau_r \approx \nu \cdot T = 1.4 \times 5.5\ \mathrm{h} \approx 7.7\ \mathrm{h}$, consistent with the fast DSB-repair component. Any pulse-count dataset thereby yields a repair rate without a $\gamma$H2AX assay. Anchor: S14.
 
-S18.2 *A computable topology diagnostic.* The dispersion ratio $t_1/\mathrm{IPI}$ is bounded at 0.03-0.12 for any bare oscillator; the measured 5.7 certifies an independent stochastic sensing stage upstream of the oscillator core, and its magnitude inverts the upstream delay dispersion. Anchor: S4, S14.
+### S18.2 A computable topology diagnostic
+The dispersion ratio $t_1/\mathrm{IPI}$ is bounded at 0.03-0.12 for any bare oscillator; the measured 5.7 certifies an independent stochastic sensing stage upstream of the oscillator core, and its magnitude inverts the upstream delay dispersion. Anchor: S4, S14.
 
-S18.3 *The hysteresis protocol.* The second signature of the discrimination scheme has never been measured for p53 because all published dose series are one-directional scans; the two-way scan protocol is frozen with readout criteria, power analysis and registered risks. Anchor: S3.5.
+### S18.3 The hysteresis protocol
+The second signature of the discrimination scheme has never been measured for p53 because all published dose series are one-directional scans; the two-way scan protocol is frozen with readout criteria, power analysis and registered risks. Anchor: S3.5.
 
-S18.4 *Audit-with-calibration method.* The GPCR meta-audit measured its own false-positive rate on synthetic null batteries before issuing verdicts (code 72), survived common-mode calibration and jackknife (code 73), and ships a constraint-projection repair map (code 77) plus a one-coordinate model extension that resolves the muOR fracture outright (code 80). Anchor: S9.
+### S18.4 Audit-with-calibration method
+The GPCR meta-audit measured its own false-positive rate on synthetic null batteries before issuing verdicts (code 72), survived common-mode calibration and jackknife (code 73), and ships a constraint-projection repair map (code 77) plus a one-coordinate model extension that resolves the muOR fracture outright (code 80). Anchor: S9.
 
 **Mechanism level.**
 
-S18.5 *Rupture confined to the gain distribution.* Across-experiment EC50 scatter in the M3R-to-Ca2+ cascade (32-fold) decomposes into across-cell gain dispersion against 3.4-3.7% within-cell repeatability and rank preservation rho 0.85-0.90: the population-level parameter drift and the single-cell heterogeneity literature are two views of one object. Anchor: S17.
+### S18.5 Rupture confined to the gain distribution
+Across-experiment EC50 scatter in the M3R-to-Ca2+ cascade (32-fold) decomposes into across-cell gain dispersion against 3.4-3.7% within-cell repeatability and rank preservation rho 0.85-0.90: the population-level parameter drift and the single-cell heterogeneity literature are two views of one object. Anchor: S17.
 
-S18.6 *Paid-reference positioning rule.* The chemotaxis chain's single paid reference (methylation-maintained effective affinity) sits at exactly the relay that absorbs the upstream rupture; baseline restoration measured at 2.2% residual, independent of dose history over 90-fold. Anchor: S17b, S8.
+### S18.6 Paid-reference positioning rule
+The chemotaxis chain's single paid reference (methylation-maintained effective affinity) sits at exactly the relay that absorbs the upstream rupture; baseline restoration measured at 2.2% residual, independent of dose history over 90-fold. Anchor: S17b, S8.
 
-S18.7 *The chemotaxis rupture itself.* No standard MWC-plus-perfect-adaptation parameter set is simultaneously consistent with the amplitude table and the per-cell midpoint distribution of Moore et al.; eight minimal repair paths excluded; the minimal form of the active-retuning candidate excluded twice over. Anchor: S8, S8.7(i).
+### S18.7 The chemotaxis rupture itself
+No standard MWC-plus-perfect-adaptation parameter set is simultaneously consistent with the amplitude table and the per-cell midpoint distribution of Moore et al.; eight minimal repair paths excluded; the minimal form of the active-retuning candidate excluded twice over. Anchor: S8, S8.7(i).
 
-S18.8 *Wnt breakdown boundary quantified.* The fold-change plateau of beta-catenin signalling holds within +/-5% across 0-50 mM LiCl and breaks down at 50-58 mM, localising the boundary the source study stated qualitatively. Anchor: S16.
+### S18.8 Wnt breakdown boundary quantified
+The fold-change plateau of beta-catenin signalling holds within +/-5% across 0-50 mM LiCl and breaks down at 50-58 mM, localising the boundary the source study stated qualitatively. Anchor: S16.
 
-S18.9 *Nuclear density as a free geometric counter.* In the Drosophila gap-gene readout, the observed scaling-coefficient profile selects the nuclear-density degradation model: length normalisation supplied by counting nuclei, a class-I carrier with zero maintained reference. Anchor: S15.
+### S18.9 Nuclear density as a free geometric counter
+In the Drosophila gap-gene readout, the observed scaling-coefficient profile selects the nuclear-density degradation model: length normalisation supplied by counting nuclei, a class-I carrier with zero maintained reference. Anchor: S15.
 
-S18.10 *The p53 clock pins time-constant ratios, not absolute concentrations.* Under joint rescaling the characteristic frequency and closed-form period are machine-precision invariant; event-time functionals survive arbitrary monotone amplitude rescaling exactly. Anchor: S14.6.
+### S18.10 The p53 clock pins time-constant ratios, not absolute concentrations
+Under joint rescaling the characteristic frequency and closed-form period are machine-precision invariant; event-time functionals survive arbitrary monotone amplitude rescaling exactly. Anchor: S14.6.
 
 **Field level.**
 
-S18.11 *Database-level identity failures.* 21.5% of 17,987 archived ligand pairs in the Biased Signaling Atlas violate the operational model's cell-level identity by more than 0.3 dex (4.2% by more than 1 dex); 15 of 66 multi-ligand papers exceed 0.3 dex median deviation; inclusion choices silently dropped the fractured muOR column, changing the evidence base of a published conclusion. Anchor: S9.
+### S18.11 Database-level identity failures
+21.5% of 17,987 archived ligand pairs in the Biased Signaling Atlas violate the operational model's cell-level identity by more than 0.3 dex (4.2% by more than 1 dex); 15 of 66 multi-ligand papers exceed 0.3 dex median deviation; inclusion choices silently dropped the fractured muOR column, changing the evidence base of a published conclusion. Anchor: S9.
 
 
 ## S19. The cancer chain (P11-P16): pre-registration, verdicts and registered limitations
