@@ -1,0 +1,47 @@
+Font 'default' does not have a glyph for '\u2212' [U+2212], substituting with a dummy symbol.
+Font 'default' does not have a glyph for '\u2212' [U+2212], substituting with a dummy symbol.
+Font 'default' does not have a glyph for '\u2212' [U+2212], substituting with a dummy symbol.
+Font 'default' does not have a glyph for '\u2212' [U+2212], substituting with a dummy symbol.
+Font 'default' does not have a glyph for '\u2212' [U+2212], substituting with a dummy symbol.
+Font 'default' does not have a glyph for '\u2212' [U+2212], substituting with a dummy symbol.
+Font 'default' does not have a glyph for '\u2212' [U+2212], substituting with a dummy symbol.
+Font 'default' does not have a glyph for '\u2212' [U+2212], substituting with a dummy symbol.
+========================================================================
+代码 9：NF-κB 尖峰模式剂量扫描审计（Krishna 2006 标准 spiky 参数组）
+========================================================================
+
+[1] 平衡支 Hopf 边界（解析求解 + 有限差分 Jacobian）
+     低 Hopf: C_H = 0.00589，λ = -0.0000+4.2951j
+     高 Hopf: C_H = 0.16741，λ = -0.0000+17.1915j
+     平衡根数抽查（6 个 C）：[1, 1, 1, 1, 1, 1]（全 1 → 平衡支唯一）
+
+[2] 绝热延拓上/下扫：110 点 × 双向（约 2 分钟）
+     上/下扫最大振幅差 = 2.05e-03 → 迟滞宽度 = 0（单一分支）
+
+[3] 双初值双稳探测（平衡邻域 vs 尖峰环状态）
+     C=0.008  A(初值①)=0.2727  A(初值②)=0.2728  → 同一吸引子
+     C=0.020  A(初值①)=0.5504  A(初值②)=0.5503  → 同一吸引子
+     C=0.035  A(初值①)=0.6212  A(初值②)=0.6213  → 同一吸引子
+     C=0.050  A(初值①)=0.3661  A(初值②)=0.3661  → 同一吸引子
+     C=0.070  A(初值①)=0.3609  A(初值②)=0.3609  → 同一吸引子
+     C=0.095  A(初值①)=0.3648  A(初值②)=0.3648  → 同一吸引子
+     C=0.120  A(初值①)=0.3339  A(初值②)=0.3339  → 同一吸引子
+     C=0.150  A(初值①)=0.2160  A(初值②)=0.2160  → 同一吸引子
+     结论：8/8 同一吸引子——无共存（勘误代码6头注的折叠/双稳观察）
+
+[4] 低起始细扫（canard 爆炸检测）
+     振幅自 Hopf 连续生长；近垂直段（canard）位于 C ≈ 0.00600（A: 0.061 → 0.175）
+
+[5] 三签名汇总（spiky 模式）
+     (i) 起始连续性：连续（超临界 Hopf @ 0.00589）+ canard 近垂直段
+     (ii) 迟滞宽度：0（上/下扫逐点重合，双初值无共存）
+     (iii) α：上升肢 = +0.549（窗口 [0.009,0.032]）；含 canard 窗口 = +0.844；下降肢 = -0.438
+     周期：极差 0.37–3.20（约 8.8 倍——非不变；高频段有频率编码色彩）
+     尖峰性：C=0.035 半峰以上时间占比 = 10.8%（确为尖峰波形）
+
+     ★ 落点判定：三签名（连续起始；零迟滞；α=+0.56>0.3）→ NF 模拟区，
+        与 soft 模式（代码6，α=0.714）同区——§4 落点对参数体制稳健。
+
+图已保存：/mnt/agents/output/NFκB尖峰模式审计图.png
+
+完成。所有结果如实报告；单支审计可行，代码6 头注的折叠观察已勘误为长瞬态伪影。

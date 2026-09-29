@@ -2,9 +2,15 @@
 
 **Scale-free statistics are the currency of cellular communication: an audit across four signalling systems**
 
-**SI v06 (2026-09-28): adds S19 (the cancer chain, P11-P16). Earlier content unchanged from v05 (2026-09-23).**
+Huan Li^1^
 
-Companion to Nature_main_v05_2026-09-23.md (post-audit formal version). Section numbering follows SI_skeleton_v03_2026-09-23.md (archived under `_archive_old_versions/`); the ledger in S7.0 uses the corrected fourteen-clause count. Every number in this document is transcribed from the archived verdict cards and script outputs listed in S0; nothing is quoted from memory.
+^1^Shanghai Liangta Biotech Co., Ltd., Shanghai 201899, P. R. China
+
+Corresponding author: HL@liangtabio.com (H.L)
+
+
+
+Companion to the main text. Every number in this document is transcribed from the archived verdict cards and script outputs listed in S0; nothing is quoted from memory.
 
 ---
 
@@ -426,7 +432,6 @@ independent of $D$ since $D^2$ cancels; correlated errors move it earlier, $L^{*
 
 ---
 
-*End of sections S1 and S5 (draft). All numbers transcribed from the archived sources listed in the header; open items and recorded corrections are flagged in place.*
 
 ---
 
@@ -970,4 +975,3 @@ KRAS-G13D, an allele of intermediate biochemical strength untested in any compar
 ### S19.7 Fig6 decay side-evidence (exploratory)
 
 ERK deactivation half-times from the archived decay fits of ref. 77 (Fig. 6; EGF arm, r2 > 0.8 replicates): KrasWT 6.2 min versus G12D 4.7, G12V 2.8, Q61R 2.8, BRAF-V600E 5.3 min. Mutant lines deactivate faster, consistent with phosphatase/feedback renormalisation compensating the compressed channel. Six replicates per line; registered as directional side evidence only.
-

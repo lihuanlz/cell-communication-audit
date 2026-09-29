@@ -1,0 +1,185 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+代码61 逐行 Hill 陡峭度检验：不对称协同性猜想的判决实验 v1.0.0
+================================================
+任务：判决"不对称协同性"猜想——若 T 态协同弱（N≈2–4，解释 K1/2
+Weber 线）而 R 态协同强（N≈12–39，解释幅值表），则实测剂量曲线的
+表观 Hill 系数应超出任何单 N MWC 模型在同一浓度窗口内能产生的范围。
+
+设计（替代用户原始"按幅值分箱测局部斜率"方案——该方案被饱和曲线
+两端天然平缓的几何假象污染，见 §22）：
+  §1 逐背景档对全体中位剂量曲线做 Hill 拟合 da(T)=dmax·Tⁿ/(Kⁿ+Tⁿ)，
+     (a) dmax 自由（三参数）；(b) dmax=1 固定（饱和脉冲校准含义）。
+  §2 模型侧对照：文献参数 (Ki=0.81,Ka=200,N=6) 与幅值最优参数
+     (Ki=30.7,Ka=133,N=39) 的标准单 N MWC，在完全相同的浓度窗口
+     上做同样的 Hill 拟合，给出单 N 模型的表观 n 包络。
+  判据：若实测 n(B) 系统性超出包络 → 不对称协同性获支持；
+        若落在包络内 → 证伪，本分支封板。
+
+结果（v1.0.0 实跑）：
+  实测 n(dmax自由): 0.91 / 1.40 / 1.67 / 2.34 / 3.14 / 13.63 / 16.85
+                    (B = 0 / 0.01 / 0.1 / 0.3 / 1 / 10 / 100)
+  实测 n(dmax=1):   0.69 / 0.79 / 0.87 / 1.09 / 1.29 / 3.12 / 2.11
+                    （高 B 行 R²=0.81/0.69，固定渐近线 Hill 在高 B 拟合差）
+  文献模型 n:       1.96 / 2.01 / 2.47 / 3.35 / 5.78 / 11.76 / 12.10
+  幅值最优模型 n:   1.25 / 1.28 / 1.51 / 1.98 / 3.52 / 14.28 / 26.33
+  → 实测 n(B) 的上升（~1→17）与单 N MWC 同窗口表观 n 的上升同型，
+    且处处落在两个单 N 模型包络之内或之下。
+  → 不对称协同性猜想证伪：不需要两个 N。本分支封板。
+
+注：高 B 处模型 dmax_app→0 是窗口只覆盖增量曲线底部所致（§21 尾部
+统计警告的同源现象），不影响 n 的包络比较。
+
+数据：Moore 2024 Dryad doi:10.5061/dryad.nvx0k6dzz（CC0）
+运行：python3 代码61_逐行Hill陡峭度检验.py
+依赖：numpy, scipy, 代码54（同目录）
+"""
+
+import os
+import importlib.util
+import warnings
+from collections import defaultdict
+
+import numpy as np
+import scipy.io as sio
+from scipy.optimize import curve_fit
+
+warnings.filterwarnings("ignore")
+
+HERE = os.path.dirname(os.path.abspath(__file__))
+spec = importlib.util.spec_from_file_location(
+    "c54", os.path.join(HERE, "代码54_K12联合拟合_断裂度定量.py"))
+c54 = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(c54)
+
+ROOT = c54.ROOT
+FILES = c54.FILES
+
+ASTAR = 1.0 / 3.0
+LAM = np.log(1.0 / ASTAR - 1.0)
+
+def gL(L, Ki, Ka):
+    L = np.maximum(L, 0.0)
+    return np.log((1 + L / Ki) / (1 + L / Ka))
+
+def a_post(L, Ki, Ka, N):
+    return 1.0 / (1.0 + np.exp(LAM + N * gL(L, Ki, Ka)))
+
+def mwc_da(Ts, B, Ki, Ka, N):
+    """单 N 标准 MWC 的增量曲线（amax=1, a*=1/3 固定）。"""
+    return a_post(B, Ki, Ka, N) - a_post(np.asarray(Ts), Ki, Ka, N)
+
+def hill(T, K, n, dmax):
+    T = np.asarray(T)
+    return dmax * T**n / (K**n + T**n)
+
+def hill_fix1(T, K, n):
+    return hill(T, K, n, 1.0)
+
+# ---------------------------------------------------------------
+# 数据：逐细胞 (T=B+F, da) 池化（F=sv−B，与代码59修正版一致）
+# ---------------------------------------------------------------
+def pooled_curves():
+    out = defaultdict(list)
+    for name, bg in FILES.items():
+        B = 100.0 if name == "230831_FOV2" else float(bg)
+        p = os.path.join(ROOT, name + ".mat")
+        try:
+            rd = sio.loadmat(p)["reorgData"]["resp_data"][0, 0]
+        except Exception:
+            continue
+        for ci in range(rd.shape[1]):
+            try:
+                a = rd["a"][0, ci].astype(float)
+                s = rd["s"][0, ci].astype(float)
+            except Exception:
+                continue
+            if a.shape != (35, 20) or s.shape != (35, 20):
+                continue
+            lev = defaultdict(list)
+            for row in range(35):
+                sr = s[row]
+                sv = float(sr.max())
+                stim = np.where(sr >= sv - 1e-9)[0]
+                pre = np.arange(0, stim[0]) if len(stim) else None
+                if pre is None or len(pre) < 4 or len(stim) < 6:
+                    continue
+                F = sv - B                    # 同配体文件 s 含背景
+                if F <= 0:
+                    continue
+                lev[round(F, 4)].append(float(np.median(a[row, pre[-4:]]))
+                                        - float(np.median(a[row, stim[-6:]])))
+            good = {k: float(np.median(v)) for k, v in lev.items() if len(v) >= 4}
+            if len(good) >= 3:
+                for F, v in good.items():
+                    out[B].append((B + F, v))
+    return out
+
+def fit_hill(Ts, das, fix_dmax1=False):
+    if fix_dmax1:
+        popt, _ = curve_fit(hill_fix1, Ts, das,
+                            p0=[np.median(Ts), 2.0], maxfev=20000)
+        K, n, dmax = popt[0], popt[1], 1.0
+        pred = hill_fix1(Ts, K, n)
+    else:
+        popt, _ = curve_fit(hill, Ts, das,
+                            p0=[np.median(Ts), 2.0, max(das)], maxfev=20000)
+        K, n, dmax = popt
+        pred = hill(Ts, K, n, dmax)
+    ss = 1 - np.sum((das - pred)**2) / np.sum((das - das.mean())**2)
+    return K, n, dmax, ss
+
+def main():
+    pooled = pooled_curves()
+
+    print("§1 实测逐行 Hill 拟合（全体中位曲线，T=B+F 轴）")
+    print(f"{'B':>7} {'n(自由)':>8} {'K(自由)':>9} {'dmax':>6} {'R²':>6}"
+          f" | {'n(dmax=1)':>10} {'K(dmax=1)':>10} {'R²':>6}")
+    rows = {}
+    for B in sorted(pooled):
+        pts = np.array(pooled[B])
+        Tlev = sorted(set(np.round(pts[:, 0], 4)))
+        med = np.array([np.median(pts[np.round(pts[:, 0], 4) == t, 1]) for t in Tlev])
+        Tlev = np.array(Tlev)
+        rows[B] = (Tlev, med)
+        K1, n1, d1, r1 = fit_hill(Tlev, med)
+        K2, n2, _, r2 = fit_hill(Tlev, med, fix_dmax1=True)
+        print(f"{B:7.2f} {n1:8.2f} {K1:9.2f} {d1:6.3f} {r1:6.3f}"
+              f" | {n2:10.2f} {K2:10.2f} {r2:6.3f}")
+
+    print("\n§2 模型侧同窗口表观 Hill 系数（dmax 自由）")
+    print(f"{'B':>7} {'文献N=6':>9} {'幅值最优N=39':>13}")
+    for B in sorted(rows):
+        Ts, _ = rows[B]
+        line = f"{B:7.2f}"
+        for Ki, Ka, N in [(0.81, 200.0, 6.0), (30.7, 133.0, 39.0)]:
+            Dm = mwc_da(Ts, B, Ki, Ka, N)
+            popt, _ = curve_fit(hill, Ts, Dm,
+                                p0=[np.median(Ts), 2.0, max(Dm)], maxfev=20000)
+            line += f" {popt[1]:9.2f}" if N == 6 else f" {popt[1]:13.2f}"
+        print(line)
+
+if __name__ == "__main__":
+    main()
+
+==================== 运行输出（v1.0.0 实跑） ====================
+§1 实测逐行 Hill 拟合（全体中位曲线，T=B+F 轴）
+      B    n(自由)     K(自由)   dmax     R² |  n(dmax=1)  K(dmax=1)     R²
+   0.00     0.91      1.87  0.607  0.995 |       0.69       6.63  0.990
+   0.01     1.40      1.11  0.513  0.992 |       0.79       4.89  0.965
+   0.10     1.67      1.11  0.510  0.991 |       0.87       4.41  0.954
+   0.30     2.34      1.35  0.484  0.999 |       1.09       4.48  0.946
+   1.00     3.14      2.00  0.455  0.990 |       1.29       5.66  0.919
+  10.00    13.63     11.58  0.472  0.997 |       3.12      17.33  0.809
+ 100.00    16.85    106.49  0.430  0.997 |       2.11     184.08  0.688
+
+§2 模型侧同窗口表观 Hill 系数（dmax 自由）
+      B     文献N=6      幅值最优N=39
+   0.00      1.96          1.25
+   0.01      2.01          1.28
+   0.10      2.47          1.51
+   0.30      3.35          1.98
+   1.00      5.78          3.52
+  10.00     11.76         14.28
+ 100.00     12.10         26.33
