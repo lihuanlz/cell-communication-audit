@@ -18,7 +18,7 @@ Companion to the main text. Every number in this document is transcribed from th
 
 ### S0.1 Deposit map
 
-The deposit snapshot (github.com/lihuanlz/cell-communication-audit; archived at Zenodo, doi:10.5281/zenodo.23008825) is organised by function:
+The deposit snapshot (github.com/lihuanlz/cell-communication-audit; archived at Zenodo, doi:10.5281/zenodo.23008824) is organised by function:
 
 - `01_manuscript/`: manuscript and SI, markdown sources of record and docx renders.
 - `02_figures/`: every main and Extended Data figure (PNG and SVG).
