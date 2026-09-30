@@ -325,7 +325,7 @@ No new experimental data were generated. Public datasets re-analysed: Batchelor 
 
 42. Kuznetsov, Y. A. *Elements of Applied Bifurcation Theory* 3rd edn (Springer, 2004).
 
-43. Klein Herenbrink, C. et al. The role of kinetic context in apparent biased agonism at G protein-coupled receptors. *Nat. Commun.* **7**, 10842 (2016).
+43. Klein Herenbrink, C. et al. The role of kinetic context in apparent biased agonism at GPCRs. *Nat. Commun.* **7**, 10842 (2016).
 
 44. Wingler, L. M. et al. Angiotensin and biased analogs induce structurally distinct active conformations within a GPCR. *Science* **367**, 888–892 (2020).
 
@@ -404,7 +404,7 @@ No new experimental data were generated. Public datasets re-analysed: Batchelor 
 
 81. Sanchez-Vega, F. et al. Oncogenic signaling pathways in The Cancer Genome Atlas. *Cell* **173**, 321–337 (2018).
 
-82. Finzel, A. The p53-dependent DNA damage response in single cells. PhD thesis, Freie Universität Berlin (2021).
+82. Finzel Pérez, A. Upstream control and downstream responses of p53 are involved in its tumor suppression functions upon genotoxic stress. PhD thesis, Freie Universität Berlin (2016).
 
 ---
 
