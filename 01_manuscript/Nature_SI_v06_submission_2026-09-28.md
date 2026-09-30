@@ -4,7 +4,7 @@
 
 Huan Li
 
-Independent Researcher, Shanghai 201899, P. R. China
+Shanghai Liangta Biotech Co., Ltd., Shanghai 201899, P. R. China
 
 Corresponding author: HL@liangtabio.com (H.L)
 
