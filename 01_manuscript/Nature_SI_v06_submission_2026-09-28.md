@@ -918,7 +918,7 @@ Whether the gain-distribution confinement of S17 generalises was tested under a 
 
 ## S18. Complete ledger of spin-off discoveries (2026-09-27)
 
-Eleven findings produced by the audits that are independent of the main theorem. Each is stated with its evidence anchor and status. Main-text Table 7 presents the five sharpest; this ledger is the complete record.
+Eleven findings produced by the audits that are independent of the main theorem. Each is stated with its evidence anchor and status. Main-text Table 9 presents the five sharpest; this ledger is the complete record.
 
 **Methodology level.**
 
