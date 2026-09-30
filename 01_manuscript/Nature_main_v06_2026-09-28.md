@@ -412,7 +412,7 @@ No new experimental data were generated. Public datasets re-analysed: Batchelor 
 
 We also thank T. E. Gillies, M. Pargett, J. G. Albeck, F. McCormick and colleagues for the isogenic Ras/Raf single-cell EKAR3 archive with per-condition source data complete enough for information-theoretic reanalysis; A. Jimenez-Asins, G. Lahav and colleagues for releasing the matched-exposure p53 transcriptome and proteome repository; Y. Wang, J. T. Poirier and colleagues for depositing the EGFR saturation-mutagenesis codon counts (GEO GSE305057); and the cBioPortal and TCGA Pan-Cancer Atlas teams for maintaining open, harmonised tumour-level molecular data.
 
-**Competing interests.** The authors declare no competing interests.
+**Competing interests.** The author declares no competing interests. This preprint reports an independent research project of the author; it received no dedicated funding and is not associated with any product or service of the affiliation.
 
 ---
 
