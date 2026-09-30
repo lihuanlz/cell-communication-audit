@@ -148,7 +148,7 @@ Before any system audit, the three legs and the identity were checked numericall
 
 ---
 
-## S2. PdPC static-sensor audit
+## S2. PdPC static-sensor analysis
 
 The phosphorylation–dephosphorylation cycle (PdPC; Goldbeter–Koshland cycle) converts an input activity ratio into a steady-state modified fraction. With substrate total $S_T$, kinase $E_1$ (maximum rate $V_1$), phosphatase $E_2$ ($V_2$), and modified fraction $u$, the symmetric-Michaelis steady state obeys
 
@@ -332,7 +332,7 @@ $$\lambda_7/\lambda_1 \;=\; 4.7 \times 10^{-19} \quad (\text{read as the upper b
 
 below the floor of double precision. Because this direction is already pressed against the finite-difference resolution floor, only the upper bound is reportable; an exact condition number would require $M \gg 4000$ or analytic sensitivities, and this limitation is registered as such. The content: first-moment (mean-type) pulse statistics are exactly blind to the fluctuation-generating noise; information about $\sigma$ lives exclusively in second-moment, dispersion-type observables.
 
-### S4.4 Audit step 3 closure: zero direction and Cramér–Rao attainment (script 13)
+### S4.4 Analysis step 3 closure: zero direction and Cramér–Rao attainment (script 13)
 
 The dynamic-encoder analogue of the static Fisher barrier closes audit step 3. With counting law $N(D) = \rho \ln(D_0(D)/D_c)$, $D_0 = 0.40 + 0.09 D$, per-dose counts $n \sim \mathrm{Poisson}(N)$ over $M = 200$ cells, amplitude observable $\bar y \sim \mathcal{N}(sA, \sigma^2)$ with $\sigma = 15\%\, sA$, and parameter vector $\theta = (\ln D_c, \ln \rho, \ln A, \ln s)$ (structural parameters $D_c, \rho$; scale nuisance $s$): (i) in the counting-only digital limit the Fisher spectrum is $\lambda = [26935, 1898, 0, 0]$, exactly two nonzero directions; (ii) adding the amplitude observable adds exactly one nonzero direction (the product $sA$), $\lambda = [106667, 26935, 1898, 0]$, and the zero-direction eigenvector $(0,0,1,-1)/\sqrt 2$ coincides with the degeneracy-group orbit tangent at cosine $1.000000$; (iii) Monte Carlo estimation ($R = 400$, Poisson MLE) against the Cramér–Rao bound gives ratios $1.24$ ($\ln \rho$), $1.36$ ($\ln D_c$), and $0.95$ for the estimable combination $\ln(sA)$, while fixing $s$ at a wrong value leaves the likelihood invariant under the compensation $\hat A = sA/s$: the whole group orbit is degenerate. The structural block $(\ln D_c, \ln \rho)$ has condition number $14.2$ (same order as the PdPC shape block, $\sim 30$); the scale direction is an exact zero ($\lambda_{\min}/\lambda_{\max} = 0.00\mathrm{e}{+00}$, not a floating-point approximation). The dynamic encoder's Fisher barrier is isomorphic to the static sensor's: identifiable counting structure against unidentifiable amplitude scale. All three predictions of the conditional digital-limit theorem are verified numerically on this circuit.
 
@@ -435,11 +435,11 @@ independent of $D$ since $D^2$ cancels; correlated errors move it earlier, $L^{*
 
 ---
 
-## S6. Cross-system consistency and the NF-κB/ERK audit record
+## S6. Cross-system consistency and the NF-κB/ERK analysis record
 
 This section collects the model-side and literature-side audits that place the four main-text systems in a common signature frame, and records the two hypothesis-level adjudications (codes 12 and 15) that the framework ran against itself in the NF-κB line. Source archive: `08_audit_trail/01_cell_line_1/code_and_figures/` codes 6/8/9/11/12/15 with their run logs, and `08_audit_trail/01_cell_line_1/code_and_figures/public_data_audit_three_dataset_ruling_report.md` (2026-08-04).
 
-### S6.1 NF-κB oscillator audit (Krishna et al. model^55^, soft and spiky regimes)
+### S6.1 NF-κB oscillator analysis (Krishna et al. model^55^, soft and spiky regimes)
 
 The Krishna et al.^55^ three-variable minimal NF-κB oscillator was audited under the three-signature protocol (onset continuity, hysteresis width, range sensitivity α) in both published parameter regimes.
 
@@ -625,7 +625,7 @@ Source archive: `08_audit_trail/03_cell_line_3/results/report_cell_line3_scale_d
 
 ---
 
-## S9. GPCR meta-audit (main-text Results 7)
+## S9. GPCR meta-analysis (main-text Results 7)
 
 ### S9.1 Admission-ticket rule and the PTH1R rejection
 
@@ -675,7 +675,7 @@ Source archive: `08_audit_trail/04_cell_line_4/_archive/results/report_cell_line
 
 ---
 
-## S10. Audit trail
+## S10. Record trail
 
 ### S10.1 Artefact chain
 
@@ -685,7 +685,7 @@ Each adjudication produced the same artefact chain, each link a file: pre-regist
 
 The programme's failures are archived with the same discipline as its hits. The inventory includes: falsified adjudication clauses (P2-1, P2-2, P3-3, P4-1, P4-3, P5-1; S7); power-limited intermediates reported rather than resolved post hoc (P3-1, P4-2, P5-2, P6, P7); the two rejected NF-κB repair patches (codes 12, 15; S6.2); the ERK static-extrapolation falsification, which reversed an earlier claim of our own framework and is recorded in the version history (S6.3); three double-recorded chemotaxis pipeline errors (codes 55, 57, 59; S8.3); the PTH1R admission-ticket rejection, retained as a boundary-artefact teaching case (S9.1); and the framework's own bug lineage (six internal bugs and sixteen external-review items across cascade-framework versions v2.0–v4.2, plus Bug 7 and the chemotaxis analyst-normalisation Bug 8; S1.8, S1.9).
 
-### S10.3 Version history as audit trail
+### S10.3 Version history as record trail
 
 The absorbed NC manuscript lineage (v0.9–v0.11) carries dated change logs; the cascade-framework lineage (v2.0–v4.2) carries per-version bug and review-item appendices. Both lineages are unpublished elsewhere and are absorbed here in full (S11). The change logs are part of the deposit, so the path by which each claim entered, moved, or was retracted is inspectable.
 
@@ -826,7 +826,7 @@ K3 and K4 are registered as *consistency closures*, not independent predictions:
 
 **K2, pulse width (code 91).** Simulated FWHM of $2.78$ h, decomposing into a plateau segment of 0.79 h plus a collapse tail of 1.99 h dominated by Mdm2 recovery. The width is dose-independent (CV of $0.055$ across the dose grid). Perturbation boundaries registered: Wip1 at 85% widens pulses by +30% (against the invariance wording in Mönke et al. S9, registered as T6), and Wip1 at 70% locks the model into the sustained state.
 
-### S14.3 Full-cascade audit and first-pulse timing budget (code 90)
+### S14.3 Full-cascade analysis and first-pulse timing budget (code 90)
 
 Fourteen loops of the DSB $\to$ ATM $\to$ p53 $\to$ Mdm2/Wip1 cascade were audited for closure between the molecular constants and the cascade-level observables: 8 closed, 4 in registered tension, 3 gaps at the time of audit; gap L13 was subsequently closed by code 91, and L12 belongs to the same family as boundary T6. The first-pulse delay decomposes as a sensing segment of 0.83 h ($\gamma$H2AX formation 0.5 h + ATM activation 0.19 h + p53 threshold crossing 0.14 h) plus a ramp segment of 2.38 h, totalling 3.21 h against the measured 2.5–3.0 h band: a borderline closure, registered as such. The temporal ordering of cascade events is consistent with the measured sequence.
 
@@ -846,7 +846,7 @@ L5 closure attempt (2026-09-27, negative). The $D_c$ tension (archived 0.261 Gy 
 
 Three correspondences between Belgacem's^15^ logistic substitution and the scale-invariance framework of this paper were verified at machine precision or better. (i) Hill-to-logistic identity: $\mathrm{Hill}_n(x) = x^n/(x^n + \theta^n)$ is exactly $\mathrm{logistic}_n(\ln x)$; the logit linearisation is the same algebraic operation as the log-map lemma of the S5.1 proof sketch (Lemma DL1; max error $2.2\times10^{-16}$ over three parameter sets). (ii) Concentration-scale freedom of the clock: under the joint rescaling $(\kappa, \theta, x) \to s(\kappa, \theta, x)$, $\lambda \to \lambda/s$, the characteristic frequency $\omega_c$ and closed-form period are invariant to machine precision while the equilibrium occupancy $f(x^*)$ is scale-identical; the p53 clock pins time-constant ratios, not absolute concentrations. (iii) Event-time functionals survive arbitrary monotone amplitude rescaling: applying $y = x^{1.7} + 0.3\sqrt{x}$ to the simulated p53 trace shifts all seven pulse-peak times by exactly $0.00$ h and leaves the period at 5.480166666666666 h, while the amplitude CV moves from 0.308 to 0.438. Amplitude statistics are a coordinate convention; event times are the physical content. This is the same separation as the main-text timing-versus-amplitude channel census, here shown to be a mathematical property of the dynamics rather than a property of the estimator.
 
-## S15. Morphogen-gradient scaling audit (Bicoid to gap genes, 2026-09-27)
+## S15. Morphogen-gradient scaling analysis (Bicoid to gap genes, 2026-09-27)
 
 **Data and provenance.** Per-boundary precision and scaling tables of Morton de Lachapelle and Bergmann^71^ (PMC2858443, supplementary Datasets S1 and S2; 84 boundaries across Kr, Gt, Hb and Eve stripes 1–7, at 1$\times$, 2$\times$ and 4$\times$ bcd dosage, more than $150$ embryos) were retrieved from the publisher archive on 2026-09-27 and parsed verbatim to CSV; row-level correspondence between the two tables was asserted before analysis (analysis script and archived CSVs in the project repository, morphogen line).
 
@@ -872,7 +872,7 @@ The absolute-precision arm designated in S15(iv) was executed as pre-registered 
 
 **Cross-regime reconciliation (verified against primary sources, 2026-09-27).** (i) Across species, the relative length constant is a structural constant: in Gregor et al.^75^ the per-species distributions of $\lambda/L$ (27 L. sericata, 35 D. melanogaster, 18 D. busckii embryos) have means agreeing within 2%, while dextran diffusion constants vary only slightly and the nuclear count is fixed ($\log_2 N_{\mathrm{nuc}} = 12.8 \pm 0.2$). The same source proposes the mechanism the framework expects: if degradation occurs dominantly within nuclei, the effective lifetime tracks nuclear density, which scales with embryo size because the nuclear count is fixed; the inferred lifetime retuning (about 3 min in D. busckii to 32 min in L. sericata) is therefore supplied by counting geometry, not by per-species molecular recalibration. (ii) Within species, the mean-level check on the size-selected inbred lines of Cheung et al.^76^ is directionally consistent: with $L$ ratio $1.236 \pm 0.068$, the nuclear-density prediction $\lambda \propto L$ gives 126.8 µm against the observed $141.8 \pm 19.1$ µm ($0.78\sigma$), and the reported $\lambda/L$ values are indistinguishable ($0.22 \pm 0.03$ vs $0.22 \pm 0.05$). The residual $+12\%$ is in the direction of the documented confound in that line (an abnormally broadened bcd mRNA source, threefold signal area, not generic to large embryos), and a $\lambda \propto L^2$ alternative sits equally close ($-0.78\sigma$); the check is registered as directional, mean-level only, confound on record. (iii) The two regimes are thereby compatible with one statement: molecular constants (diffusivity, per-nucleus degradation) are fixed; what rescales the anchor across size regimes is nuclear-counting geometry, a class-I carrier.
 
-## S16. Wnt/β-catenin fold-change audit (Goentoro 2009, 2026-09-27)
+## S16. Wnt/β-catenin fold-change analysis (Goentoro 2009, 2026-09-27)
 
 **Data and provenance.** Goentoro and Kirschner^72^ (Mol. Cell 36, 872–881; PMC2921914) provide no machine-readable supplementary data; the audit digitised Fig. 4F (fold-change of β-catenin signalling versus LiCl dose, normalised to control) from the publisher figure. Green marker centroids were extracted programmatically from the 468×599 archive image (panel upscaled 4×) and mapped through a two-point log-linear calibration (y: 1 and 0.1 gridlines; x: 0 and 80 mM ticks). Registered precision: ±0.05 relative fold-change, ±2 mM; sufficient for plateau and breakdown claims, not for sub-10% statements. Digitised values are archived in the project repository (Wnt line, `fig4F_digitized.csv`; verdict card `verdict_Goentoro2009_foldchange_2026-09-27.md`).
 
@@ -882,7 +882,7 @@ The absolute-precision arm designated in S15(iv) was executed as pre-registered 
 
 **Registered limitations.** Single-source, single readout arm (293T reporter arm of one study); high-resolution figure retrieval was blocked by the publisher's anti-crawl challenge and the audit used the standard-resolution archive image; independent cross-laboratory replication of the FCD plateau is the designated follow-up.
 
-## S17. Two-stage cascade audit: M3R-ACh to Ca2+ (Keshelava et al. 2018, 2026-09-27)
+## S17. Two-stage cascade analysis: M3R-ACh to Ca2+ (Keshelava et al. 2018, 2026-09-27)
 
 **Data and provenance.** Supplementary Data 3 of Keshelava et al.^20^ (PMC5830429; `peak_values.csv`, per-cell Fura-2 ratio peaks, baseline-subtracted by the authors' pipeline) was parsed verbatim: 27 experiments, 433 cells each stimulated at seven acetylcholine concentrations with five repetitions; 353 cells with complete 7x5 matrices entered analysis. Row-to-dose mapping was verified empirically: the population mean peak declines monotonically across rows (0.215 to 0.018 ratio units), the last row sits at baseline consistent with the paper's statement that single cells typically do not respond to the lowest ACh concentrations, and within-row repetitions drift upward (ratio 1.03-1.22), excluding an adaptation artefact. Absolute dose values follow the Methods ladder [10, 3, 1.5, 0.75, 0.5, 0.25, 0.1] uM; a provenance discrepancy is registered: the authors' Supplementary Data 2 MATLAB script carries a legacy ladder [4, 2, 1, 0.5, 0.25, 0.13, 0.06]. All statistics reported here except absolute EC50 values are invariant under monotone relabelling. Analysis script and outputs: project repository, cascade line (`cascade_audit_gpcr_ca.py`, `cascade_audit_results.json`).
 
@@ -898,7 +898,7 @@ The absolute-precision arm designated in S15(iv) was executed as pre-registered 
 
 **Registered limitations.** Single ligand (ACh), single receptor (M3R), single cell system; a second cascade instance is registered as follow-up (candidate: the three-stage chemotaxis chain, receptor cluster to CheY to motor, archive in hand). The legacy-ladder discrepancy noted above moves no conclusion except absolute EC50 quoting.
 
-### S17b. Chemotaxis cascade relay: baseline-restoration audit (Moore 2024 archive, 2026-09-27)
+### S17b. Chemotaxis cascade relay: baseline-restoration analysis (Moore 2024 archive, 2026-09-27)
 
 **Data and provenance.** The Moore et al. FRET archive (Dryad doi:10.5061/dryad.nvx0k6dzz; 48 .mat files) stores per-cell data as 35 events x 20 samples: each event spans one 40 s attractant pulse onset, with 10 samples (5 s) of pre-onset OFF baseline and 10 samples (5 s) of post-onset response. The intra-pulse adaptation plateau is not part of the export (per-cell traces carry a 35 s gap over the sustained-pulse period); what the archive supports is a history-dependence test of baseline restoration across the 5 s washout between pulses. 2,217 cells and 77,595 pulse events passed structural checks. One engineering trap is registered: the stimulus channel is stored as unsigned 8-bit integers, so downward stimulus transitions wrap around in naive differencing; the corrected pipeline is `chemotaxis_adaptation_audit.py` (cascade line, project repository).
 
@@ -927,7 +927,7 @@ The dispersion ratio $t_1/\mathrm{IPI}$ is bounded at 0.03-0.12 for any bare osc
 ### S18.3 The hysteresis protocol
 The second signature of the discrimination scheme has never been measured for p53 because all published dose series are one-directional scans; the two-way scan protocol is frozen with readout criteria, power analysis and registered risks. Anchor: S3.5.
 
-### S18.4 Audit-with-calibration method
+### S18.4 Analysis-with-calibration method
 The GPCR meta-audit measured its own false-positive rate on synthetic null batteries before issuing verdicts (code 72), survived common-mode calibration and jackknife (code 73), and ships a constraint-projection repair map (code 77) plus a one-coordinate model extension that resolves the muOR fracture outright (code 80). Anchor: S9.
 
 **Mechanism level.**
